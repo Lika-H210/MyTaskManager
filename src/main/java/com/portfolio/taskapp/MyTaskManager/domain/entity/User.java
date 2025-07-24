@@ -2,9 +2,15 @@ package com.portfolio.taskapp.MyTaskManager.domain.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "ユーザーを定義するエンティティクラス")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class User {
 
@@ -35,4 +41,5 @@ public class User {
   // DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   @Schema(description = "更新日時")
   private LocalDateTime updatedAt;
+
 }
