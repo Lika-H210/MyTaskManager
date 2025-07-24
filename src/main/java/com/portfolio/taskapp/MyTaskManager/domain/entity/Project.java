@@ -3,9 +3,15 @@ package com.portfolio.taskapp.MyTaskManager.domain.entity;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "プロジェクトを定義するエンティティクラス")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Project {
 

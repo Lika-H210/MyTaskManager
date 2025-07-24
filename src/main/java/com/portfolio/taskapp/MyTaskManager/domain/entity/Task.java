@@ -4,9 +4,15 @@ import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "タスクを定義するエンティティクラス")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class Task {
 
