@@ -25,14 +25,20 @@ repositories {
 }
 
 dependencies {
+	//Spring Boot
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	//Lombok
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+	//MySQL
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	//Tomcat
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	//Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	//H2(in memory DB)
+	testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
