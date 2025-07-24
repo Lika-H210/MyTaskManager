@@ -16,15 +16,15 @@ public class Task {
 
   // FOREIGN KEY (project_id) REFERENCES projects(id)
   @Schema(description = "所属プロジェクト")
-  private Project projectId;
+  private Integer projectId;
 
   // CHAR(36) NOT NULL
   @Schema(description = "UUID形式の公開ID")
   private String publicId;
 
   // parent_task_id INT REFERENCES tasks(id)
-  @Schema(description = "親タスク（サブタスクの場合）")
-  private Task parentTask;
+  @Schema(description = "親タスクのId(自身が親の場合はNull)")
+  private Integer parentTaskId;
 
   // VARCHAR(100) NOT NULL
   @Schema(description = "タスクの名前")
