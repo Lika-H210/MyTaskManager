@@ -18,7 +18,7 @@ public class User {
   @Schema(description = "ユーザーID（自動採番）")
   private Integer id;
 
-  // NOT NULL
+  // CHAR(36) NOT NULL UNIQUE
   @Schema(description = "UUID形式の公開ID")
   private String publicId;
 
@@ -26,7 +26,7 @@ public class User {
   @Schema(description = "ユーザー表示名")
   private String userName;
 
-  // VARCHAR(255) UNIQUE
+  // VARCHAR(255) NOT NULL UNIQUE
   @Schema(description = "メールアドレス（ユニーク）")
   private String email;
 

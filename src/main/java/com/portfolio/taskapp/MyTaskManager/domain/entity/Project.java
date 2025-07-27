@@ -23,7 +23,7 @@ public class Project {
   @Schema(description = "このプロジェクトの責任ユーザーのId")
   private Integer userId;
 
-  // CHAR(36) NOT NULL
+  // CHAR(36) NOT NULL UNIQUE
   @Schema(description = "UUID形式の公開ID")
   private String publicId;
 
