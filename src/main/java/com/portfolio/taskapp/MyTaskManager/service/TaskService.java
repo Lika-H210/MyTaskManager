@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.repository.TaskRepository;
+import java.util.Collections;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,10 @@ public class TaskService {
 
   public List<Project> getMyProject(String userPublicId) {
     Integer userId = repository.getUserId(userPublicId);
+    if (userId == null) {
+      //Todo:例外処理が返るように要修正（例外実装後）
+      return Collections.emptyList();
+    }
     return repository.getProjectList(userId);
   }
 
