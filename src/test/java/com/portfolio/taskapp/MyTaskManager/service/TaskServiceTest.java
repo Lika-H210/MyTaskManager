@@ -1,0 +1,39 @@
+package com.portfolio.taskapp.MyTaskManager.service;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.portfolio.taskapp.MyTaskManager.repository.TaskRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class TaskServiceTest {
+
+  @Mock
+  private TaskRepository repository;
+
+  private TaskService sut;
+
+  @BeforeEach
+  void setUp() {
+    sut = new TaskService(repository);
+  }
+
+  @Test
+  void 必要なrepositoryが呼び出せていること() {
+    String userPublicId = "00000000-0000-0000-0000-000000000000";
+    Integer userId = 999;
+
+    when(repository.getUserId(userPublicId)).thenReturn(userId);
+
+    sut.getMyProject(userPublicId);
+
+    verify(repository).getUserId(userPublicId);
+    verify(repository).getProjectList(userId);
+  }
+
+}
