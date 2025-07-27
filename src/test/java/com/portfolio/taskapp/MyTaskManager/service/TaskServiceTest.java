@@ -33,23 +33,23 @@ class TaskServiceTest {
     String userPublicId = "00000000-0000-0000-0000-000000000000";
     Integer userId = 999;
 
-    when(repository.getUserId(userPublicId)).thenReturn(userId);
+    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(userId);
 
     sut.getMyProject(userPublicId);
 
-    verify(repository).getUserId(userPublicId);
-    verify(repository).getProjectList(userId);
+    verify(repository).findUserIdByUserPublicId(userPublicId);
+    verify(repository).findProjectsByUserId(userId);
   }
 
   @Test
   void 存在しないユーザーの場合は早期リターンで空のリストが返されること() {
     String userPublicId = "00000000-0000-0000-0000-000000000000";
 
-    when(repository.getUserId(userPublicId)).thenReturn(null);
+    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(null);
 
     List<Project> actual = sut.getMyProject(userPublicId);
 
-    verify(repository, never()).getProjectList(any());
+    verify(repository, never()).findProjectsByUserId(any());
     assertThat(actual).isEmpty();
   }
 

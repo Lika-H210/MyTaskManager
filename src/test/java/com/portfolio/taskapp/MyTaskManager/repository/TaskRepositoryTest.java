@@ -16,7 +16,7 @@ class TaskRepositoryTest {
 
   @Test
   void ユーザーのpublicIdに紐づくid情報が返されること() {
-    Integer actual = sut.getUserId("5e8c0d2a-1234-4f99-a111-abcdef111111");
+    Integer actual = sut.findUserIdByUserPublicId("5e8c0d2a-1234-4f99-a111-abcdef111111");
 
     assertThat(actual).isEqualTo(1);
   }
@@ -24,7 +24,7 @@ class TaskRepositoryTest {
   @Test
   void userIdに紐づくプロジェクトがすべて取得できていること() {
     Integer userId = 1;
-    List<Project> actual = sut.getProjectList(userId);
+    List<Project> actual = sut.findProjectsByUserId(userId);
 
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)
