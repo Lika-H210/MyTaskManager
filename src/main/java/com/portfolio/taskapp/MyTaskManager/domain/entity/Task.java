@@ -24,7 +24,7 @@ public class Task {
   @Schema(description = "所属プロジェクト")
   private Integer projectId;
 
-  // CHAR(36) NOT NULL
+  // CHAR(36) NOT NULL UNIQUE
   @Schema(description = "UUID形式の公開ID")
   private String publicId;
 
@@ -44,17 +44,16 @@ public class Task {
   @Schema(description = "期限日")
   private LocalDate dueDate;
 
-  // NOT NULL
-  @Schema(description = "見積もり時間（単位:hour）")
-  private Double estimatedTime;
+  @Schema(description = "見積もり時間（単位:min）")
+  private int estimatedTime;
 
-  // DEFAULT NULL
+  // DEFAULT 0
   @Schema(description = "実績時間（単位:min）")
-  private Integer actualTimeMinutes;
+  private int actualTimeMinutes;
 
-  // NOT NULL DEFAULT 0
+  // DEFAULT 0
   @Schema(description = "進捗（%）")
-  private Integer progress;
+  private int progress;
 
   // ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW'
   @Schema(description = "優先度")
