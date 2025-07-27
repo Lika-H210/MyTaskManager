@@ -17,7 +17,7 @@ public class TaskService {
     this.repository = repository;
   }
 
-  public List<Project> getMyProject(String userPublicId) {
+  public List<Project> getUserProjects(String userPublicId) {
     Integer userId = repository.findUserIdByUserPublicId(userPublicId);
     if (userId == null) {
       //Todo:例外処理が返るように要修正（例外実装後）

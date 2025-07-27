@@ -28,7 +28,7 @@ class TaskControllerTest {
             .param("userPublicId", userPublicId))
         .andExpect(status().isOk());
 
-    verify(service).getMyProject(userPublicId);
+    verify(service).getUserProjects(userPublicId);
   }
 
 }

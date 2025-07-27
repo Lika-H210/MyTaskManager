@@ -35,7 +35,7 @@ class TaskServiceTest {
 
     when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(userId);
 
-    sut.getMyProject(userPublicId);
+    sut.getUserProjects(userPublicId);
 
     verify(repository).findUserIdByUserPublicId(userPublicId);
     verify(repository).findProjectsByUserId(userId);
@@ -47,7 +47,7 @@ class TaskServiceTest {
 
     when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(null);
 
-    List<Project> actual = sut.getMyProject(userPublicId);
+    List<Project> actual = sut.getUserProjects(userPublicId);
 
     verify(repository, never()).findProjectsByUserId(any());
     assertThat(actual).isEmpty();

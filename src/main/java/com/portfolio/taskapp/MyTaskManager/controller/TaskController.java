@@ -46,7 +46,7 @@ public class TaskController {
   @GetMapping("/my-project")
   public List<Project> getProjectList(@RequestParam String userPublicId) {
     // TODO: 本番ではトークンから取得するように変更
-    return service.getMyProject(userPublicId);
+    return service.getUserProjects(userPublicId);
   }
 
 }
