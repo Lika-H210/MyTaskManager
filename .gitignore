@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# 設定ファイル
+src/main/resources/application-development.properties

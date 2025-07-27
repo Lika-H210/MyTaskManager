@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.portfolio.taskapp.MyTaskManager.repository.TaskRepository">
+
+  <select id="getUserId"
+    parameterType="String"
+    resultType="Integer">
+    SELECT id FROM user_accounts WHERE public_id =#{userPublicId}
+  </select>
+
+  <select id="getUserList" resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.User">
+    SELECT * FROM user_accounts
+  </select>
+
+  <select id="getProjectList"
+    parameterType="Integer"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
+    SELECT * FROM projects
+    WHERE user_id = #{userId}
+  </select>
+
+  <select id="getTaskList"
+    parameterType="Integer"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    SELECT * FROM tasks
+    WHERE project_id = #{projectId}
+  </select>
+
+</mapper>
