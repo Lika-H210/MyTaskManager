@@ -8,8 +8,8 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface TaskRepository {
 
-  Integer getUserId(@Param("userPublicId") String userPublicId);
+  Integer findUserIdByUserPublicId(@Param("userPublicId") String userPublicId);
 
-  List<Project> getProjectList(Integer userId);
+  List<Project> findProjectsByUserId(@Param("userId") Integer userId);
 
 }

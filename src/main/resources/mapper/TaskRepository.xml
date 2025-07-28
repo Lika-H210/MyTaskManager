@@ -4,13 +4,13 @@
 
 <mapper namespace="com.portfolio.taskapp.MyTaskManager.repository.TaskRepository">
 
-  <select id="getUserId"
+  <select id="findUserIdByUserPublicId"
     parameterType="String"
     resultType="Integer">
     SELECT id FROM user_accounts WHERE public_id =#{userPublicId}
   </select>
 
-  <select id="getProjectList"
+  <select id="findProjectsByUserId"
     parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     SELECT * FROM projects
