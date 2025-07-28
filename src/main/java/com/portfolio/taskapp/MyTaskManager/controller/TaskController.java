@@ -31,14 +31,13 @@ public class TaskController {
           @Parameter(name = "userPublicId",
               required = true,
               description = "ユーザーの公開ID（UUID）(ログイン手法の方針により変更する可能性があります。)",
-              schema = @Schema(
-                  type = "string",
-                  format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c"
-              )
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
           )},
       responses = {
           @ApiResponse(
+              responseCode = "200",
+              description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   array = @ArraySchema(schema = @Schema(implementation = Project.class)))
           )}
