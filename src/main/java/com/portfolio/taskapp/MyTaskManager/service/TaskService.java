@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.repository.TaskRepository;
 import java.util.Collections;
 import java.util.List;
@@ -26,4 +27,8 @@ public class TaskService {
     return repository.findProjectsByUserId(userId);
   }
 
+  public List<Task> getTasksByProjectPublicId(String projectPublicId) {
+    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
+    return repository.findUserTasksByProjectId(projectId);
+  }
 }

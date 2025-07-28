@@ -53,4 +53,17 @@ class TaskServiceTest {
     assertThat(actual).isEmpty();
   }
 
+  @Test
+  void プロジェクトに紐づくタスク取得時に適切なrepositoryが呼び出せていること() {
+    String projectPublicId = "00000000-0000-0000-0000-111111111111";
+    Integer projectId = 9999;
+
+    when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
+
+    sut.getTasksByProjectPublicId(projectPublicId);
+
+    verify(repository).findProjectIdByProjectPublicId(projectPublicId);
+    verify(repository).findUserTasksByProjectId(projectId);
+  }
+
 }

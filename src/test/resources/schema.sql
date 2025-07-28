@@ -23,3 +23,22 @@ CREATE TABLE projects (
   FOREIGN KEY (user_id) REFERENCES user_accounts (id),
   UNIQUE (public_id)
 );
+
+CREATE TABLE tasks (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  project_id INT NOT NULL,
+  public_id CHAR(36) NOT NULL,
+  parent_task_id INT DEFAULT NULL,
+  task_caption VARCHAR(100) NOT NULL,
+  description TEXT,
+  due_date DATE NOT NULL,
+  estimated_time INT NOT NULL,
+  actual_time_minutes INT NOT NULL DEFAULT 0,
+  progress INT NOT NULL DEFAULT 0,
+  priority ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (project_id) REFERENCES projects (id),
+  FOREIGN KEY (parent_task_id) REFERENCES tasks (id),
+  UNIQUE (public_id)
+);
