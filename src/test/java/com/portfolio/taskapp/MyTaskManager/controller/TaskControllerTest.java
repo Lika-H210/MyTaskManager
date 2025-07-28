@@ -21,7 +21,7 @@ class TaskControllerTest {
   private TaskService service;
 
   @Test
-  void 必要なserviceが実行されていること() throws Exception {
+  void ユーザープロジェクトの一覧取得で適切にserviceが実行されていること() throws Exception {
     String userPublicId = "00000000-0000-0000-0000-000000000000";
 
     mockMvc.perform(get("/my-project")
