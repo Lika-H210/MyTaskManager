@@ -10,11 +10,22 @@
     SELECT id FROM user_accounts WHERE public_id =#{userPublicId}
   </select>
 
+  <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
+    SELECT id FROM projects
+    WHERE public_id =#{projectPublicId}
+  </select>
+
   <select id="findProjectsByUserId"
     parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     SELECT * FROM projects
     WHERE user_id = #{userId}
+  </select>
+
+  <select id="findUserTasksByProjectId" parameterType="Integer"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    SELECT * FROM tasks
+    WHERE project_id = #{projectId}
   </select>
 
 </mapper>
