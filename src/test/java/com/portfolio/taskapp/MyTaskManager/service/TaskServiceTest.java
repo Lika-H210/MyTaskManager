@@ -54,7 +54,7 @@ class TaskServiceTest {
   }
 
   @Test
-  void Projectに紐づくタスク取得時に適切なrepositoryが呼び出せていること() {
+  void プロジェクトに紐づくタスク取得時に適切なrepositoryが呼び出せていること() {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
     Integer projectId = 9999;
 

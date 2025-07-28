@@ -30,7 +30,7 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void userIdに紐づくプロジェクトがすべて取得できていること() {
+  void ユーザーのIdに紐づくプロジェクトがすべて取得できていること() {
     Integer userId = 1;
     List<Project> actual = sut.findProjectsByUserId(userId);
 
@@ -40,7 +40,7 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void projectIdに紐づくタスクがすべて取得できていること() {
+  void プロジェクトのIdに紐づくタスクがすべて取得できていること() {
     Integer projectId = 1;
     List<Task> actual = sut.findUserTasksByProjectId(projectId);
 
