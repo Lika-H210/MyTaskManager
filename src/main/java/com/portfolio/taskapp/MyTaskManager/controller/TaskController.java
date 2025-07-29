@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,7 +73,7 @@ public class TaskController {
           )}
   )
   @GetMapping("/projects/{projectPublicId}/tasks")
-  public List<Task> getTaskListByProjectPublicId(@PathVariable String projectPublicId) {
+  public List<TaskTree> getTaskListByProjectPublicId(@PathVariable String projectPublicId) {
     return service.getTasksByProjectPublicId(projectPublicId);
   }
 

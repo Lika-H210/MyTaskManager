@@ -7,7 +7,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.repository.TaskRepository;
+import com.portfolio.taskapp.MyTaskManager.service.converter.TaskConverter;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,11 +23,14 @@ class TaskServiceTest {
   @Mock
   private TaskRepository repository;
 
+  @Mock
+  private TaskConverter converter;
+
   private TaskService sut;
 
   @BeforeEach
   void setUp() {
-    sut = new TaskService(repository);
+    sut = new TaskService(repository, converter);
   }
 
   @Test
@@ -57,13 +62,16 @@ class TaskServiceTest {
   void プロジェクトに紐づくタスク取得時に適切なrepositoryが呼び出せていること() {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
     Integer projectId = 9999;
+    List<Task> taskList = List.of();
 
     when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
+    when(repository.findUserTasksByProjectId(projectId)).thenReturn(taskList);
 
     sut.getTasksByProjectPublicId(projectPublicId);
 
     verify(repository).findProjectIdByProjectPublicId(projectPublicId);
     verify(repository).findUserTasksByProjectId(projectId);
+    verify(converter).convertToTaskTreeList(taskList);
   }
 
 }
