@@ -40,11 +40,25 @@ class TaskConverterTest {
   }
 
   @Test
-  void タスク一覧が空の場合に空リストを返すこと() {
-    List<Task> taskList = List.of();
+  void 引数のタスクリストが子タスクのみの場合に空リストを返すこと() {
+    Task childTask = Task.builder().id(801).parentTaskId(800).build();
+    List<Task> taskList = List.of(childTask);
 
     List<TaskTree> actual = sut.convertToTaskTreeList(taskList);
 
     assertThat(actual).isEmpty();
   }
+
+  @Test
+  void 引数のタスク一覧が空の場合に空リストを返すこと() {
+    List<TaskTree> actual = sut.convertToTaskTreeList(List.of());
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void 引数のタスク一覧がnullの場合に空リストを返すこと() {
+    List<TaskTree> actual = sut.convertToTaskTreeList(null);
+    assertThat(actual).isEmpty();
+  }
+
 }
