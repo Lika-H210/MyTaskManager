@@ -42,7 +42,7 @@ class TaskRepositoryTest {
   @Test
   void プロジェクトのIdに紐づくタスクがすべて取得できていること() {
     Integer projectId = 1;
-    List<Task> actual = sut.findUserTasksByProjectId(projectId);
+    List<Task> actual = sut.findTasksByProjectId(projectId);
 
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)

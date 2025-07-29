@@ -32,7 +32,7 @@ class TaskControllerTest {
   }
 
   @Test
-  void Projectに紐づくTask一覧取得時に適切なserviceが実行されていること() throws Exception {
+  void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されていること() throws Exception {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
 
     mockMvc.perform(get("/projects/{projectPublicId}/tasks", projectPublicId))

@@ -15,6 +15,6 @@ public interface TaskRepository {
 
   List<Project> findProjectsByUserId(@Param("userId") Integer userId);
 
-  List<Task> findUserTasksByProjectId(@Param("projectId") Integer projectId);
+  List<Task> findTasksByProjectId(@Param("projectId") Integer projectId);
 
 }
