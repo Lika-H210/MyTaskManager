@@ -33,7 +33,7 @@ public class TaskService {
 
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
     Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
-    List<Task> taskList = repository.findUserTasksByProjectId(projectId);
+    List<Task> taskList = repository.findTasksByProjectId(projectId);
     return converter.convertToTaskTreeList(taskList);
   }
 }

@@ -1,7 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
-import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,19 +30,22 @@ public class TaskController {
       summary = "ユーザープロジェクトの一覧取得",
       description = "ユーザーのid情報に紐づくプロジェクト情報の一覧を取得します",
       parameters = {
-          @Parameter(name = "userPublicId",
+          @Parameter(
+              name = "userPublicId",
               required = true,
               description = "ユーザーの公開ID（UUID）(ログイン手法の方針により変更する可能性があります。)",
               schema = @Schema(type = "string", format = "uuid",
                   example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
-          )},
+          )
+      },
       responses = {
           @ApiResponse(
               responseCode = "200",
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   array = @ArraySchema(schema = @Schema(implementation = Project.class)))
-          )}
+          )
+      }
   )
   @GetMapping("/my-project")
   public List<Project> getProjectList(@RequestParam String userPublicId) {
@@ -52,28 +54,28 @@ public class TaskController {
   }
 
   @Operation(
-      summary = "プロジェクトのタスク一覧取得",
-      description = "プロジェクトのid情報に紐づく全タスク情報の一覧を取得します。(サブタスクも含む）",
+      summary = "プロジェクトの親子タスク一覧取得",
+      description = "プロジェクトのid情報に紐づく全親子タスク情報の一覧を取得します。",
       parameters = {
-          @Parameter(name = "projectPublicId",
+          @Parameter(
+              name = "projectPublicId",
               required = true,
               description = "プロジェクトの公開ID（UUID）",
-              schema = @Schema(
-                  type = "string",
-                  format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c"
-              )
-          )},
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
       responses = {
           @ApiResponse(
               responseCode = "200",
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
-                  array = @ArraySchema(schema = @Schema(implementation = Task.class)))
-          )}
+                  array = @ArraySchema(schema = @Schema(implementation = TaskTree.class)))
+          )
+      }
   )
   @GetMapping("/projects/{projectPublicId}/tasks")
-  public List<TaskTree> getTaskListByProjectPublicId(@PathVariable String projectPublicId) {
+  public List<TaskTree> getTaskTreeListByProjectPublicId(@PathVariable String projectPublicId) {
     return service.getTasksByProjectPublicId(projectPublicId);
   }
 

@@ -59,18 +59,18 @@ class TaskServiceTest {
   }
 
   @Test
-  void プロジェクトに紐づくタスク取得時に適切なrepositoryが呼び出せていること() {
+  void プロジェクトに紐づくタスク取得時に適切なrepositoryとconverterが呼び出せていること() {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
     Integer projectId = 9999;
     List<Task> taskList = List.of();
 
     when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
-    when(repository.findUserTasksByProjectId(projectId)).thenReturn(taskList);
+    when(repository.findTasksByProjectId(projectId)).thenReturn(taskList);
 
     sut.getTasksByProjectPublicId(projectPublicId);
 
     verify(repository).findProjectIdByProjectPublicId(projectPublicId);
-    verify(repository).findUserTasksByProjectId(projectId);
+    verify(repository).findTasksByProjectId(projectId);
     verify(converter).convertToTaskTreeList(taskList);
   }
 
