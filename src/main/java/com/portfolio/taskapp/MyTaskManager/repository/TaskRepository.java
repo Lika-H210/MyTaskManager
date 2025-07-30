@@ -19,6 +19,7 @@ public interface TaskRepository {
 
   List<Task> findTasksByProjectId(@Param("projectId") Integer projectId);
 
-  List<Task> findTasksByTaskId(@Param("parentTaskId") Integer parentTaskId);
+  // 引数のtaskIdは親タスクのIdです。
+  List<Task> findTasksByTaskId(@Param("taskId") Integer taskId);
 
 }

@@ -36,7 +36,7 @@
   <select id="findTasksByTaskId" parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
-    WHERE id = #{parentTaskId} OR parent_task_id = #{parentTaskId}
+    WHERE id = #{taskId} OR parent_task_id = #{taskId}
   </select>
 
 </mapper>
