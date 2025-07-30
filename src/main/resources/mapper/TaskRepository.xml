@@ -15,6 +15,11 @@
     WHERE public_id =#{projectPublicId}
   </select>
 
+  <select id="findTaskIdByTaskPublicId" parameterType="String" resultType="Integer">
+    SELECT id FROM tasks
+    WHERE public_id =#{taskPublicId}
+  </select>
+
   <select id="findProjectsByUserId"
     parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
@@ -26,6 +31,12 @@
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
     WHERE project_id = #{projectId}
+  </select>
+
+  <select id="findTasksByTaskId" parameterType="Integer"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    SELECT * FROM tasks
+    WHERE id = #{parentTaskId} OR parent_task_id = #{parentTaskId}
   </select>
 
 </mapper>

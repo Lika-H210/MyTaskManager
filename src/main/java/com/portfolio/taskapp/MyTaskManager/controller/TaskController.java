@@ -79,4 +79,29 @@ public class TaskController {
     return service.getTasksByProjectPublicId(projectPublicId);
   }
 
+  @Operation(
+      summary = "単独の親子タスク取得",
+      description = "親タスクと当該親タスクに紐づく全子タスク情報を取得します。",
+      parameters = {
+          @Parameter(
+              name = "taskPublicId",
+              required = true,
+              description = "親タスクの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "リクエストが正常に処理された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = TaskTree.class))
+          )
+      }
+  )
+  @GetMapping("/tasks/{taskPublicId}")
+  public TaskTree getTaskTree(@PathVariable String taskPublicId) {
+    return service.getTaskTreeByTaskPublicId(taskPublicId);
+  }
 }

@@ -41,4 +41,14 @@ class TaskControllerTest {
     verify(service).getTasksByProjectPublicId(projectPublicId);
   }
 
+  @Test
+  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること() throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+
+    mockMvc.perform(get("/tasks/{taskPublicId}", taskPublicId))
+        .andExpect(status().isOk());
+
+    verify(service).getTaskTreeByTaskPublicId(taskPublicId);
+  }
+
 }

@@ -36,4 +36,17 @@ public class TaskService {
     List<Task> taskList = repository.findTasksByProjectId(projectId);
     return converter.convertToTaskTreeList(taskList);
   }
+
+  public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
+    Integer taskId = repository.findTaskIdByTaskPublicId(taskPublicId);
+    List<Task> taskList = repository.findTasksByTaskId(taskId);
+    List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
+
+    if (taskTreeList.size() != 1) {
+      // TODO: カスタム例外（TaskTreeNotFoundException）に差し替える
+      throw new IllegalStateException("指定されたタスクに対応するTaskTreeが1件ではありません");
+    }
+    return taskTreeList.getFirst();
+  }
+
 }

@@ -13,8 +13,12 @@ public interface TaskRepository {
 
   Integer findProjectIdByProjectPublicId(@Param("projectPublicId") String projectPublicId);
 
+  Integer findTaskIdByTaskPublicId(@Param("taskPublicId") String taskPublicId);
+
   List<Project> findProjectsByUserId(@Param("userId") Integer userId);
 
   List<Task> findTasksByProjectId(@Param("projectId") Integer projectId);
+
+  List<Task> findTasksByTaskId(@Param("parentTaskId") Integer parentTaskId);
 
 }
