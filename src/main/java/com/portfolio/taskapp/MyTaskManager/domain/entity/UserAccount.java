@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User {
+public class UserAccount {
 
   // AUTO_INCREMENT PRIMARY KEY
   @Schema(description = "ユーザーID（自動採番）")
@@ -32,7 +32,7 @@ public class User {
 
   // VARCHAR(255) NOT NULL
   @Schema(description = "ハッシュ化済みパスワード")
-  private String passwordHash;
+  private String password;
 
   // DATETIME DEFAULT CURRENT_TIMESTAMP
   @Schema(description = "作成日時")
