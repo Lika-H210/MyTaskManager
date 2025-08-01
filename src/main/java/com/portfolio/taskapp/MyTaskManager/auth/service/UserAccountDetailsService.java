@@ -1,7 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.auth.service;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
-import com.portfolio.taskapp.MyTaskManager.auth.repository.UserAccountRepository;
+import com.portfolio.taskapp.MyTaskManager.auth.repository.UserRepository;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserAccountDetailsService implements UserDetailsService {
 
-  private final UserAccountRepository repository;
+  private final UserRepository repository;
 
   @Autowired
-  public UserAccountDetailsService(UserAccountRepository repository) {
+  public UserAccountDetailsService(UserRepository repository) {
     this.repository = repository;
   }
 

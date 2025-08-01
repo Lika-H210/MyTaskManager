@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface UserAccountRepository {
+public interface UserRepository {
 
   UserAccount findAccountByEmail(@Param("email") String email);
 
