@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Schema(description = "ユーザーを定義するエンティティクラス")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

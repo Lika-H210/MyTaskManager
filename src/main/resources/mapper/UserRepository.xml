@@ -2,8 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.portfolio.taskapp.MyTaskManager.auth.repository.UserRepository">
+<mapper namespace="com.portfolio.taskapp.MyTaskManager.user.UserRepository">
 
+  <!-- ログイン検証用情報の取得 -->
   <select id="findAccountByEmail"
     parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
@@ -11,5 +12,13 @@
     FROM user_accounts
     WHERE email =#{email}
   </select>
+
+  <!-- ユーザーアカウントの登録 -->
+  <insert id="registerUserAccount"
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount"
+    keyProperty="id" useGeneratedKeys="true">
+    INSERT INTO user_accounts (public_id, user_name, email, password)
+    VALUES (#{publicId}, #{userName}, #{email}, #{password})
+  </insert>
 
 </mapper>

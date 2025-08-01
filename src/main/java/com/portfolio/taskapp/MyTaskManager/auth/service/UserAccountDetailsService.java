@@ -1,8 +1,8 @@
 package com.portfolio.taskapp.MyTaskManager.auth.service;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
-import com.portfolio.taskapp.MyTaskManager.auth.repository.UserRepository;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
