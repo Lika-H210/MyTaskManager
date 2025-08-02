@@ -20,7 +20,7 @@ public class UserController {
   private UserService service;
 
   @Autowired
-  private UserController(UserService service) {
+  public UserController(UserService service) {
     this.service = service;
   }
 
