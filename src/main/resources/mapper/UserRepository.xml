@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.portfolio.taskapp.MyTaskManager.user.UserRepository">
+<mapper namespace="com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository">
 
   <!-- ログイン検証用情報の取得 -->
   <select id="findAccountByEmail"

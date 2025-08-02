@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.service.converter;
+package com.portfolio.taskapp.MyTaskManager.task.service.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
