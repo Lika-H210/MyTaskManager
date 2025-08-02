@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,8 +38,8 @@ public class UserController {
       }
   )
   @PostMapping("/register")
-  public ResponseEntity<String> registerUser(@RequestBody UserAccountRequest account) {
-    service.registerUserAccount(account);
+  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountRequest request) {
+    service.registerUser(request);
     return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
   }
 

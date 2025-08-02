@@ -1,6 +1,5 @@
 package com.portfolio.taskapp.MyTaskManager.user.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -42,24 +41,24 @@ class UserServiceTest {
     String userName = "ユーザー名";
     String email = "user@example.com";
     String rawPassword = "rawPassword";
-    UserAccountRequest account = new UserAccountRequest(userName, email, rawPassword);
+    String hashedPassword = "hashedPassword";
+    UserAccountRequest request = new UserAccountRequest(userName, email, rawPassword);
     UserAccount registerAccount = UserAccount.builder()
         .publicId(publicId)
         .userName(userName)
         .email(email)
-        .password(rawPassword)
+        .password(hashedPassword)
         .build();
 
-    String hashedPassword = "hashedPassword";
     when(passwordEncoder.encode(rawPassword)).thenReturn(hashedPassword);
-    when(mapper.toUserAccount(eq(account), any())).thenReturn(registerAccount);
+    when(mapper.toUserAccount(eq(request), any(String.class), eq(hashedPassword)))
+        .thenReturn(registerAccount);
 
-    sut.registerUserAccount(account);
+    sut.registerUser(request);
 
     verify(passwordEncoder).encode(rawPassword);
+    verify(mapper).toUserAccount(eq(request), any(), eq(hashedPassword));
     verify(repository).registerUserAccount(registerAccount);
-
-    assertThat(account.getPassword()).isEqualTo(hashedPassword);
   }
 
 }

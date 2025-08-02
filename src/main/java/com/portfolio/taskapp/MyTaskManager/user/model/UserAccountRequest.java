@@ -6,10 +6,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class UserAccountRequest {
 
@@ -23,7 +21,7 @@ public class UserAccountRequest {
   @Size(max = 255)
   private String email;
 
-  @Schema(description = "ハッシュ化済みパスワード")
+  @Schema(description = "パスワード")
   @NotBlank(message = "パスワードは必須です")
   @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
   @Pattern(

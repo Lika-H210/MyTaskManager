@@ -7,12 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAccountMapper {
 
-  public UserAccount toUserAccount(UserAccountRequest account, String publicId) {
+  public UserAccount toUserAccount(UserAccountRequest request, String publicId,
+      String hashedPassword) {
     return UserAccount.builder()
         .publicId(publicId)
-        .userName(account.getUserName())
-        .email(account.getEmail())
-        .password(account.getPassword())
+        .userName(request.getUserName())
+        .email(request.getEmail())
+        .password(hashedPassword)
         .build();
   }
 

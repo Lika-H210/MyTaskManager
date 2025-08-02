@@ -28,11 +28,10 @@ public class UserService {
 
 
   @Transactional
-  public void registerUserAccount(UserAccountRequest account) {
-    String hashedPassword = passwordEncoder.encode(account.getPassword());
-    account.setPassword(hashedPassword);
+  public void registerUser(UserAccountRequest request) {
     String publicId = UUID.randomUUID().toString();
-    UserAccount registerAccount = mapper.toUserAccount(account, publicId);
+    String hashedPassword = passwordEncoder.encode(request.getPassword());
+    UserAccount registerAccount = mapper.toUserAccount(request, publicId, hashedPassword);
 
     // Todo:email重複時の検査例外をthrow
 
