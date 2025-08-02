@@ -1,16 +1,15 @@
 package com.portfolio.taskapp.MyTaskManager.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Schema(description = "ユーザーを定義するエンティティクラス")
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -18,6 +17,7 @@ public class UserAccount {
 
   // AUTO_INCREMENT PRIMARY KEY
   @Schema(description = "ユーザーID（自動採番）")
+  @JsonIgnore
   private Integer id;
 
   // CHAR(36) NOT NULL UNIQUE
