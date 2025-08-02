@@ -1,8 +1,8 @@
-package com.portfolio.taskapp.MyTaskManager.controller;
+package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
-import com.portfolio.taskapp.MyTaskManager.service.TaskService;
+import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

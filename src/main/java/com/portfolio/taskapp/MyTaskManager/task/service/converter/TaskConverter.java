@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.service.converter;
+package com.portfolio.taskapp.MyTaskManager.task.service.converter;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;

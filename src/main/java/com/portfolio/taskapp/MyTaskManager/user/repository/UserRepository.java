@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.user;
+package com.portfolio.taskapp.MyTaskManager.user.repository;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import org.apache.ibatis.annotations.Mapper;

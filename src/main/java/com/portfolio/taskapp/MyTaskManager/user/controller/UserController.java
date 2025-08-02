@@ -1,6 +1,7 @@
-package com.portfolio.taskapp.MyTaskManager.user;
+package com.portfolio.taskapp.MyTaskManager.user.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

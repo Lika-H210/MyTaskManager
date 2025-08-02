@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.repository;
+package com.portfolio.taskapp.MyTaskManager.task.repository;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
