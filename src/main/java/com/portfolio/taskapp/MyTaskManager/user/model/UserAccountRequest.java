@@ -16,7 +16,7 @@ public class UserAccountRequest {
   @NotBlank(message = "ユーザー名は必須です")
   @Size(max = 50, message = "ユーザー名は50字以内で入力してください")
   @Pattern(
-      regexp = "^[a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF_-]+$",
+      regexp = "^[a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF _\\-\\u3000]+$",
       message = "ユーザー名に使用できない文字が含まれています"
   )
   private String userName;
