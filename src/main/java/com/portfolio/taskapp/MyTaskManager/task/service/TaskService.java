@@ -2,7 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.task.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
 import java.util.Collections;
