@@ -49,10 +49,10 @@ public class Task {
 
   // DEFAULT 0
   @Schema(description = "実績時間（単位:min）")
-  private int actualTimeMinutes;
+  private int actualTime;
 
   // DEFAULT 0
-  @Schema(description = "進捗（%）")
+  @Schema(description = "進捗率（%）")
   private int progress;
 
   // ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW'

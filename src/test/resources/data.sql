@@ -14,7 +14,7 @@ VALUES
 -- タスク
 INSERT INTO tasks (
   project_id, public_id, parent_task_id, task_caption, description,
-  due_date, estimated_time, actual_time_minutes, progress, priority
+  due_date, estimated_time, actual_time, progress, priority
 )
 VALUES
   (1, '11111111-aaaa-bbbb-cccc-1234567890ab', NULL,
