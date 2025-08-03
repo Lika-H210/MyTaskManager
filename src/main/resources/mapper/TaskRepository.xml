@@ -47,7 +47,7 @@
   <!--登録処理-->
   <!--プロジェクト登録-->
   <insert id="createProject" keyProperty="id" useGeneratedKeys="true"
-    parameterType="com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest">
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     INSERT INTO projects (user_id, public_id, project_caption, description, status)
     VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status})
   </insert>
