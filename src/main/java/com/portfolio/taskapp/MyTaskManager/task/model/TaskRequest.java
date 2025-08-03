@@ -38,11 +38,11 @@ public class TaskRequest {
   @Positive(message = "入力値は分単位で正の整数値を入力してください")
   private int estimatedTime;
 
-  @Schema(description = "実績時間（単位:min）")
+  @Schema(description = "実績時間（単位:min）※新規登録時は0を設定してください")
   @PositiveOrZero(message = "入力値は分単位で正の整数値を入力してください")
   private int actualTime;
 
-  @Schema(description = "進捗率（%）")
+  @Schema(description = "進捗率（%）※新規登録時は0を設定してください")
   @Min(value = 0, message = "入力値は0以上の整数値を入力してください")
   @Max(value = 100, message = "入力値は100以下の整数値を入力してください")
   private int progress;
