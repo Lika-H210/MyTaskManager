@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -97,6 +99,34 @@ class TaskRepositoryTest {
         .usingRecursiveComparison()
         .ignoringFields("createdAt", "updatedAt")
         .isEqualTo(project);
+    assertThat(actual.getCreatedAt()).isNotNull();
+    assertThat(actual.getUpdatedAt()).isNotNull();
+  }
+
+  @Test
+  void タスクの登録処理で新規のタスクが登録されDB付与の内容も反映できていること() {
+    String publicId = "00000000-0000-0000-0000-000000000000";
+    Task task = Task.builder()
+        .projectId(1)
+        .publicId(publicId)
+        .parentTaskId(1)
+        .taskCaption("タスク名")
+        .description("タスクの詳細説明")
+        .dueDate(LocalDate.now().plusDays(1))
+        .estimatedTime(120)
+        .actualTime(60)
+        .progress(50)
+        .priority(TaskPriority.LOW)
+        .build();
+
+    sut.createTask(task);
+
+    Task actual = sut.findTaskByTaskPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .ignoringFields("createdAt", "updatedAt")
+        .isEqualTo(task);
     assertThat(actual.getCreatedAt()).isNotNull();
     assertThat(actual.getUpdatedAt()).isNotNull();
   }

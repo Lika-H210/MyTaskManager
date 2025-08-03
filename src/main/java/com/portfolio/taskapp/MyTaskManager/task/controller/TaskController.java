@@ -1,7 +1,9 @@
 package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -145,6 +147,38 @@ public class TaskController {
     Project project = service.createProject(request, userPublicId);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(project);
+  }
+
+  @Operation(
+      summary = "新規の親タスク登録",
+      description = "新規の親タスクを登録します",
+      parameters = {
+          @Parameter(
+              name = "projectPublicId",
+              required = true,
+              description = "プロジェクトの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "201",
+              description = "タスクが正常に作成された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Task.class))
+          )
+      }
+  )
+  @PostMapping("/projects/{projectPublicId}/tasks")
+  public ResponseEntity<Task> createParentTask(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String projectPublicId,
+      @Validated @RequestBody TaskRequest request) {
+    Task task = service.createParentTask(request, projectPublicId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
 }
