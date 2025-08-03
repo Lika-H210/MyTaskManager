@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.task.repository;
 
+import static com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus.ACTIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
@@ -75,6 +76,29 @@ class TaskRepositoryTest {
     assertThat(actual.size()).isEqualTo(3);
     assertThat(actualParent.size()).isEqualTo(1);
     assertThat(actualChildTasks.size()).isEqualTo(2);
+  }
+
+  @Test
+  void プロジェクト登録処理で新規のプロジェクトが登録されDBでの内容も反映できていること() {
+    String publicId = "00000000-0000-0000-0000-000000000000";
+    Project project = Project.builder()
+        .userId(1)
+        .publicId(publicId)
+        .projectCaption("テストプロジェクト")
+        .description("説明")
+        .status(ACTIVE)
+        .build();
+
+    sut.createProject(project);
+
+    Project actual = sut.findProjectByProjectPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .ignoringFields("createdAt", "updatedAt")
+        .isEqualTo(project);
+    assertThat(actual.getCreatedAt()).isNotNull();
+    assertThat(actual.getUpdatedAt()).isNotNull();
   }
 
 }

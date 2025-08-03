@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.domain.model;
+package com.portfolio.taskapp.MyTaskManager.task.model;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import io.swagger.v3.oas.annotations.media.Schema;

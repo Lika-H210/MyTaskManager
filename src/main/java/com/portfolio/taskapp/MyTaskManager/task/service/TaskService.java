@@ -2,24 +2,30 @@ package com.portfolio.taskapp.MyTaskManager.task.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
+import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
+import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TaskService {
 
   private TaskRepository repository;
   private TaskConverter converter;
+  private ProjectTaskMapper mapper;
 
   @Autowired
-  public TaskService(TaskRepository repository, TaskConverter converter) {
+  public TaskService(TaskRepository repository, TaskConverter converter, ProjectTaskMapper mapper) {
     this.repository = repository;
     this.converter = converter;
+    this.mapper = mapper;
   }
 
   public List<Project> getUserProjects(String userPublicId) {
@@ -47,6 +53,17 @@ public class TaskService {
       throw new IllegalStateException("指定されたタスクに対応するTaskTreeが1件ではありません");
     }
     return taskTreeList.getFirst();
+  }
+
+  @Transactional
+  public Project createProject(ProjectRequest request, String userPublicId) {
+    Integer userId = repository.findUserIdByUserPublicId(userPublicId);
+    String publicId = UUID.randomUUID().toString();
+    Project project = mapper.toProject(request, userId, publicId);
+
+    repository.createProject(project);
+
+    return project;
   }
 
 }

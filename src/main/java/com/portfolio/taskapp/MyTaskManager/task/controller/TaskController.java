@@ -1,7 +1,8 @@
 package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
-import com.portfolio.taskapp.MyTaskManager.domain.model.TaskTree;
+import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,14 +10,21 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Validated
 public class TaskController {
 
   private TaskService service;
@@ -104,4 +112,39 @@ public class TaskController {
   public TaskTree getTaskTree(@PathVariable String taskPublicId) {
     return service.getTaskTreeByTaskPublicId(taskPublicId);
   }
+
+  @Operation(
+      summary = "新規プロジェクト登録",
+      description = "新規のプロジェクトを登録します。",
+      parameters = {
+          @Parameter(
+              name = "userPublicId",
+              required = true,
+              description = "ユーザーの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "201",
+              description = "プロジェクトが正常に作成された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Project.class))
+          )
+      }
+  )
+  @PostMapping("/users/{userPublicId}/projects")
+  public ResponseEntity<Project> createProject(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String userPublicId,
+      @Validated @RequestBody ProjectRequest request) {
+
+    Project project = service.createProject(request, userPublicId);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(project);
+  }
+
 }

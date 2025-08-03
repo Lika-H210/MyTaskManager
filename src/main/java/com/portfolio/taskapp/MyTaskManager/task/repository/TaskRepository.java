@@ -22,4 +22,7 @@ public interface TaskRepository {
   // 引数のtaskIdは親タスクのIdです。
   List<Task> findTasksByTaskId(@Param("taskId") Integer taskId);
 
+  Project findProjectByProjectPublicId(@Param("projectPublicId") String projectPublicId);
+
+  void createProject(Project project);
 }
