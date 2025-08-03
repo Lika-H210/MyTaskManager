@@ -33,7 +33,7 @@ CREATE TABLE tasks (
   description TEXT,
   due_date DATE NOT NULL,
   estimated_time INT NOT NULL,
-  actual_time_minutes INT NOT NULL DEFAULT 0,
+  actual_time INT NOT NULL DEFAULT 0,
   progress INT NOT NULL DEFAULT 0,
   priority ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

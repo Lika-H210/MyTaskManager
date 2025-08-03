@@ -24,5 +24,10 @@ public interface TaskRepository {
 
   Project findProjectByProjectPublicId(@Param("projectPublicId") String projectPublicId);
 
+  Task findTaskByTaskPublicId(@Param("taskPublicId") String taskPublicId);
+
   void createProject(Project project);
+
+  void createTask(Task task);
+
 }

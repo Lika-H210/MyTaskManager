@@ -13,6 +13,7 @@ import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
@@ -151,5 +152,22 @@ class TaskServiceTest {
     verify(repository).findUserIdByUserPublicId(userPublicId);
     verify(mapper).toProject(eq(request), eq(userId), any(String.class));
     verify(repository).createProject(project);
+  }
+
+  @Test
+  void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
+    String projectPublicId = "00000000-0000-0000-000000000000";
+    Integer projectId = 999;
+    TaskRequest request = new TaskRequest();
+    Task task = new Task();
+
+    when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
+    when(mapper.toParentTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
+
+    sut.createParentTask(request, projectPublicId);
+
+    verify(repository).findProjectIdByProjectPublicId(projectPublicId);
+    verify(mapper).toParentTask(eq(request), eq(projectId), any(String.class));
+    verify(repository).createTask(task);
   }
 }

@@ -44,12 +44,26 @@
     SELECT * FROM projects WHERE public_id = #{projectPublicId}
   </select>
 
+  <select id="findTaskByTaskPublicId" parameterType="String"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    SELECT * FROM tasks WHERE public_id = #{taskPublicId}
+  </select>
+
   <!--登録処理-->
   <!--プロジェクト登録-->
   <insert id="createProject" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     INSERT INTO projects (user_id, public_id, project_caption, description, status)
     VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status})
+  </insert>
+
+  <!--タスク登録-->
+  <insert id="createTask" keyProperty="id" useGeneratedKeys="true"
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    INSERT INTO tasks (project_id, public_id, parent_task_id, task_caption, description,
+    due_date, estimated_time, actual_time, progress, priority)
+    VALUES (#{projectId}, #{publicId}, #{parentTaskId}, #{taskCaption}, #{description},
+    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority})
   </insert>
 
 </mapper>

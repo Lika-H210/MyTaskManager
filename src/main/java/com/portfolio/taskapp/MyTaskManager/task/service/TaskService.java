@@ -4,6 +4,7 @@ import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
@@ -64,6 +65,17 @@ public class TaskService {
     repository.createProject(project);
 
     return project;
+  }
+
+  @Transactional
+  public Task createParentTask(TaskRequest request, String projectPublicId) {
+    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
+    String publicId = UUID.randomUUID().toString();
+    Task task = mapper.toParentTask(request, projectId, publicId);
+
+    repository.createTask(task);
+
+    return task;
   }
 
 }
