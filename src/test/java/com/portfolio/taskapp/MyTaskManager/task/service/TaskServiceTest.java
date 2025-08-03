@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
+import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
@@ -29,11 +32,14 @@ class TaskServiceTest {
   @Mock
   private TaskConverter converter;
 
+  @Mock
+  private ProjectTaskMapper mapper;
+
   private TaskService sut;
 
   @BeforeEach
   void setUp() {
-    sut = new TaskService(repository, converter);
+    sut = new TaskService(repository, converter, mapper);
   }
 
   @Test
@@ -127,5 +133,23 @@ class TaskServiceTest {
     assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(taskPublicId))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("指定されたタスクに対応するTaskTreeが1件ではありません");
+  }
+
+  // プロジェクト登録処理
+  @Test
+  void プロジェクト登録処理で適切なrepositoryとmapperが呼び出されていること() {
+    String userPublicId = "00000000-0000-0000-000000000000";
+    Integer userId = 999;
+    ProjectRequest request = new ProjectRequest();
+    Project project = new Project();
+
+    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(userId);
+    when(mapper.toProject(eq(request), eq(userId), any(String.class))).thenReturn(project);
+
+    sut.createProject(request, userPublicId);
+
+    verify(repository).findUserIdByUserPublicId(userPublicId);
+    verify(mapper).toProject(eq(request), eq(userId), any(String.class));
+    verify(repository).createProject(project);
   }
 }
