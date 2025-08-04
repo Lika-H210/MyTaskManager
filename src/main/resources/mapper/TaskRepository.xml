@@ -77,4 +77,21 @@
     status = #{status}
     WHERE public_id = #{publicId}
   </update>
+
+  <!--プロジェクト更新-->
+  <update id="updateTask" keyProperty="id" useGeneratedKeys="true"
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+    UPDATE tasks
+    SET
+    task_caption = #{taskCaption},
+    description = #{description},
+    due_date = #{dueDate},
+    estimated_time = #{estimatedTime},
+    actual_time = #{actualTime},
+    progress = #{progress},
+    priority = #{priority}
+    WHERE
+    public_id = #{publicId}
+  </update>
+
 </mapper>
