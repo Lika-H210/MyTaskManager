@@ -78,9 +78,8 @@
     WHERE public_id = #{publicId}
   </update>
 
-  <!--プロジェクト更新-->
-  <update id="updateTask" keyProperty="id" useGeneratedKeys="true"
-    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
+  <!--タスク更新-->
+  <update id="updateTask" parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     UPDATE tasks
     SET
     task_caption = #{taskCaption},
