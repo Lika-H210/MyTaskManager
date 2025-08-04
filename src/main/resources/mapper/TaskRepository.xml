@@ -68,7 +68,7 @@
 
   <!--更新処理-->
   <!--プロジェクト更新-->
-  <update id="updateProject" keyProperty="id" useGeneratedKeys="true"
+  <update id="updateProject"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     UPDATE projects
     SET
