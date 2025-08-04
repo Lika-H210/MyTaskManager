@@ -10,15 +10,15 @@
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
     SELECT public_id, email, password
     FROM user_accounts
-    WHERE email =#{email}
+    WHERE email =#{email} AND is_deleted = false
   </select>
 
   <!-- ユーザーアカウントの登録 -->
   <insert id="registerUserAccount"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount"
     keyProperty="id" useGeneratedKeys="true">
-    INSERT INTO user_accounts (public_id, user_name, email, password)
-    VALUES (#{publicId}, #{userName}, #{email}, #{password})
+    INSERT INTO user_accounts (public_id, user_name, email, password, is_deleted)
+    VALUES (#{publicId}, #{userName}, #{email}, #{password}, false)
   </insert>
 
 </mapper>
