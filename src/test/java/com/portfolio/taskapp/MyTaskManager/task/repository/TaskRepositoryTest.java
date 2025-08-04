@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import java.time.LocalDate;
 import java.util.List;
@@ -131,4 +132,24 @@ class TaskRepositoryTest {
     assertThat(actual.getUpdatedAt()).isNotNull();
   }
 
+  // プロジェクト更新処理
+  @Test
+  void プロジェクトの更新処理で必要な項目が更新されていること() {
+    String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
+    Project project = Project.builder()
+        .publicId(publicId)
+        .projectCaption("更新プロジェクト名")
+        .description("更新プロジェクト詳細")
+        .status(ProjectStatus.ARCHIVED)
+        .build();
+
+    sut.updateProject(project);
+
+    Project actual = sut.findProjectByProjectPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .comparingOnlyFields("projectCaption", "description", "status")
+        .isEqualTo(project);
+  }
 }

@@ -66,4 +66,15 @@
     #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority})
   </insert>
 
+  <!--更新処理-->
+  <!--プロジェクト更新-->
+  <update id="updateProject" keyProperty="id" useGeneratedKeys="true"
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
+    UPDATE projects
+    SET
+    project_caption = #{projectCaption},
+    description = #{description},
+    status = #{status}
+    WHERE public_id = #{publicId}
+  </update>
 </mapper>

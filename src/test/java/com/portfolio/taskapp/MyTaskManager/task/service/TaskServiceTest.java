@@ -170,4 +170,20 @@ class TaskServiceTest {
     verify(mapper).toParentTask(eq(request), eq(projectId), any(String.class));
     verify(repository).createTask(task);
   }
+
+  // プロジェクト更新処理
+  @Test
+  void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
+    String projectPublicId = "00000000-0000-0000-111111111111";
+    ProjectRequest request = new ProjectRequest();
+    Project project = new Project();
+
+    when(mapper.toProject(request, null, projectPublicId)).thenReturn(project);
+
+    sut.updateProject(request, projectPublicId);
+
+    verify(mapper).toProject(request, null, projectPublicId);
+    verify(repository).updateProject(project);
+    verify(repository).findProjectByProjectPublicId(projectPublicId);
+  }
 }

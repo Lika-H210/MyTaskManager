@@ -30,4 +30,6 @@ public interface TaskRepository {
 
   void createTask(Task task);
 
+  void updateProject(Project project);
+
 }
