@@ -21,6 +21,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -179,6 +180,38 @@ public class TaskController {
       @Validated @RequestBody TaskRequest request) {
     Task task = service.createParentTask(request, projectPublicId);
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
+  }
+
+  @Operation(
+      summary = "プロジェクト更新",
+      description = "既存プロジェクトの内容を更新します。",
+      parameters = {
+          @Parameter(
+              name = "projectPublicId",
+              required = true,
+              description = "プロジェクトの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "プロジェクトが正常に更新された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Project.class))
+          )
+      }
+  )
+  @PutMapping("/projects/{projectPublicId}")
+  public ResponseEntity<Project> updateProject(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String projectPublicId,
+      @Validated @RequestBody ProjectRequest request) {
+    Project project = service.updateProject(request, projectPublicId);
+    return ResponseEntity.ok(project);
   }
 
 }

@@ -78,4 +78,12 @@ public class TaskService {
     return task;
   }
 
+  @Transactional
+  public Project updateProject(ProjectRequest request, String projectPublicId) {
+
+    Project project = mapper.toProject(request, null, projectPublicId);
+    repository.updateProject(project);
+
+    return repository.findProjectByProjectPublicId(projectPublicId);
+  }
 }
