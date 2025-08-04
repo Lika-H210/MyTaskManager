@@ -33,6 +33,25 @@ class UserRepositoryTest {
     assertThat(actual).isNull();
   }
 
+  // アカウント情報取得
+  @Test
+  void アカウント情報の取得で必要な情報のみが取得できていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+
+    UserAccount actual = sut.findAccountByPublicId(publicId);
+
+    // 必須項目が含まれることの確認
+    assertThat(actual).isNotNull();
+    assertThat(actual.getPublicId()).isNotNull();
+    assertThat(actual.getEmail()).isNotNull();
+    assertThat(actual.getUserName()).isNotNull();
+    assertThat(actual.getCreatedAt()).isNotNull();
+    assertThat(actual.getUpdatedAt()).isNotNull();
+
+    // 不要項目が含まれないことの確認
+    assertThat(actual.getPassword()).isNull();
+  }
+
   // アカウント登録処理
   @Test
   void アカウント登録で新たなユーザー情報が登録できていること() {

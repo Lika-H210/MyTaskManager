@@ -9,7 +9,7 @@ public interface UserRepository {
 
   UserAccount findAccountByEmail(@Param("email") String email);
 
-  UserAccount findUserAccountByPublicId(@Param("publicId") String publicId);
+  UserAccount findAccountByPublicId(@Param("publicId") String publicId);
 
   void registerUserAccount(UserAccount userAccount);
 }
