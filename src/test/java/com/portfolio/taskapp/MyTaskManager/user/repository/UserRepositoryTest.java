@@ -14,7 +14,7 @@ class UserRepositoryTest {
   private UserRepository sut;
 
   @Test
-  void publicIdによる単独ユーザーのアカウント情報取得ができていること() {
+  void emailによる単独ユーザーのアカウント情報取得ができていること() {
     String email = "tanaka@example.com";
 
     UserAccount actual = sut.findAccountByEmail(email);
@@ -22,6 +22,15 @@ class UserRepositoryTest {
     assertThat(actual.getEmail()).isEqualTo(email);
     assertThat(actual.getPassword()).isNotNull();
     assertThat(actual.getPublicId()).isNotNull();
+  }
+
+  @Test
+  void emailによるアカウント情報取得で削除扱いは取得できないこと() {
+    String email = "sakujo@example.com";
+
+    UserAccount actual = sut.findAccountByEmail(email);
+
+    assertThat(actual).isNull();
   }
 
   // アカウント登録処理

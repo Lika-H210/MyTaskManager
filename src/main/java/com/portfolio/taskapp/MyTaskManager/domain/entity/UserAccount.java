@@ -44,4 +44,7 @@ public class UserAccount {
   @Schema(description = "更新日時")
   private LocalDateTime updatedAt;
 
+  @Schema(description = "論理削除用の削除フラグ(削除=true)")
+  private boolean is_deleted;
+
 }
