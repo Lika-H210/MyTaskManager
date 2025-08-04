@@ -214,4 +214,36 @@ public class TaskController {
     return ResponseEntity.ok(project);
   }
 
+  @Operation(
+      summary = "タスク更新",
+      description = "既存タスクの内容を更新します。",
+      parameters = {
+          @Parameter(
+              name = "taskPublicId",
+              required = true,
+              description = "タスクの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "タスクが正常に更新された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Task.class))
+          )
+      }
+  )
+  @PutMapping("/tasks/{taskPublicId}")
+  public ResponseEntity<Task> updateTask(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String taskPublicId,
+      @Validated @RequestBody TaskRequest request) {
+    Task task = service.updateTask(request, taskPublicId);
+    return ResponseEntity.ok(task);
+  }
+
 }

@@ -86,4 +86,14 @@ public class TaskService {
 
     return repository.findProjectByProjectPublicId(projectPublicId);
   }
+
+  @Transactional
+  public Task updateTask(TaskRequest request, String taskPublicId) {
+
+    Task task = mapper.toParentTask(request, null, taskPublicId);
+    repository.updateTask(task);
+
+    return repository.findTaskByTaskPublicId(taskPublicId);
+  }
+
 }
