@@ -46,7 +46,8 @@ public class UserService {
   public void registerUser(UserAccountCreateRequest request) {
     String publicId = UUID.randomUUID().toString();
     String hashedPassword = passwordEncoder.encode(request.getPassword());
-    UserAccount registerAccount = mapper.toUserAccount(request, publicId, hashedPassword);
+    UserAccount registerAccount = mapper.CreateRequestToUserAccount(request, publicId,
+        hashedPassword);
 
     // Todo:email重複時の検査例外をthrow
 

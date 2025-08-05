@@ -64,13 +64,13 @@ class UserServiceTest {
         .build();
 
     when(passwordEncoder.encode(rawPassword)).thenReturn(hashedPassword);
-    when(mapper.toUserAccount(eq(request), any(String.class), eq(hashedPassword)))
+    when(mapper.CreateRequestToUserAccount(eq(request), any(String.class), eq(hashedPassword)))
         .thenReturn(registerAccount);
 
     sut.registerUser(request);
 
     verify(passwordEncoder).encode(rawPassword);
-    verify(mapper).toUserAccount(eq(request), any(), eq(hashedPassword));
+    verify(mapper).CreateRequestToUserAccount(eq(request), any(), eq(hashedPassword));
     verify(repository).registerUserAccount(registerAccount);
   }
 
