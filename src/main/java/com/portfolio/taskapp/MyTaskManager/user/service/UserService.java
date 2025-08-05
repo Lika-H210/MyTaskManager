@@ -2,7 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.UUID;
@@ -43,7 +43,7 @@ public class UserService {
   }
 
   @Transactional
-  public void registerUser(UserAccountRequest request) {
+  public void registerUser(UserAccountCreateRequest request) {
     String publicId = UUID.randomUUID().toString();
     String hashedPassword = passwordEncoder.encode(request.getPassword());
     UserAccount registerAccount = mapper.toUserAccount(request, publicId, hashedPassword);

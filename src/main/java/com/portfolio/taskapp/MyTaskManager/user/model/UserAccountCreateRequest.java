@@ -10,7 +10,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserAccountRequest {
+public class UserAccountCreateRequest {
 
   @Schema(description = "ユーザー名")
   @NotBlank(message = "ユーザー名は必須です")

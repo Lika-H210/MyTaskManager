@@ -1,7 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,7 +61,7 @@ public class UserController {
       }
   )
   @PostMapping("/register")
-  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountRequest request) {
+  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request) {
     service.registerUser(request);
     return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
   }

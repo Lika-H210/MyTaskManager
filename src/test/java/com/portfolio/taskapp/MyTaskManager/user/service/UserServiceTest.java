@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +55,7 @@ class UserServiceTest {
     String email = "user@example.com";
     String rawPassword = "rawPassword";
     String hashedPassword = "hashedPassword";
-    UserAccountRequest request = new UserAccountRequest(userName, email, rawPassword);
+    UserAccountCreateRequest request = new UserAccountCreateRequest(userName, email, rawPassword);
     UserAccount registerAccount = UserAccount.builder()
         .publicId(publicId)
         .userName(userName)
