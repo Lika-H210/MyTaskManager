@@ -28,4 +28,14 @@
     VALUES (#{publicId}, #{userName}, #{email}, #{password}, false)
   </insert>
 
+  <!-- ユーザープロフィールの更新 -->
+  <update id="updateProfile"
+    parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
+    UPDATE user_accounts
+    SET
+    user_name = #{userName},
+    email = #{email}
+    WHERE public_id = #{publicId}
+  </update>
+
 </mapper>

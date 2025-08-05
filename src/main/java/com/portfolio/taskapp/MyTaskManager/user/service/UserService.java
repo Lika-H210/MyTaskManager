@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
+import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
@@ -52,6 +53,19 @@ public class UserService {
     // Todo:email重複時の検査例外をthrow
 
     repository.registerUserAccount(registerAccount);
+  }
+
+  @Transactional
+  public UserAccountResponse updateProfile(String publicId, ProfileUpdateRequest request) {
+
+    //Todo:email重複時の検査例外をthrow
+
+    UserAccount account = mapper.profileToUserAccount(request, publicId);
+
+    repository.updateProfile(account);
+    UserAccount updatedAccount = repository.findAccountByPublicId(publicId);
+
+    return mapper.toUserAccountResponse(updatedAccount);
   }
 
 }
