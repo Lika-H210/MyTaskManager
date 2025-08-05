@@ -3,6 +3,7 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,20 @@ public class UserService {
     this.mapper = mapper;
   }
 
+  // Todo:例外処理実装のタイミングで例外処理の内容を見直し
+  public UserAccountResponse findAccount(String publicId) {
+    // アカウント情報にpublicIdが含まれなかった場合(仮としてIllegalArgumentExceptionで例外throw)
+    if (publicId == null) {
+      throw new IllegalArgumentException("Public ID is required");
+    }
+
+    UserAccount account = repository.findAccountByPublicId(publicId);
+    // publicIdに紐づくユーザー情報が見つからない場合(仮としてIIllegalStateExceptionで例外throw)
+    if (account == null) {
+      throw new IllegalStateException("User account not found for authenticated user");
+    }
+    return mapper.toUserAccountResponse(account);
+  }
 
   @Transactional
   public void registerUser(UserAccountRequest request) {

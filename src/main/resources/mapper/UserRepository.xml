@@ -13,6 +13,13 @@
     WHERE email =#{email} AND is_deleted = false
   </select>
 
+  <select id="findAccountByPublicId" parameterType="String"
+    resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
+    SELECT public_id, user_name, email, created_at, updated_at
+    FROM user_accounts
+    WHERE public_id = #{publicId} AND is_deleted = false
+  </select>
+
   <!-- ユーザーアカウントの登録 -->
   <insert id="registerUserAccount"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount"

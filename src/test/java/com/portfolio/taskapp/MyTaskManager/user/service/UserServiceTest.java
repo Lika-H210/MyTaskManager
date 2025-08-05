@@ -36,6 +36,19 @@ class UserServiceTest {
   }
 
   @Test
+  void アカウント情報取得時に適切なrepositoryとmapperが呼び出されていること() {
+    String publicId = "00000000-0000-0000-0000-000000000000";
+    UserAccount account = new UserAccount();
+
+    when(repository.findAccountByPublicId(publicId)).thenReturn(account);
+
+    sut.findAccount(publicId);
+
+    verify(repository).findAccountByPublicId(publicId);
+    verify(mapper).toUserAccountResponse(account);
+  }
+
+  @Test
   void アカウント登録時に適切にrepositoryとencoderが呼び出されていること() {
     String publicId = "00000000-0000-0000-0000-000000000000";
     String userName = "ユーザー名";
