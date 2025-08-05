@@ -2,6 +2,8 @@ package com.portfolio.taskapp.MyTaskManager.auth.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+@SecurityScheme(name = "basicAuth", type = SecuritySchemeType.HTTP, scheme = "basic")
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -28,7 +31,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/login", "/css/**", "/js/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-            .anyRequest().permitAll()
+            .anyRequest().authenticated()
         )
         .formLogin(withDefaults());
 

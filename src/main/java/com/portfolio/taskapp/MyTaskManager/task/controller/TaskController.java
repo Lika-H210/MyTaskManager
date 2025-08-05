@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class TaskController {
   @Operation(
       summary = "ユーザープロジェクトの一覧取得",
       description = "ユーザーのid情報に紐づくプロジェクト情報の一覧を取得します",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "userPublicId",
@@ -67,6 +69,7 @@ public class TaskController {
   @Operation(
       summary = "プロジェクトの親子タスク一覧取得",
       description = "プロジェクトのid情報に紐づく全親子タスク情報の一覧を取得します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "projectPublicId",
@@ -93,6 +96,7 @@ public class TaskController {
   @Operation(
       summary = "単独の親子タスク取得",
       description = "親タスクと当該親タスクに紐づく全子タスク情報を取得します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "taskPublicId",
@@ -119,6 +123,7 @@ public class TaskController {
   @Operation(
       summary = "新規プロジェクト登録",
       description = "新規のプロジェクトを登録します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "userPublicId",
@@ -153,6 +158,7 @@ public class TaskController {
   @Operation(
       summary = "新規の親タスク登録",
       description = "新規の親タスクを登録します",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "projectPublicId",
@@ -185,6 +191,7 @@ public class TaskController {
   @Operation(
       summary = "プロジェクト更新",
       description = "既存プロジェクトの内容を更新します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "projectPublicId",
@@ -217,6 +224,7 @@ public class TaskController {
   @Operation(
       summary = "タスク更新",
       description = "既存タスクの内容を更新します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "taskPublicId",

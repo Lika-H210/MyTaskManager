@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ public class UserController {
   @Operation(
       summary = "ユーザーアカウント情報の取得",
       description = "ユーザーアカウント情報を取得します。",
+      security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -77,6 +79,7 @@ public class UserController {
   @Operation(
       summary = "ユーザープロフィール情報の更新",
       description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別APIで対応予定です。",
+      security = @SecurityRequirement(name = "basicAuth"),
       parameters = {
           @Parameter(
               name = "publicId",
