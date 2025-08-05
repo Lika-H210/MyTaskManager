@@ -73,4 +73,24 @@ class UserRepositoryTest {
         .comparingOnlyFields("publicId", "email", "password")
         .isEqualTo(account);
   }
+
+  @Test
+  void アカウントのprofile情報更新処理で更新対象項目が更新されていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+    String email = "test@mail.com";
+    UserAccount account = UserAccount.builder()
+        .publicId(publicId)
+        .userName("テスト太郎")
+        .email(email)
+        .build();
+
+    sut.updateProfile(account);
+    UserAccount actual = sut.findAccountByPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .comparingOnlyFields("publicId", "userName", "email")
+        .isEqualTo(account);
+  }
+
 }

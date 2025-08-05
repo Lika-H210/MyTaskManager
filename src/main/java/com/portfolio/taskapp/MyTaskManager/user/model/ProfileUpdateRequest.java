@@ -5,12 +5,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
-public class UserAccountRequest {
+@NoArgsConstructor
+public class ProfileUpdateRequest {
 
   @Schema(description = "ユーザー名")
   @NotBlank(message = "ユーザー名は必須です")
@@ -26,14 +26,5 @@ public class UserAccountRequest {
   @Email(message = "正しいメールアドレス形式で入力してください")
   @Size(max = 100, message = "メールアドレスは100文字以下で入力してください")
   private String email;
-
-  @Schema(description = "パスワード")
-  @NotBlank(message = "パスワードは必須です")
-  @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
-  @Pattern(
-      regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
-      message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です"
-  )
-  private String password;
 
 }

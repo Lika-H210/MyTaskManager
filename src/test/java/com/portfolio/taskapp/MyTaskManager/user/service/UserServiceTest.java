@@ -7,7 +7,8 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class UserServiceTest {
     String email = "user@example.com";
     String rawPassword = "rawPassword";
     String hashedPassword = "hashedPassword";
-    UserAccountRequest request = new UserAccountRequest(userName, email, rawPassword);
+    UserAccountCreateRequest request = new UserAccountCreateRequest(userName, email, rawPassword);
     UserAccount registerAccount = UserAccount.builder()
         .publicId(publicId)
         .userName(userName)
@@ -64,14 +65,32 @@ class UserServiceTest {
         .build();
 
     when(passwordEncoder.encode(rawPassword)).thenReturn(hashedPassword);
-    when(mapper.toUserAccount(eq(request), any(String.class), eq(hashedPassword)))
+    when(mapper.CreateRequestToUserAccount(eq(request), any(String.class), eq(hashedPassword)))
         .thenReturn(registerAccount);
 
     sut.registerUser(request);
 
     verify(passwordEncoder).encode(rawPassword);
-    verify(mapper).toUserAccount(eq(request), any(), eq(hashedPassword));
+    verify(mapper).CreateRequestToUserAccount(eq(request), any(), eq(hashedPassword));
     verify(repository).registerUserAccount(registerAccount);
+  }
+
+  @Test
+  void アカウントのprofile情報更新において適切なmapperとrepositoryが呼び出されていること() {
+    String publicId = "00000000-0000-0000-0000-000000000000";
+    ProfileUpdateRequest request = new ProfileUpdateRequest();
+    UserAccount account = new UserAccount();
+    UserAccount updatedAccount = new UserAccount();
+
+    when(mapper.profileToUserAccount(request, publicId)).thenReturn(account);
+    when(repository.findAccountByPublicId(publicId)).thenReturn(updatedAccount);
+
+    sut.updateProfile(publicId, request);
+
+    verify(mapper).profileToUserAccount(request, publicId);
+    verify(repository).updateProfile(account);
+    verify(repository).findAccountByPublicId(publicId);
+    verify(mapper).toUserAccountResponse(updatedAccount);
   }
 
 }

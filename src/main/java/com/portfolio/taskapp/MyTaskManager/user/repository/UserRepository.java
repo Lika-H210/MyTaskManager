@@ -12,4 +12,6 @@ public interface UserRepository {
   UserAccount findAccountByPublicId(@Param("publicId") String publicId);
 
   void registerUserAccount(UserAccount userAccount);
+
+  void updateProfile(UserAccount userAccount);
 }
