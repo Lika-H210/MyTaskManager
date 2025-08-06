@@ -72,7 +72,6 @@ public class UserController {
     return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
   }
 
-  //Todo:本番環境では@AuthenticationPrincipalでのId設定に変更
   @Operation(
       summary = "ユーザープロフィール情報の更新",
       description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別APIで対応予定です。",
