@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.exception;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,13 +39,16 @@ public class OriginalExceptionHandler {
     log.warn("Validation error occurred", ex);
 
     // [field:エラーメッセージ]の一覧を作成（ただし同一fieldで複数エラーの場合は最初のメッセージのみ返す）
-    Map<String, String> errors = ex.getBindingResult()
+    Map<String, List<String>> errors = ex.getBindingResult()
         .getFieldErrors()
         .stream()
-        .collect(Collectors.toMap(
+        .collect(Collectors.groupingBy(
             FieldError::getField,
-            fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(""),
-            (existing, replacement) -> existing
+            LinkedHashMap::new,
+            Collectors.mapping(
+                fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(""),
+                Collectors.toList()
+            )
         ));
 
     Map<String, Object> responseBody = new LinkedHashMap<>();
