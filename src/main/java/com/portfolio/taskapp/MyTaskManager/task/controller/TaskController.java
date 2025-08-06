@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.task.controller;
 
+import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
@@ -18,13 +19,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,15 +43,6 @@ public class TaskController {
       summary = "ユーザープロジェクトの一覧取得",
       description = "ユーザーのid情報に紐づくプロジェクト情報の一覧を取得します",
       security = @SecurityRequirement(name = "basicAuth"),
-      parameters = {
-          @Parameter(
-              name = "userPublicId",
-              required = true,
-              description = "ユーザーの公開ID（UUID）(ログイン手法の方針により変更する可能性があります。)",
-              schema = @Schema(type = "string", format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
-          )
-      },
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -60,10 +52,9 @@ public class TaskController {
           )
       }
   )
-  @GetMapping("/my-project")
-  public List<Project> getProjectList(@RequestParam String userPublicId) {
-    // TODO: 本番ではトークンから取得するように変更
-    return service.getUserProjects(userPublicId);
+  @GetMapping("/projects")
+  public List<Project> getProjectList(@AuthenticationPrincipal UserAccountDetails userDetails) {
+    return service.getUserProjects(userDetails.getAccount().getPublicId());
   }
 
   @Operation(
@@ -124,15 +115,6 @@ public class TaskController {
       summary = "新規プロジェクト登録",
       description = "新規のプロジェクトを登録します。",
       security = @SecurityRequirement(name = "basicAuth"),
-      parameters = {
-          @Parameter(
-              name = "userPublicId",
-              required = true,
-              description = "ユーザーの公開ID（UUID）",
-              schema = @Schema(type = "string", format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
-          )
-      },
       responses = {
           @ApiResponse(
               responseCode = "201",
@@ -142,16 +124,11 @@ public class TaskController {
           )
       }
   )
-  @PostMapping("/users/{userPublicId}/projects")
+  @PostMapping("/projects")
   public ResponseEntity<Project> createProject(
-      @PathVariable
-      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-          message = "入力の形式に誤りがあります")
-      String userPublicId,
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @Validated @RequestBody ProjectRequest request) {
-
-    Project project = service.createProject(request, userPublicId);
-
+    Project project = service.createProject(request, userDetails.getAccount().getPublicId());
     return ResponseEntity.status(HttpStatus.CREATED).body(project);
   }
 
