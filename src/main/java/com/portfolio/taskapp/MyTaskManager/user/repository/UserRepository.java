@@ -14,4 +14,8 @@ public interface UserRepository {
   void registerUserAccount(UserAccount userAccount);
 
   void updateProfile(UserAccount userAccount);
+
+  // 登録時email重複チェック
+  boolean existsByEmail(@Param("email") String email);
+
 }

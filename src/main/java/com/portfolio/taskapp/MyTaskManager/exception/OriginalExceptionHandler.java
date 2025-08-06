@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.exception;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,6 +17,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class OriginalExceptionHandler {
 
+  @ExceptionHandler(NotUniqueException.class)
+  public ResponseEntity<Map<String, Object>> handleNotUniqueException(NotUniqueException ex) {
+    // 開発者向けログ出力
+    log.warn("Duplicate value error: {}", ex.getMessage(), ex);
+
+    //表示内容
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    Map<String, Object> responseBody = new LinkedHashMap<>();
+    responseBody.put("status", status.value());
+    responseBody.put("error", status);
+    responseBody.put("detail", Map.of(ex.getField(), ex.getMessage()));
+
+    return ResponseEntity.badRequest().body(responseBody);
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex) {
@@ -23,13 +39,16 @@ public class OriginalExceptionHandler {
     log.warn("Validation error occurred", ex);
 
     // [field:エラーメッセージ]の一覧を作成（ただし同一fieldで複数エラーの場合は最初のメッセージのみ返す）
-    Map<String, String> errors = ex.getBindingResult()
+    Map<String, List<String>> errors = ex.getBindingResult()
         .getFieldErrors()
         .stream()
-        .collect(Collectors.toMap(
+        .collect(Collectors.groupingBy(
             FieldError::getField,
-            fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(""),
-            (existing, replacement) -> existing
+            LinkedHashMap::new,
+            Collectors.mapping(
+                fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(""),
+                Collectors.toList()
+            )
         ));
 
     Map<String, Object> responseBody = new LinkedHashMap<>();

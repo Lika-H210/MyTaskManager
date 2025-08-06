@@ -38,4 +38,11 @@
     WHERE public_id = #{publicId}
   </update>
 
+  <!--Email重複チェック　※DBにemailと同じemailが存在する場合True-->
+  <select id="existsByEmail" parameterType="String" resultType="boolean">
+    SELECT COUNT(*) > 0
+    FROM user_accounts
+    WHERE email = #{email}
+  </select>
+
 </mapper>
