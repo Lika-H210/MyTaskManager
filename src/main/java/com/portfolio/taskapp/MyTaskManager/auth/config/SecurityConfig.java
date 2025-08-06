@@ -31,6 +31,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/login", "/css/**", "/js/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+            // Todo:本番環境では削除
+            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(withDefaults());
