@@ -16,6 +16,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class OriginalExceptionHandler {
 
+  @ExceptionHandler(NotUniqueException.class)
+  public ResponseEntity<Map<String, Object>> handleNotUniqueException(NotUniqueException ex) {
+    // 開発者向けログ出力
+    log.warn("Duplicate value error: {}", ex.getMessage(), ex);
+
+    //表示内容
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    Map<String, Object> responseBody = new LinkedHashMap<>();
+    responseBody.put("status", status.value());
+    responseBody.put("error", status);
+    responseBody.put("detail", Map.of(ex.getField(), ex.getMessage()));
+
+    return ResponseEntity.badRequest().body(responseBody);
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex) {
