@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.user.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -14,11 +15,11 @@ import lombok.Getter;
 public class UserAccountCreateRequest {
 
   @Schema(description = "ユーザー名")
-  @NotNull(message = "ユーザー名は必須です")
+  @NotBlank(message = "ユーザー名は必須です")
   @Size(max = 50, message = "ユーザー名は50字以内で入力してください")
   @Pattern(
       regexp = "^[a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF _\\-\\u3000]+$",
-      message = "ユーザー名に使用できない文字が含まれています"
+      message = "ユーザー名には英数字・ひらがな・カタカナ・漢字、スペース、記号（_ -）のみ使用できます"
   )
   private String userName;
 
