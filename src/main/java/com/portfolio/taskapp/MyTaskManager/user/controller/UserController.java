@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
@@ -67,7 +68,8 @@ public class UserController {
       }
   )
   @PostMapping("/register")
-  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request) {
+  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request)
+      throws NotUniqueException {
     service.registerUser(request);
     return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
   }

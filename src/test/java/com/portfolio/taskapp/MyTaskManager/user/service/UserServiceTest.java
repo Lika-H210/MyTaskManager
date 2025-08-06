@@ -1,11 +1,16 @@
 package com.portfolio.taskapp.MyTaskManager.user.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
@@ -50,7 +55,8 @@ class UserServiceTest {
   }
 
   @Test
-  void アカウント登録時に適切にrepositoryとencoderが呼び出されていること() {
+  void アカウント登録時に適切にrepositoryとencoderが呼び出されていること()
+      throws NotUniqueException {
     String publicId = "00000000-0000-0000-0000-000000000000";
     String userName = "ユーザー名";
     String email = "user@example.com";
@@ -64,15 +70,35 @@ class UserServiceTest {
         .password(hashedPassword)
         .build();
 
+    when(repository.existsByEmail(email)).thenReturn(false);
     when(passwordEncoder.encode(rawPassword)).thenReturn(hashedPassword);
     when(mapper.CreateRequestToUserAccount(eq(request), any(String.class), eq(hashedPassword)))
         .thenReturn(registerAccount);
 
     sut.registerUser(request);
 
+    verify(repository).existsByEmail(email);
     verify(passwordEncoder).encode(rawPassword);
     verify(mapper).CreateRequestToUserAccount(eq(request), any(), eq(hashedPassword));
     verify(repository).registerUserAccount(registerAccount);
+  }
+
+  @Test
+  void emailが既に登録されている場合にTrueを返すこと() {
+    String userName = "ユーザー名";
+    String email = "user@example.com";
+    String rawPassword = "rawPassword";
+    UserAccountCreateRequest request = new UserAccountCreateRequest(userName, email, rawPassword);
+
+    when(repository.existsByEmail(email)).thenReturn(true);
+
+    NotUniqueException thrown = assertThrows(
+        NotUniqueException.class,
+        () -> sut.registerUser(request)
+    );
+
+    assertThat(thrown.getMessage()).isEqualTo("このメールアドレスは使用できません");
+    verify(passwordEncoder, never()).encode(anyString());
   }
 
   @Test

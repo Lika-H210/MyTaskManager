@@ -93,4 +93,19 @@ class UserRepositoryTest {
         .isEqualTo(account);
   }
 
+  // Emailの重複チェック
+  @Test
+  void emailが既に登録されている場合にTrueを返すこと() {
+    boolean actual = sut.existsByEmail("tanaka@example.com");
+
+    assertThat(actual).isTrue();
+  }
+
+  @Test
+  void emailが未登録の場合にFalseを返すこと() {
+    boolean actual = sut.existsByEmail("XXX@XXX.com");
+
+    assertThat(actual).isFalse();
+  }
+
 }

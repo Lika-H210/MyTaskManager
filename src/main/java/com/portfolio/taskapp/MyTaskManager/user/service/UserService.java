@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
@@ -44,13 +45,16 @@ public class UserService {
   }
 
   @Transactional
-  public void registerUser(UserAccountCreateRequest request) {
+  public void registerUser(UserAccountCreateRequest request) throws NotUniqueException {
+    // email重複チェック
+    if (repository.existsByEmail(request.getEmail())) {
+      throw new NotUniqueException("email", "このメールアドレスは使用できません");
+    }
+
     String publicId = UUID.randomUUID().toString();
     String hashedPassword = passwordEncoder.encode(request.getPassword());
     UserAccount registerAccount = mapper.CreateRequestToUserAccount(request, publicId,
         hashedPassword);
-
-    // Todo:email重複時の検査例外をthrow
 
     repository.registerUserAccount(registerAccount);
   }
