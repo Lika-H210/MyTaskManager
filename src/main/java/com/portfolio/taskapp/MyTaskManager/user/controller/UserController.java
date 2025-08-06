@@ -92,7 +92,7 @@ public class UserController {
   @PutMapping("/me/profile")
   public ResponseEntity<UserAccountResponse> updateUser(
       @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Valid @RequestBody ProfileUpdateRequest request) {
+      @Valid @RequestBody ProfileUpdateRequest request) throws NotUniqueException {
     UserAccountResponse response = service
         .updateProfile(userDetails.getAccount().getPublicId(), request);
     return ResponseEntity.ok(response);

@@ -18,4 +18,8 @@ public interface UserRepository {
   // 登録時email重複チェック
   boolean existsByEmail(@Param("email") String email);
 
+  // 更新時email重複チェック
+  boolean existsByEmailExcludingUser(@Param("publicId") String publicId,
+      @Param("email") String email);
+
 }
