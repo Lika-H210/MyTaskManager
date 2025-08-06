@@ -41,7 +41,7 @@ public class TaskController {
 
   @Operation(
       summary = "ユーザープロジェクトの一覧取得",
-      description = "ユーザーのid情報に紐づくプロジェクト情報の一覧を取得します",
+      description = "認証されたユーザーに紐づくプロジェクト情報の一覧を取得します",
       security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
@@ -113,7 +113,7 @@ public class TaskController {
 
   @Operation(
       summary = "新規プロジェクト登録",
-      description = "新規のプロジェクトを登録します。",
+      description = "認証されたユーザーに紐づく新規のプロジェクトを登録します。",
       security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
