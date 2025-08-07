@@ -70,6 +70,6 @@ public class Task {
   private LocalDateTime updatedAt;
 
   @Schema(description = "論理削除用の削除フラグ(削除=true)")
-  private boolean is_deleted;
+  private boolean isDeleted;
 
 }
