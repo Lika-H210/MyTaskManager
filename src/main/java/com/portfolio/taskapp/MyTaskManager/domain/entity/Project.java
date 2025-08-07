@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
@@ -17,10 +18,12 @@ public class Project {
 
   // AUTO_INCREMENT PRIMARY KEY
   @Schema(description = "プロジェクトID（自動採番）")
+  @JsonIgnore
   private Integer id;
 
   // FOREIGN KEY (user_id) REFERENCES users(id)
   @Schema(description = "このプロジェクトの責任ユーザーのId")
+  @JsonIgnore
   private Integer userId;
 
   // CHAR(36) NOT NULL UNIQUE
@@ -44,5 +47,8 @@ public class Project {
 
   @Schema(description = "更新日時")
   private LocalDateTime updatedAt;
+
+  @Schema(description = "論理削除用の削除フラグ(削除=true)")
+  private boolean is_deleted;
 
 }

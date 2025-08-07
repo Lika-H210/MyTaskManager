@@ -21,6 +21,7 @@ CREATE TABLE projects (
   status ENUM('ACTIVE','ARCHIVED') DEFAULT 'ACTIVE',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_deleted boolean DEFAULT FALSE,
   FOREIGN KEY (user_id) REFERENCES user_accounts (id),
   UNIQUE (public_id)
 );
@@ -39,6 +40,7 @@ CREATE TABLE tasks (
   priority ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  is_deleted boolean DEFAULT FALSE,
   FOREIGN KEY (project_id) REFERENCES projects (id),
   FOREIGN KEY (parent_task_id) REFERENCES tasks (id),
   UNIQUE (public_id)
