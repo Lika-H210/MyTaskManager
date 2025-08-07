@@ -84,7 +84,7 @@ class UserServiceTest {
   }
 
   @Test
-  void emailが既に登録されている場合にTrueを返すこと() {
+  void アカウント登録時のemail重複チェックがTRUEの場合に重複例外がThrowされ以降の処理が実行されないこと() {
     String userName = "ユーザー名";
     String email = "user@example.com";
     String rawPassword = "rawPassword";
@@ -102,21 +102,41 @@ class UserServiceTest {
   }
 
   @Test
-  void アカウントのprofile情報更新において適切なmapperとrepositoryが呼び出されていること() {
+  void アカウントのprofile情報更新において適切なmapperとrepositoryが呼び出されていること()
+      throws NotUniqueException {
     String publicId = "00000000-0000-0000-0000-000000000000";
-    ProfileUpdateRequest request = new ProfileUpdateRequest();
+    String email = "user@example.com";
+    ProfileUpdateRequest request = new ProfileUpdateRequest("name", email);
     UserAccount account = new UserAccount();
     UserAccount updatedAccount = new UserAccount();
 
+    when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(false);
     when(mapper.profileToUserAccount(request, publicId)).thenReturn(account);
     when(repository.findAccountByPublicId(publicId)).thenReturn(updatedAccount);
 
     sut.updateProfile(publicId, request);
 
+    verify(repository).existsByEmailExcludingUser(publicId, email);
     verify(mapper).profileToUserAccount(request, publicId);
     verify(repository).updateProfile(account);
     verify(repository).findAccountByPublicId(publicId);
     verify(mapper).toUserAccountResponse(updatedAccount);
+  }
+
+  @Test
+  void アカウント更新時のemail重複チェックがTRUEの場合に重複例外がThrowされ以降の処理が実行されないこと()
+      throws NotUniqueException {
+    String publicId = "00000000-0000-0000-0000-000000000000";
+    String email = "user@example.com";
+    ProfileUpdateRequest request = new ProfileUpdateRequest("name", email);
+
+    when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(true);
+
+    NotUniqueException thrown = assertThrows(NotUniqueException.class,
+        () -> sut.updateProfile(publicId, request));
+
+    verify(mapper, never()).profileToUserAccount(request, publicId);
+    assertThat(thrown.getMessage()).isEqualTo("このメールアドレスは使用できません");
   }
 
 }

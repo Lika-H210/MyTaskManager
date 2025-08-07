@@ -60,9 +60,12 @@ public class UserService {
   }
 
   @Transactional
-  public UserAccountResponse updateProfile(String publicId, ProfileUpdateRequest request) {
+  public UserAccountResponse updateProfile(String publicId, ProfileUpdateRequest request)
+      throws NotUniqueException {
 
-    //Todo:email重複時の検査例外をthrow
+    if (repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
+      throw new NotUniqueException("email", "このメールアドレスは使用できません");
+    }
 
     UserAccount account = mapper.profileToUserAccount(request, publicId);
 
