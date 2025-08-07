@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
@@ -18,10 +19,12 @@ public class Task {
 
   // INT AUTO_INCREMENT PRIMARY KEY
   @Schema(description = "タスクID（自動採番）")
+  @JsonIgnore
   private Integer id;
 
   // FOREIGN KEY (project_id) REFERENCES projects(id)
   @Schema(description = "所属プロジェクト")
+  @JsonIgnore
   private Integer projectId;
 
   // CHAR(36) NOT NULL UNIQUE
@@ -30,6 +33,7 @@ public class Task {
 
   // parent_task_id INT REFERENCES tasks(id)
   @Schema(description = "親タスクのId(自身が親の場合はNull)")
+  @JsonIgnore
   private Integer parentTaskId;
 
   // VARCHAR(100) NOT NULL
@@ -64,5 +68,8 @@ public class Task {
 
   @Schema(description = "更新日時")
   private LocalDateTime updatedAt;
+
+  @Schema(description = "論理削除用の削除フラグ(削除=true)")
+  private boolean is_deleted;
 
 }
