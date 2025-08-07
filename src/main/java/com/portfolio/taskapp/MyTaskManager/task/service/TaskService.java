@@ -2,13 +2,13 @@ package com.portfolio.taskapp.MyTaskManager.task.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +32,7 @@ public class TaskService {
   public List<Project> getUserProjects(String userPublicId) {
     Integer userId = repository.findUserIdByUserPublicId(userPublicId);
     if (userId == null) {
-      //Todo:例外処理が返るように要修正（例外実装後）
-      return Collections.emptyList();
+      throw new RecordNotFoundException("ユーザーが見つかりません。");
     }
     return repository.findProjectsByUserId(userId);
   }
