@@ -55,13 +55,16 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void プロジェクトのIdに紐づくタスクがすべて取得できていること() {
-    Integer projectId = 1;
+  void プロジェクトのIdに紐づくタスクのうち論理削除されていないタスクのみ取得できていること() {
+    Integer projectId = 2;
     List<Task> actual = sut.findTasksByProjectId(projectId);
 
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)
-        .allSatisfy(task -> assertThat(task.getProjectId()).isEqualTo(projectId));
+        .allSatisfy(task -> {
+          assertThat(task.getProjectId()).isEqualTo(projectId);
+          assertThat(task.isDeleted()).isFalse();
+        });
   }
 
   @Test

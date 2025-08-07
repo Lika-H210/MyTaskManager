@@ -24,7 +24,9 @@ class TaskConverterTest {
     Task parentTask900 = Task.builder().id(900).parentTaskId(null).build();
     Task childTask801 = Task.builder().id(801).parentTaskId(800).build();
     Task childTask802 = Task.builder().id(802).parentTaskId(800).build();
-    List<Task> taskList = List.of(parentTask800, childTask801, parentTask900, childTask802);
+    Task childTaskDummy = Task.builder().id(9999).parentTaskId(999).build();
+    List<Task> taskList = List.of(parentTask800, childTask801, parentTask900, childTask802,
+        childTaskDummy);
 
     // 実行
     List<TaskTree> actual = sut.convertToTaskTreeList(taskList);
