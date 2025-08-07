@@ -55,17 +55,20 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void プロジェクトのIdに紐づくタスクがすべて取得できていること() {
-    Integer projectId = 1;
+  void プロジェクトのIdに紐づくタスクのうち論理削除されていないタスクのみ取得できていること() {
+    Integer projectId = 2;
     List<Task> actual = sut.findTasksByProjectId(projectId);
 
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)
-        .allSatisfy(task -> assertThat(task.getProjectId()).isEqualTo(projectId));
+        .allSatisfy(task -> {
+          assertThat(task.getProjectId()).isEqualTo(projectId);
+          assertThat(task.isDeleted()).isFalse();
+        });
   }
 
   @Test
-  void 親タスクのIdに紐づく親子タスクがすべて取得できていること() {
+  void 親タスクのIdに紐づく親子タスクのうち論理削除されていないタスクのみ取得できていること() {
     Integer parentTaskId = 3;
 
     List<Task> actual = sut.findTasksByTaskId(parentTaskId);
@@ -79,9 +82,11 @@ class TaskRepositoryTest {
         .toList();
 
     // 検証
-    assertThat(actual.size()).isEqualTo(3);
+    assertThat(actual.size()).isEqualTo(2);
     assertThat(actualParent.size()).isEqualTo(1);
-    assertThat(actualChildTasks.size()).isEqualTo(2);
+    assertThat(actualChildTasks.size()).isEqualTo(1);
+    assertThat(actual)
+        .allSatisfy(task -> assertThat(task.isDeleted()).isFalse());
   }
 
   @Test

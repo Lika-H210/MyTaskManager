@@ -32,12 +32,14 @@
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
     WHERE project_id = #{projectId}
+    AND is_deleted = false
   </select>
 
   <select id="findTasksByTaskId" parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
-    WHERE id = #{taskId} OR parent_task_id = #{taskId}
+    WHERE (id = #{taskId} OR parent_task_id = #{taskId})
+    AND is_deleted = false
   </select>
 
   <select id="findProjectByProjectPublicId" parameterType="String"
