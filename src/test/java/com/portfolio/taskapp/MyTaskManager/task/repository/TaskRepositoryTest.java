@@ -42,13 +42,16 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void ユーザーのIdに紐づくプロジェクトがすべて取得できていること() {
+  void ユーザーのIdに紐づくプロジェクトのうち論理削除されていないプロジェクトのみ取得できていること() {
     Integer userId = 1;
     List<Project> actual = sut.findProjectsByUserId(userId);
 
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)
-        .allSatisfy(project -> assertThat(project.getUserId()).isEqualTo(userId));
+        .allSatisfy(project -> {
+          assertThat(project.getUserId()).isEqualTo(userId);
+          assertThat(project.isDeleted()).isFalse();
+        });
   }
 
   @Test

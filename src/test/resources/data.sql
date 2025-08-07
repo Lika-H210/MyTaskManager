@@ -9,10 +9,10 @@ VALUES
 INSERT INTO projects (user_id, public_id, project_caption, description, status, is_deleted)
 VALUES
   (1, 'a1111111-bbbb-cccc-dddd-eeeeeeeeeeee', '勤怠管理システム', '社内用の勤怠管理ツール', 'ACTIVE', false),
-  (1, 'a2222222-bbbb-cccc-dddd-eeeeeeeeeeee', '顧客管理アプリ', '顧客情報を一元管理するCRMシステム', 'ACTIVE', false),
+  (1, 'a2222222-bbbb-cccc-dddd-eeeeeeeeeeee', '顧客管理アプリ', '顧客情報を一元管理するCRMシステム', 'ARCHIVED', false),
+  (1, 'a3333333-bbbb-cccc-dddd-eeeeeeeeeeee', 'イベント企画', '社内イベントの準備', 'ACTIVE', true),
   (2, 'b1111111-cccc-dddd-eeee-ffffffffffff', 'ECサイト構築', 'ネットショップの構築プロジェクト', 'ARCHIVED', false),
-  (2, 'b2222222-cccc-dddd-eeee-ffffffffffff', 'WEBサイト更新', 'WEBサイトの更新プロジェクト', 'ACTIVE', false),
-  (2, 'b3333333-cccc-dddd-eeee-ffffffffffff', 'イベント企画', '社内イベントの準備', 'ACTIVE', true);
+  (2, 'b2222222-cccc-dddd-eeee-ffffffffffff', 'WEBサイト更新', 'WEBサイトの更新プロジェクト', 'ACTIVE', false);
 
 -- タスク
 INSERT INTO tasks (
