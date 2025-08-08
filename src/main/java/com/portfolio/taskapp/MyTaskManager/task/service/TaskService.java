@@ -49,6 +49,10 @@ public class TaskService {
 
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
     Integer taskId = repository.findTaskIdByTaskPublicId(taskPublicId);
+    if (taskId == null) {
+      throw new RecordNotFoundException("task not found");
+    }
+
     List<Task> taskList = repository.findTasksByTaskId(taskId);
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
 

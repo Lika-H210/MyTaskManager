@@ -63,7 +63,7 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
       RecordNotFoundException ex) {
     // 開発者向けログ出力
-    log.warn("resource not fount: {}", ex.getMessage(), ex);
+    log.info("resource not fount: {}", ex.getMessage(), ex);
 
     //表示内容
     Map<String, Object> responseBody = new LinkedHashMap<>();

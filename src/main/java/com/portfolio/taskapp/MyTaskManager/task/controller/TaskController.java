@@ -113,6 +113,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = TaskTree.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのタスクが存在しないか、削除されている場合",
+              content = @Content()
           )
       }
   )
