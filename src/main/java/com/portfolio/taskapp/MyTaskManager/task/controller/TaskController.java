@@ -274,6 +274,10 @@ public class TaskController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功した場合（レスポンスボディはありません）"
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合"
           )
       }
   )
