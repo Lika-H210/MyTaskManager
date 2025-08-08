@@ -111,4 +111,8 @@ public class TaskService {
     return repository.findTaskByTaskPublicId(taskPublicId);
   }
 
+  @Transactional
+  public void deleteTask(String taskPublicId) {
+    repository.deleteTask(taskPublicId);
+  }
 }

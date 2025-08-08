@@ -207,4 +207,16 @@ class TaskRepositoryTest {
         .isEqualTo(task);
   }
 
+  @Test
+  void タスクの論理削除が行えていること() {
+    String publicId = "11111111-aaaa-bbbb-cccc-1234567890ab";
+
+    sut.deleteTask(publicId);
+
+    // 論理削除後は有効レコードが存在しないためactualにはnullが返る
+    Integer actual = sut.findTaskIdByTaskPublicId(publicId);
+
+    assertThat(actual).isNull();
+  }
+
 }
