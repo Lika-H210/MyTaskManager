@@ -42,6 +42,13 @@ class TaskRepositoryTest {
   }
 
   @Test
+  void 削除済みプロジェクトのpublicIdに紐づくid情報は返されないこと() {
+    Integer actual = sut.findProjectIdByProjectPublicId("a3333333-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+    assertThat(actual).isNull();
+  }
+
+  @Test
   void タスクのpublicIdと紐づくid情報が返されること() {
     Integer actual = sut.findTaskIdByTaskPublicId("11111111-aaaa-bbbb-cccc-1234567890ab");
 

@@ -39,6 +39,10 @@ public class TaskService {
 
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
     Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
+    if (projectId == null) {
+      throw new RecordNotFoundException("project not found");
+    }
+
     List<Task> taskList = repository.findTasksByProjectId(projectId);
     return converter.convertToTaskTreeList(taskList);
   }
@@ -73,6 +77,10 @@ public class TaskService {
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId) {
     Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
+    if (projectId == null) {
+      throw new RecordNotFoundException("project not found");
+    }
+
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toParentTask(request, projectId, publicId);
 
