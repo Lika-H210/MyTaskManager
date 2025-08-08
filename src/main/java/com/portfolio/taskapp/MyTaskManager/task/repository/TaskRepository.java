@@ -35,5 +35,7 @@ public interface TaskRepository {
   void updateTask(Task task);
 
   // 論理削除処理
+  void deleteProject(@Param("projectPublicId") String projectPublicId);
+
   void deleteTask(@Param("taskPublicId") String taskPublicId);
 }

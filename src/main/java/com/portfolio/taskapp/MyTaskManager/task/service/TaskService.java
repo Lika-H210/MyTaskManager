@@ -112,6 +112,12 @@ public class TaskService {
   }
 
   @Transactional
+  public void deleteProject(String taskPublicId) {
+    repository.deleteProject(taskPublicId);
+  }
+
+
+  @Transactional
   public void deleteTask(String taskPublicId) {
     repository.deleteTask(taskPublicId);
   }

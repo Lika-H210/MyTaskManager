@@ -208,6 +208,18 @@ class TaskRepositoryTest {
   }
 
   @Test
+  void プロジェクトの論理削除が行えていること() {
+    String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+    sut.deleteProject(publicId);
+
+    // 論理削除後は有効レコードが存在しないためactualにはnullが返る
+    Integer actual = sut.findProjectIdByProjectPublicId(publicId);
+
+    assertThat(actual).isNull();
+  }
+
+  @Test
   void タスクの論理削除が行えていること() {
     String publicId = "11111111-aaaa-bbbb-cccc-1234567890ab";
 
