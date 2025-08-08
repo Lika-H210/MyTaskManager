@@ -66,12 +66,11 @@ public class OriginalExceptionHandler {
     log.warn("resource not fount: {}", ex.getMessage(), ex);
 
     //表示内容
-    HttpStatus status = HttpStatus.NOT_FOUND;
     Map<String, Object> responseBody = new LinkedHashMap<>();
-    responseBody.put("status", status.value());
-    responseBody.put("error", status);
+    responseBody.put("status", ex.getHttpStatus().value());
+    responseBody.put("error", ex.getHttpStatus());
     responseBody.put("detail", ex.getMessage());
 
-    return ResponseEntity.badRequest().body(responseBody);
+    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
 }

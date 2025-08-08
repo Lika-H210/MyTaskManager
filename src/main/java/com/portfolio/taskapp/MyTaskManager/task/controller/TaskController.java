@@ -49,6 +49,10 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   array = @ArraySchema(schema = @Schema(implementation = Project.class)))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "認証済みユーザーが削除済みまたは無効化されている場合"
           )
       }
   )
@@ -121,6 +125,10 @@ public class TaskController {
               description = "プロジェクトが正常に作成された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Project.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "認証済みユーザーが削除済みまたは無効化されている場合"
           )
       }
   )

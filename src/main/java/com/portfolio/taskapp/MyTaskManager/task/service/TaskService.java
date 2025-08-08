@@ -32,7 +32,7 @@ public class TaskService {
   public List<Project> getUserProjects(String userPublicId) {
     Integer userId = repository.findUserIdByUserPublicId(userPublicId);
     if (userId == null) {
-      throw new RecordNotFoundException("ユーザーが見つかりません。");
+      throw new RecordNotFoundException("Authenticated user not found in database");
     }
     return repository.findProjectsByUserId(userId);
   }
@@ -58,6 +58,10 @@ public class TaskService {
   @Transactional
   public Project createProject(ProjectRequest request, String userPublicId) {
     Integer userId = repository.findUserIdByUserPublicId(userPublicId);
+    if (userId == null) {
+      throw new RecordNotFoundException("Authenticated user not found in database");
+    }
+
     String publicId = UUID.randomUUID().toString();
     Project project = mapper.toProject(request, userId, publicId);
 
