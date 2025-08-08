@@ -13,7 +13,7 @@
 
   <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM projects
-    WHERE public_id =#{projectPublicId}
+    WHERE public_id =#{projectPublicId} AND is_deleted = false
   </select>
 
   <select id="findTaskIdByTaskPublicId" parameterType="String" resultType="Integer">

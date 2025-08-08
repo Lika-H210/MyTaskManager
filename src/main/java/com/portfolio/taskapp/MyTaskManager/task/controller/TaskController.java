@@ -81,6 +81,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   array = @ArraySchema(schema = @Schema(implementation = TaskTree.class)))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合",
+              content = @Content()
           )
       }
   )
@@ -161,6 +166,11 @@ public class TaskController {
               description = "タスクが正常に作成された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合",
+              content = @Content()
           )
       }
   )
