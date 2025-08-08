@@ -98,6 +98,14 @@
   </update>
 
   <!--論理削除-->
+  <!--プロジェクトの論理削除-->
+  <update id="deleteProject" parameterType="String">
+    UPDATE projects
+    SET is_deleted = true
+    WHERE public_id = #{projectPublicId}
+    AND is_deleted = false
+  </update>
+
   <!--タスクの論理削除-->
   <update id="deleteTask" parameterType="String">
     UPDATE tasks

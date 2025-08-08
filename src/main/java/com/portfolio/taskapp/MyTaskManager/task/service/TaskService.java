@@ -112,6 +112,15 @@ public class TaskService {
   }
 
   @Transactional
+  public void deleteProject(String projectPublicId) {
+    // 削除対象のnullチェック
+    if (repository.findProjectIdByProjectPublicId(projectPublicId) == null) {
+      throw new RecordNotFoundException("project not found");
+    }
+    repository.deleteProject(projectPublicId);
+  }
+
+  @Transactional
   public void deleteTask(String taskPublicId) {
     repository.deleteTask(taskPublicId);
   }
