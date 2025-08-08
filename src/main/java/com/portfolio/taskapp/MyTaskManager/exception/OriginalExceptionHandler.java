@@ -59,4 +59,18 @@ public class OriginalExceptionHandler {
     return ResponseEntity.badRequest().body(responseBody);
   }
 
+  @ExceptionHandler(RecordNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
+      RecordNotFoundException ex) {
+    // 開発者向けログ出力
+    log.warn("resource not fount: {}", ex.getMessage(), ex);
+
+    //表示内容
+    Map<String, Object> responseBody = new LinkedHashMap<>();
+    responseBody.put("status", ex.getHttpStatus().value());
+    responseBody.put("error", ex.getHttpStatus());
+    responseBody.put("detail", ex.getMessage());
+
+    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
+  }
 }

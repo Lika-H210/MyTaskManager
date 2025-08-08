@@ -7,7 +7,8 @@
   <select id="findUserIdByUserPublicId"
     parameterType="String"
     resultType="Integer">
-    SELECT id FROM user_accounts WHERE public_id =#{userPublicId}
+    SELECT id FROM user_accounts
+    WHERE public_id =#{userPublicId} AND is_deleted = false
   </select>
 
   <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
