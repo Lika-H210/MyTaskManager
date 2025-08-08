@@ -122,6 +122,10 @@ public class TaskService {
 
   @Transactional
   public void deleteTask(String taskPublicId) {
+    // 削除対象のnullチェック
+    if (repository.findTaskIdByTaskPublicId(taskPublicId) == null) {
+      throw new RecordNotFoundException("task not found");
+    }
     repository.deleteTask(taskPublicId);
   }
 }

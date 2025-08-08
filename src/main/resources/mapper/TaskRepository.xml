@@ -111,6 +111,7 @@
     UPDATE tasks
     SET is_deleted = true
     WHERE public_id = #{taskPublicId}
+    AND is_deleted = false
   </update>
 
 </mapper>

@@ -308,6 +308,10 @@ public class TaskController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功し、レスポンスボディはありません"
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのタスクが存在しないか、削除されている場合"
           )
       }
   )
