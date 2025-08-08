@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -96,6 +97,28 @@ public class UserController {
     UserAccountResponse response = service
         .updateProfile(userDetails.getAccount().getPublicId(), request);
     return ResponseEntity.ok(response);
+  }
+
+  @Operation(
+      summary = "ユーザーアカウントの削除",
+      description = "アカウント情報からユーザーアカウントを論理削除します",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "204",
+              description = "削除が成功した場合（レスポンスボディはありません）"
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "ログインアカウントのユーザー情報が存在しないか、削除されている場合"
+          )
+      }
+  )
+  @DeleteMapping("/me")
+  public ResponseEntity<Void> deleteAccount(
+      @AuthenticationPrincipal UserAccountDetails userDetails) {
+    service.deleteAccount(userDetails.getAccount().getPublicId());
+    return ResponseEntity.noContent().build();
   }
 
 }

@@ -38,6 +38,16 @@
     WHERE public_id = #{publicId}
   </update>
 
+  <!-- アカウントの論理削除-->
+  <update id="deleteAccount"
+    parameterType="String">
+    UPDATE user_accounts
+    SET
+    is_deleted = true
+    WHERE public_id = #{publicId}
+    AND is_deleted = false
+  </update>
+
   <!--Email重複チェック　※DBにemailと同じemailが存在する場合True-->
   <select id="existsByEmail" parameterType="String" resultType="boolean">
     SELECT COUNT(*) > 0

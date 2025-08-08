@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
@@ -73,6 +74,14 @@ public class UserService {
     UserAccount updatedAccount = repository.findAccountByPublicId(publicId);
 
     return mapper.toUserAccountResponse(updatedAccount);
+  }
+
+  @Transactional
+  public void deleteAccount(String publicId) {
+    if (repository.findAccountByPublicId(publicId) == null) {
+      throw new RecordNotFoundException("account not found");
+    }
+    repository.deleteAccount(publicId);
   }
 
 }

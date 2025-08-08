@@ -93,6 +93,16 @@ class UserRepositoryTest {
         .isEqualTo(account);
   }
 
+  @Test
+  void アカウントの削除処理実行によりアカウントが取得できなくなっていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+
+    sut.deleteAccount(publicId);
+    UserAccount actual = sut.findAccountByPublicId(publicId);
+
+    assertThat(actual).isNull();
+  }
+
   // Emailの重複チェック
   @Test
   void emailが既に登録されている場合にTrueを返すこと() {
