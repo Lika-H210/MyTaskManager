@@ -97,4 +97,12 @@
     public_id = #{publicId}
   </update>
 
+  <!--論理削除-->
+  <!--タスクの論理削除-->
+  <update id="deleteTask" parameterType="String">
+    UPDATE tasks
+    SET is_deleted = true
+    WHERE public_id = #{taskPublicId}
+  </update>
+
 </mapper>
