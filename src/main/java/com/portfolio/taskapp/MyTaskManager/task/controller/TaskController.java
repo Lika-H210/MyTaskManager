@@ -52,7 +52,8 @@ public class TaskController {
           ),
           @ApiResponse(
               responseCode = "404",
-              description = "認証済みユーザーが削除済みまたは無効化されている場合"
+              description = "認証済みユーザーが削除済みまたは無効化されている場合",
+              content = @Content()
           )
       }
   )
@@ -128,7 +129,8 @@ public class TaskController {
           ),
           @ApiResponse(
               responseCode = "404",
-              description = "認証済みユーザーが削除済みまたは無効化されている場合"
+              description = "認証済みユーザーが削除済みまたは無効化されている場合",
+              content = @Content()
           )
       }
   )
