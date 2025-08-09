@@ -86,7 +86,22 @@ public class TaskService {
     }
 
     String publicId = UUID.randomUUID().toString();
-    Task task = mapper.toParentTask(request, projectId, publicId);
+    Task task = mapper.toTask(request, projectId, publicId);
+
+    repository.createTask(task);
+
+    return task;
+  }
+
+  @Transactional
+  public Task createSubtask(TaskRequest request, String taskPublicId) {
+    Task parentTask = repository.findTaskByTaskPublicId(taskPublicId);
+    if (parentTask == null) {
+      throw new RecordNotFoundException("parent task not found");
+    }
+
+    String publicId = UUID.randomUUID().toString();
+    Task task = mapper.toSubtask(request, parentTask, publicId);
 
     repository.createTask(task);
 
@@ -105,7 +120,7 @@ public class TaskService {
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId) {
 
-    Task task = mapper.toParentTask(request, null, taskPublicId);
+    Task task = mapper.toTask(request, null, taskPublicId);
     repository.updateTask(task);
 
     return repository.findTaskByTaskPublicId(taskPublicId);
