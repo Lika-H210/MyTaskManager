@@ -38,4 +38,6 @@ public interface TaskRepository {
   void deleteProject(@Param("projectPublicId") String projectPublicId);
 
   void deleteTask(@Param("taskPublicId") String taskPublicId);
+
+  Integer findProjectIdByTaskId(@Param("taskId") Integer taskId);
 }

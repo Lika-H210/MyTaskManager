@@ -231,4 +231,12 @@ class TaskRepositoryTest {
     assertThat(actual).isNull();
   }
 
+  @Test
+  void taskIdから紐づくprojectIdを取得できていること() {
+    Integer taskId = 2;
+
+    Integer actual = sut.findProjectIdByTaskId(taskId);
+
+    assertThat(actual).isEqualTo(1);
+  }
 }

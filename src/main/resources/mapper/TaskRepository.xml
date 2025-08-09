@@ -114,4 +114,8 @@
     AND is_deleted = false
   </update>
 
+  <select id="findProjectIdByTaskId" parameterType="Integer" resultType="Integer">
+    SELECT project_id FROM tasks WHERE id = #{taskId}
+  </select>
+
 </mapper>
