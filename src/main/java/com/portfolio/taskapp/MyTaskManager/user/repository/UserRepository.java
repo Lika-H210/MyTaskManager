@@ -15,6 +15,8 @@ public interface UserRepository {
 
   void updateProfile(UserAccount userAccount);
 
+  void deleteAccount(@Param("publicId") String publicId);
+
   // 登録時email重複チェック
   boolean existsByEmail(@Param("email") String email);
 
