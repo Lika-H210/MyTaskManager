@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -107,6 +109,7 @@ public class UserController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功した場合（レスポンスボディはありません）"
+                  + "この操作により現在のセッションが終了し、再度アクセスするには再ログインが必要になります。"
           ),
           @ApiResponse(
               responseCode = "404",
@@ -116,8 +119,10 @@ public class UserController {
   )
   @DeleteMapping("/me")
   public ResponseEntity<Void> deleteAccount(
-      @AuthenticationPrincipal UserAccountDetails userDetails) {
+      @AuthenticationPrincipal UserAccountDetails userDetails,
+      HttpServletRequest request) throws ServletException {
     service.deleteAccount(userDetails.getAccount().getPublicId());
+    request.logout();
     return ResponseEntity.noContent().build();
   }
 
