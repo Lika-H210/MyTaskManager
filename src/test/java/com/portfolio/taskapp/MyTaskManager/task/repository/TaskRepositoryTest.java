@@ -111,6 +111,28 @@ class TaskRepositoryTest {
   }
 
   @Test
+  void taskPublicIdに紐づく未削除タスクの情報が取得できること() {
+    String taskPublicId = "22222222-bbbb-cccc-dddd-1234567890ab";
+
+    Task actual = sut.findTaskByTaskPublicId(taskPublicId);
+
+    assertThat(actual).isNotNull();
+    assertThat(actual.getPublicId()).isEqualTo(taskPublicId);
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .isNotNull();
+  }
+
+  @Test
+  void taskPublicIdに紐づくタスクが削除済みの場合にタスクを取得できないこと() {
+    String taskPublicId = "55555555-eeee-ffff-0000-1234567890ab";
+
+    Task actual = sut.findTaskByTaskPublicId(taskPublicId);
+
+    assertThat(actual).isNull();
+  }
+
+  @Test
   void プロジェクト登録処理で新規のプロジェクトが登録されDBでの内容も反映できていること() {
     String publicId = "00000000-0000-0000-0000-000000000000";
     Project project = Project.builder()
@@ -231,12 +253,4 @@ class TaskRepositoryTest {
     assertThat(actual).isNull();
   }
 
-  @Test
-  void taskIdから紐づくprojectIdを取得できていること() {
-    Integer taskId = 2;
-
-    Integer actual = sut.findProjectIdByTaskId(taskId);
-
-    assertThat(actual).isEqualTo(1);
-  }
 }

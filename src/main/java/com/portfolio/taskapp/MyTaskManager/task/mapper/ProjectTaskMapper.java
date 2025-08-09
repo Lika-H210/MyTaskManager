@@ -19,7 +19,7 @@ public class ProjectTaskMapper {
         .build();
   }
 
-  public Task toBaseTask(TaskRequest request, Integer projectId, String publicId) {
+  public Task toTask(TaskRequest request, Integer projectId, String publicId) {
     return Task.builder()
         .projectId(projectId)
         .publicId(publicId)
@@ -34,12 +34,11 @@ public class ProjectTaskMapper {
         .build();
   }
 
-  public Task toSubtask(TaskRequest request, Integer projectId, String publicId,
-      Integer parentTaskId) {
+  public Task toSubtask(TaskRequest request, Task parentTask, String publicId) {
     return Task.builder()
-        .projectId(projectId)
+        .projectId(parentTask.getProjectId())
         .publicId(publicId)
-        .parentTaskId(parentTaskId)
+        .parentTaskId(parentTask.getId())
         .taskCaption(request.getTaskCaption())
         .description(request.getDescription())
         .dueDate(request.getDueDate())

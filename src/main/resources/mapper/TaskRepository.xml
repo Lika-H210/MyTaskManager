@@ -50,7 +50,9 @@
 
   <select id="findTaskByTaskPublicId" parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
-    SELECT * FROM tasks WHERE public_id = #{taskPublicId}
+    SELECT * FROM tasks
+    WHERE public_id = #{taskPublicId}
+    AND is_deleted = false
   </select>
 
   <!--登録処理-->
@@ -113,9 +115,5 @@
     WHERE public_id = #{taskPublicId}
     AND is_deleted = false
   </update>
-
-  <select id="findProjectIdByTaskId" parameterType="Integer" resultType="Integer">
-    SELECT project_id FROM tasks WHERE id = #{taskId}
-  </select>
 
 </mapper>

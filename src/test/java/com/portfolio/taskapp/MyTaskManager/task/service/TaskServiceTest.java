@@ -163,12 +163,12 @@ class TaskServiceTest {
     Task task = new Task();
 
     when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
-    when(mapper.toBaseTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
+    when(mapper.toTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
 
     sut.createParentTask(request, projectPublicId);
 
     verify(repository).findProjectIdByProjectPublicId(projectPublicId);
-    verify(mapper).toBaseTask(eq(request), eq(projectId), any(String.class));
+    verify(mapper).toTask(eq(request), eq(projectId), any(String.class));
     verify(repository).createTask(task);
   }
 
@@ -177,19 +177,20 @@ class TaskServiceTest {
     String taskPublicId = "00000000-0000-0000-0000-222222222222";
     Integer taskId = 999;
     Integer projectId = 111;
+    Task parentTask = Task.builder()
+        .id(taskId)
+        .projectId(projectId)
+        .build();
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(repository.findTaskIdByTaskPublicId(taskPublicId)).thenReturn(taskId);
-    when(repository.findProjectIdByTaskId(taskId)).thenReturn(projectId);
-    when(mapper.toSubtask(eq(request), eq(projectId), anyString(), eq(taskId))).thenReturn(
-        task);
+    when(repository.findTaskByTaskPublicId(taskPublicId)).thenReturn(parentTask);
+    when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
     sut.createSubtask(request, taskPublicId);
 
-    verify(repository).findTaskIdByTaskPublicId(taskPublicId);
-    verify(repository).findProjectIdByTaskId(taskId);
-    verify(mapper).toSubtask(eq(request), eq(projectId), anyString(), eq(taskId));
+    verify(repository).findTaskByTaskPublicId(taskPublicId);
+    verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
     verify(repository).createTask(task);
   }
 
@@ -216,11 +217,11 @@ class TaskServiceTest {
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(mapper.toBaseTask(request, null, taskPublicId)).thenReturn(task);
+    when(mapper.toTask(request, null, taskPublicId)).thenReturn(task);
 
     sut.updateTask(request, taskPublicId);
 
-    verify(mapper).toBaseTask(request, null, taskPublicId);
+    verify(mapper).toTask(request, null, taskPublicId);
     verify(repository).updateTask(task);
     verify(repository).findTaskByTaskPublicId(taskPublicId);
   }

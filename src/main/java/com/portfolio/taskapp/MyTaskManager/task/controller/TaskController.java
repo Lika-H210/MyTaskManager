@@ -180,7 +180,7 @@ public class TaskController {
           ),
           @ApiResponse(
               responseCode = "404",
-              description = "指定した公開IDの親タスクまたはその親タスクと紐づくプロジェクトが存在しないか、削除されている場合",
+              description = "指定した公開IDの親タスクが存在しないか、削除されている場合",
               content = @Content()
           )
       }

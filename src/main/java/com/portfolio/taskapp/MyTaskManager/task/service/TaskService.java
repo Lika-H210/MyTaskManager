@@ -86,7 +86,7 @@ public class TaskService {
     }
 
     String publicId = UUID.randomUUID().toString();
-    Task task = mapper.toBaseTask(request, projectId, publicId);
+    Task task = mapper.toTask(request, projectId, publicId);
 
     repository.createTask(task);
 
@@ -95,20 +95,13 @@ public class TaskService {
 
   @Transactional
   public Task createSubtask(TaskRequest request, String taskPublicId) {
-    // 親タスクの公開Idを内部Idに変換
-    Integer parentTaskId = repository.findTaskIdByTaskPublicId(taskPublicId);
-    if (parentTaskId == null) {
+    Task parentTask = repository.findTaskByTaskPublicId(taskPublicId);
+    if (parentTask == null) {
       throw new RecordNotFoundException("parent task not found");
     }
 
-    // 登録タスクと紐づくプロジェクトIdを取得
-    Integer projectId = repository.findProjectIdByTaskId(parentTaskId);
-    if (projectId == null) {
-      throw new RecordNotFoundException("related project not found");
-    }
-
     String publicId = UUID.randomUUID().toString();
-    Task task = mapper.toSubtask(request, projectId, publicId, parentTaskId);
+    Task task = mapper.toSubtask(request, parentTask, publicId);
 
     repository.createTask(task);
 
@@ -127,7 +120,7 @@ public class TaskService {
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId) {
 
-    Task task = mapper.toBaseTask(request, null, taskPublicId);
+    Task task = mapper.toTask(request, null, taskPublicId);
     repository.updateTask(task);
 
     return repository.findTaskByTaskPublicId(taskPublicId);
