@@ -30,18 +30,8 @@ public class UserService {
     this.mapper = mapper;
   }
 
-  // Todo:例外処理実装のタイミングで例外処理の内容を見直し
   public UserAccountResponse findAccount(String publicId) {
-    // アカウント情報にpublicIdが含まれなかった場合(仮としてIllegalArgumentExceptionで例外throw)
-    if (publicId == null) {
-      throw new IllegalArgumentException("Public ID is required");
-    }
-
     UserAccount account = repository.findAccountByPublicId(publicId);
-    // publicIdに紐づくユーザー情報が見つからない場合(仮としてIIllegalStateExceptionで例外throw)
-    if (account == null) {
-      throw new IllegalStateException("User account not found for authenticated user");
-    }
     return mapper.toUserAccountResponse(account);
   }
 
