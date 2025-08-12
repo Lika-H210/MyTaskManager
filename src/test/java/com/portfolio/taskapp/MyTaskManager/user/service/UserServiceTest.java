@@ -14,7 +14,7 @@ import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,7 +106,7 @@ class UserServiceTest {
   }
 
   @Test
-  void アカウントのprofile情報更新において適切なmapperとrepositoryが呼び出されていること()
+  void アカウント情報更新において適切なmapperとrepositoryが呼び出され認証情報も更新されていること()
       throws NotUniqueException, InvalidPasswordChangeException {
     // 事前準備
     String publicId = "00000000-0000-0000-0000-000000000000";
@@ -116,7 +116,7 @@ class UserServiceTest {
     String newRawPassword = "newRowPassword";
     String oldHashPassword = "oldHashPassword";
     String newHashPassword = "newHashPassword";
-    ProfileUpdateRequest request = new ProfileUpdateRequest("name", newEmail, oldRawPassword,
+    AccountUpdateRequest request = new AccountUpdateRequest("name", newEmail, oldRawPassword,
         newRawPassword);
     UserAccount authAccount = UserAccount.builder()
         .publicId(publicId)
@@ -133,20 +133,21 @@ class UserServiceTest {
     when(passwordEncoder.matches(oldRawPassword, oldHashPassword)).thenReturn(true);
     when(passwordEncoder.encode(newRawPassword)).thenReturn(newHashPassword);
     when(repository.existsByEmailExcludingUser(publicId, newEmail)).thenReturn(false);
-    when(mapper.profileToUserAccount(request, publicId, newHashPassword)).thenReturn(updateAccount);
+    when(mapper.updateRequestToUserAccount(request, publicId, newHashPassword)).thenReturn(
+        updateAccount);
 
     // SecurityContext をクリア
     SecurityContextHolder.clearContext();
 
     // 実行
-    sut.updateProfile(details, request);
+    sut.updateAccount(details, request);
 
     // 検証: 処理工程の確認
     verify(passwordEncoder).matches(oldRawPassword, oldHashPassword);
     verify(passwordEncoder).encode(newRawPassword);
     verify(repository).existsByEmailExcludingUser(publicId, newEmail);
-    verify(mapper).profileToUserAccount(request, publicId, newHashPassword);
-    verify(repository).updateProfile(updateAccount);
+    verify(mapper).updateRequestToUserAccount(request, publicId, newHashPassword);
+    verify(repository).updateAccount(updateAccount);
     verify(mapper).toUserAccountResponse(updateAccount);
 
     // 検証: updateAuthInfoでの認証情報の更新確認
@@ -165,7 +166,7 @@ class UserServiceTest {
       throws NotUniqueException {
     String publicId = "00000000-0000-0000-0000-000000000000";
     String email = "user@example.com";
-    ProfileUpdateRequest request = new ProfileUpdateRequest(null, email, null, null);
+    AccountUpdateRequest request = new AccountUpdateRequest(null, email, null, null);
     UserAccount authAccount = UserAccount.builder()
         .publicId(publicId)
         .build();
@@ -174,7 +175,7 @@ class UserServiceTest {
     when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(true);
 
     NotUniqueException thrown = assertThrows(NotUniqueException.class,
-        () -> sut.updateProfile(details, request));
+        () -> sut.updateAccount(details, request));
 
     assertThat(thrown.getMessage()).isEqualTo("このメールアドレスは使用できません");
   }

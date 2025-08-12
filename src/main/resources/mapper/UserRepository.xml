@@ -28,8 +28,8 @@
     VALUES (#{publicId}, #{userName}, #{email}, #{password}, false)
   </insert>
 
-  <!-- ユーザープロフィールの更新 -->
-  <update id="updateProfile"
+  <!-- ユーザーアカウントの更新 -->
+  <update id="updateAccount"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
     UPDATE user_accounts
     <set>

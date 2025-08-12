@@ -13,7 +13,7 @@ public interface UserRepository {
 
   void registerUserAccount(UserAccount userAccount);
 
-  void updateProfile(UserAccount userAccount);
+  void updateAccount(UserAccount userAccount);
 
   void deleteAccount(@Param("publicId") String publicId);
 

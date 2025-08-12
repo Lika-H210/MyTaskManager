@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProfileUpdateRequest {
+public class AccountUpdateRequest {
 
   @Schema(description = "ユーザー名")
   @Size(min = 1, max = 50, message = "ユーザー名は1文字以上50字以内で入力してください")

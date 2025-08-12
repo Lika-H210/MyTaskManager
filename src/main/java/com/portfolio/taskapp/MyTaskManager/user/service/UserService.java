@@ -6,7 +6,7 @@ import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeExcept
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
@@ -55,8 +55,8 @@ public class UserService {
   }
 
   @Transactional
-  public UserAccountResponse updateProfile(UserAccountDetails userDetails,
-      ProfileUpdateRequest request)
+  public UserAccountResponse updateAccount(UserAccountDetails userDetails,
+      AccountUpdateRequest request)
       throws NotUniqueException, InvalidPasswordChangeException {
 
     String publicId = userDetails.getAccount().getPublicId();
@@ -88,9 +88,9 @@ public class UserService {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 
-    UserAccount updateAccount = mapper.profileToUserAccount(request, publicId,
+    UserAccount updateAccount = mapper.updateRequestToUserAccount(request, publicId,
         updateHashedPassword);
-    repository.updateProfile(updateAccount);
+    repository.updateAccount(updateAccount);
 
     // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
     if (!mailIsNull || updateHashedPassword != null) {

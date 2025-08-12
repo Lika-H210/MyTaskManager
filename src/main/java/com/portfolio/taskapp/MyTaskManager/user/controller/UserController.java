@@ -3,7 +3,7 @@ package com.portfolio.taskapp.MyTaskManager.user.controller;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
-import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
@@ -85,7 +85,7 @@ public class UserController {
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "プロフィール情報の更新に成功した場合",
+              description = "アカウント情報の更新に成功した場合",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = UserAccountResponse.class)
@@ -103,17 +103,17 @@ public class UserController {
           ),
           @ApiResponse(
               responseCode = "401",
-              description = "パスワード更新に失敗した場合",
+              description = "パスワードの検証に失敗した場合",
               content = @Content()
           )
       }
   )
   @PatchMapping("/me/account")
-  public ResponseEntity<UserAccountResponse> updateUser(
+  public ResponseEntity<UserAccountResponse> updateAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Valid @RequestBody ProfileUpdateRequest request)
+      @Valid @RequestBody AccountUpdateRequest request)
       throws NotUniqueException, InvalidPasswordChangeException {
-    UserAccountResponse updateAccount = service.updateProfile(userDetails, request);
+    UserAccountResponse updateAccount = service.updateAccount(userDetails, request);
     if (updateAccount == null) {
       // 何も更新がなかった場合
       return ResponseEntity.noContent().build();
