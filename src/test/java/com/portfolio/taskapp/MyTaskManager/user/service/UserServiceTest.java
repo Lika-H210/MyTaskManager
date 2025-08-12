@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
@@ -104,23 +105,27 @@ class UserServiceTest {
   @Test
   void アカウントのprofile情報更新において適切なmapperとrepositoryが呼び出されていること()
       throws NotUniqueException {
+    // 事前準備
     String publicId = "00000000-0000-0000-0000-000000000000";
     String email = "user@example.com";
     ProfileUpdateRequest request = new ProfileUpdateRequest("name", email);
-    UserAccount account = new UserAccount();
-    UserAccount updatedAccount = new UserAccount();
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(publicId)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    UserAccount updateAccount = new UserAccount();
 
     when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(false);
-    when(mapper.profileToUserAccount(request, publicId)).thenReturn(account);
-    when(repository.findAccountByPublicId(publicId)).thenReturn(updatedAccount);
+    when(mapper.profileToUserAccount(request, publicId)).thenReturn(updateAccount);
 
-    sut.updateProfile(publicId, request);
+    // 実行
+    sut.updateProfile(details, request);
 
+    // 検証
     verify(repository).existsByEmailExcludingUser(publicId, email);
     verify(mapper).profileToUserAccount(request, publicId);
-    verify(repository).updateProfile(account);
-    verify(repository).findAccountByPublicId(publicId);
-    verify(mapper).toUserAccountResponse(updatedAccount);
+    verify(repository).updateProfile(updateAccount);
+    verify(mapper).toUserAccountResponse(updateAccount);
   }
 
   @Test
@@ -129,11 +134,15 @@ class UserServiceTest {
     String publicId = "00000000-0000-0000-0000-000000000000";
     String email = "user@example.com";
     ProfileUpdateRequest request = new ProfileUpdateRequest("name", email);
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(publicId)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
 
     when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(true);
 
     NotUniqueException thrown = assertThrows(NotUniqueException.class,
-        () -> sut.updateProfile(publicId, request));
+        () -> sut.updateProfile(details, request));
 
     verify(mapper, never()).profileToUserAccount(request, publicId);
     assertThat(thrown.getMessage()).isEqualTo("このメールアドレスは使用できません");

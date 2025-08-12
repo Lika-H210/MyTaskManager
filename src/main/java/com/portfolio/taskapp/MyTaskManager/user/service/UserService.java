@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.user.service;
 
+import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
@@ -10,6 +11,8 @@ import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,19 +54,49 @@ public class UserService {
   }
 
   @Transactional
-  public UserAccountResponse updateProfile(String publicId, ProfileUpdateRequest request)
+  public UserAccountResponse updateProfile(UserAccountDetails userDetails,
+      ProfileUpdateRequest request)
       throws NotUniqueException {
 
-    if (repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
+    String publicId = userDetails.getAccount().getPublicId();
+    boolean nameIsNull = request.getUserName() == null;
+    boolean mailIsNull = request.getEmail() == null;
+
+    // 更新情報がない場合
+    if (nameIsNull && mailIsNull) {
+      return null;
+    }
+
+    if (!mailIsNull && repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 
-    UserAccount account = mapper.profileToUserAccount(request, publicId);
+    UserAccount updateAccount = mapper.profileToUserAccount(request, publicId);
+    repository.updateProfile(updateAccount);
 
-    repository.updateProfile(account);
-    UserAccount updatedAccount = repository.findAccountByPublicId(publicId);
+    // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
+    if (!mailIsNull) {
+      updateAuthInfo(userDetails, request);
+    }
 
-    return mapper.toUserAccountResponse(updatedAccount);
+    return mapper.toUserAccountResponse(updateAccount);
+  }
+
+  private static void updateAuthInfo(UserAccountDetails userDetails, ProfileUpdateRequest request) {
+    UserAccount updateUserAccount = UserAccount.builder()
+        .publicId(userDetails.getAccount().getPublicId())
+        .email(request.getEmail() != null ? request.getEmail() : userDetails.getUsername())
+        .password(userDetails.getPassword())
+        .build();
+    UserAccountDetails updatedUserDetails = new UserAccountDetails(updateUserAccount);
+
+    UsernamePasswordAuthenticationToken newAuth =
+        new UsernamePasswordAuthenticationToken(
+            updatedUserDetails,
+            updatedUserDetails.getPassword(),
+            userDetails.getAuthorities());
+
+    SecurityContextHolder.getContext().setAuthentication(newAuth);
   }
 
   @Transactional
