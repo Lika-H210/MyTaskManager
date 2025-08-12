@@ -1,6 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
@@ -78,8 +79,8 @@ public class UserController {
   }
 
   @Operation(
-      summary = "ユーザープロフィール情報の更新",
-      description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別途で追加予定です。",
+      summary = "ユーザー情報の更新",
+      description = "ユーザー情報を更新します。",
       security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
@@ -99,14 +100,19 @@ public class UserController {
               responseCode = "400",
               description = "リクエストされたアカウント情報が入力チェックに抵触した場合",
               content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "401",
+              description = "パスワード更新に失敗した場合",
+              content = @Content()
           )
       }
   )
-  @PatchMapping("/me/profile")
+  @PatchMapping("/me/account")
   public ResponseEntity<UserAccountResponse> updateUser(
       @AuthenticationPrincipal UserAccountDetails userDetails,
       @Valid @RequestBody ProfileUpdateRequest request)
-      throws NotUniqueException {
+      throws NotUniqueException, InvalidPasswordChangeException {
     UserAccountResponse updateAccount = service.updateProfile(userDetails, request);
     if (updateAccount == null) {
       // 何も更新がなかった場合

@@ -19,11 +19,13 @@ public class UserAccountMapper {
         .build();
   }
 
-  public UserAccount profileToUserAccount(ProfileUpdateRequest request, String publicId) {
+  public UserAccount profileToUserAccount(ProfileUpdateRequest request, String publicId,
+      String hashedPassword) {
     return UserAccount.builder()
         .publicId(publicId)
         .userName(request.getUserName())
         .email(request.getEmail())
+        .password(hashedPassword)
         .build();
   }
 

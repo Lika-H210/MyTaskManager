@@ -27,4 +27,15 @@ public class ProfileUpdateRequest {
   @Size(min = 1, max = 100, message = "メールアドレスは1文字以上100文字以下で入力してください")
   private String email;
 
+  @Schema(description = "現在のパスワード：パスワード更新には現在のパスワードと新しいパスワード何れも必要です")
+  @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
+  @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
+      message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
+  private String currentPassword;
+
+  @Schema(description = "新しいパスワード：パスワード更新には現在のパスワードと新しいパスワード何れも必要です")
+  @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
+  @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
+      message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
+  private String newPassword;
 }

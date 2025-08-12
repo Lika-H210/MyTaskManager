@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
@@ -56,37 +57,56 @@ public class UserService {
   @Transactional
   public UserAccountResponse updateProfile(UserAccountDetails userDetails,
       ProfileUpdateRequest request)
-      throws NotUniqueException {
+      throws NotUniqueException, InvalidPasswordChangeException {
 
     String publicId = userDetails.getAccount().getPublicId();
     boolean nameIsNull = request.getUserName() == null;
     boolean mailIsNull = request.getEmail() == null;
+    boolean currentIsNull = request.getCurrentPassword() == null;
+    boolean newIsNull = request.getNewPassword() == null;
 
     // 更新情報がない場合
-    if (nameIsNull && mailIsNull) {
+    if (nameIsNull && mailIsNull && currentIsNull && newIsNull) {
       return null;
+    }
+
+    // 現行パスワードと新パスワードがどちらかしか入力されていない場合
+    if (currentIsNull != newIsNull) {
+      throw new InvalidPasswordChangeException(
+          "パスワードの変更ができません。新・現の両方のパスワード情報が必要です。");
+    }
+
+    String updateHashedPassword = null;
+    if (!currentIsNull && !newIsNull) {
+      if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
+        throw new InvalidPasswordChangeException("現在のパスワードが誤っています");
+      }
+      updateHashedPassword = passwordEncoder.encode(request.getNewPassword());
     }
 
     if (!mailIsNull && repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 
-    UserAccount updateAccount = mapper.profileToUserAccount(request, publicId);
+    UserAccount updateAccount = mapper.profileToUserAccount(request, publicId,
+        updateHashedPassword);
     repository.updateProfile(updateAccount);
 
     // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
-    if (!mailIsNull) {
-      updateAuthInfo(userDetails, request);
+    if (!mailIsNull || updateHashedPassword != null) {
+      updateAuthInfo(userDetails, updateAccount);
     }
 
     return mapper.toUserAccountResponse(updateAccount);
   }
 
-  private static void updateAuthInfo(UserAccountDetails userDetails, ProfileUpdateRequest request) {
+  private static void updateAuthInfo(UserAccountDetails userDetails, UserAccount updateAccount) {
     UserAccount updateUserAccount = UserAccount.builder()
         .publicId(userDetails.getAccount().getPublicId())
-        .email(request.getEmail() != null ? request.getEmail() : userDetails.getUsername())
-        .password(userDetails.getPassword())
+        .email(
+            updateAccount.getEmail() != null ? updateAccount.getEmail() : userDetails.getUsername())
+        .password(updateAccount.getPassword() != null ? updateAccount.getPassword()
+            : userDetails.getPassword())
         .build();
     UserAccountDetails updatedUserDetails = new UserAccountDetails(updateUserAccount);
 

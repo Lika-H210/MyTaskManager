@@ -82,14 +82,15 @@ class UserRepositoryTest {
         .publicId(publicId)
         .userName("テスト太郎")
         .email(email)
+        .password("newHashedPassword")
         .build();
 
     sut.updateProfile(account);
-    UserAccount actual = sut.findAccountByPublicId(publicId);
+    UserAccount actual = sut.findAccountByEmail(email);
 
     assertThat(actual)
         .usingRecursiveComparison()
-        .comparingOnlyFields("publicId", "userName", "email")
+        .comparingOnlyFields("publicId", "email", "password")
         .isEqualTo(account);
   }
 
