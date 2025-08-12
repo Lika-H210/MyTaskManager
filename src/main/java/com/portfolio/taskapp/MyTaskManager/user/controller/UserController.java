@@ -20,8 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -79,26 +79,40 @@ public class UserController {
 
   @Operation(
       summary = "ユーザープロフィール情報の更新",
-      description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別APIで対応予定です。",
+      description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別途で追加予定です。",
       security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "プロフィール情報の更新に成功した場合、更新後のユーザー情報を返します。",
+              description = "プロフィール情報の更新に成功した場合",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = UserAccountResponse.class)
               )
+          ),
+          @ApiResponse(
+              responseCode = "204",
+              description = "更新内容がない場合",
+              content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストされたアカウント情報が入力チェックに抵触した場合",
+              content = @Content()
           )
       }
   )
-  @PutMapping("/me/profile")
+  @PatchMapping("/me/profile")
   public ResponseEntity<UserAccountResponse> updateUser(
       @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Valid @RequestBody ProfileUpdateRequest request) throws NotUniqueException {
-    UserAccountResponse response = service
-        .updateProfile(userDetails.getAccount().getPublicId(), request);
-    return ResponseEntity.ok(response);
+      @Valid @RequestBody ProfileUpdateRequest request)
+      throws NotUniqueException {
+    UserAccountResponse updateAccount = service.updateProfile(userDetails, request);
+    if (updateAccount == null) {
+      // 何も更新がなかった場合
+      return ResponseEntity.noContent().build();
+    }
+    return ResponseEntity.ok(updateAccount);
   }
 
   @Operation(
