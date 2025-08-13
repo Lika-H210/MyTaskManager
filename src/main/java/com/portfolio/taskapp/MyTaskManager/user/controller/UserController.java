@@ -68,6 +68,11 @@ public class UserController {
               description = "アカウントの登録に成功した場合。メッセージが返されます。",
               content = @Content(schema = @Schema(type = "string", example = "アカウントを登録しました。ログインしてください。")
               )
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
           )
       }
   )
@@ -98,7 +103,7 @@ public class UserController {
           ),
           @ApiResponse(
               responseCode = "400",
-              description = "リクエストされたアカウント情報が入力チェックに抵触した場合",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
               content = @Content()
           ),
           @ApiResponse(
