@@ -10,7 +10,9 @@ import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
+import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,15 +62,15 @@ public class UserService {
       throws NotUniqueException, InvalidPasswordChangeException {
 
     String publicId = userDetails.getAccount().getPublicId();
-    boolean nameIsNull = request.getUserName() == null;
-    boolean mailIsNull = request.getEmail() == null;
-    boolean currentIsNull = request.getCurrentPassword() == null;
-    boolean newIsNull = request.getNewPassword() == null;
 
     // 更新情報がない場合
-    if (nameIsNull && mailIsNull && currentIsNull && newIsNull) {
+    if (ObjectUtils.allNull(request.getUserName(), request.getEmail(),
+        request.getCurrentPassword(), request.getNewPassword())) {
       return null;
     }
+
+    boolean currentIsNull = request.getCurrentPassword() == null;
+    boolean newIsNull = request.getNewPassword() == null;
 
     // 現行パスワードと新パスワードがどちらかしか入力されていない場合
     if (currentIsNull != newIsNull) {
@@ -84,7 +86,8 @@ public class UserService {
       updateHashedPassword = passwordEncoder.encode(request.getNewPassword());
     }
 
-    if (!mailIsNull && repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
+    if (request.getEmail() != null && repository.existsByEmailExcludingUser(publicId,
+        request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 
@@ -93,20 +96,20 @@ public class UserService {
     repository.updateAccount(updateAccount);
 
     // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
-    if (!mailIsNull || updateHashedPassword != null) {
-      updateAuthInfo(userDetails, updateAccount);
+    if (request.getEmail() != null || updateHashedPassword != null) {
+      refreshSecurityContext(userDetails, updateAccount);
     }
 
     return mapper.toUserAccountResponse(updateAccount);
   }
 
-  private static void updateAuthInfo(UserAccountDetails userDetails, UserAccount updateAccount) {
+  private void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
     UserAccount updateUserAccount = UserAccount.builder()
         .publicId(userDetails.getAccount().getPublicId())
-        .email(
-            updateAccount.getEmail() != null ? updateAccount.getEmail() : userDetails.getUsername())
-        .password(updateAccount.getPassword() != null ? updateAccount.getPassword()
-            : userDetails.getPassword())
+        .email(Optional.ofNullable(updateAccount.getEmail())
+            .orElse(userDetails.getUsername()))
+        .password(Optional.ofNullable(updateAccount.getPassword())
+            .orElse(userDetails.getPassword()))
         .build();
     UserAccountDetails updatedUserDetails = new UserAccountDetails(updateUserAccount);
 

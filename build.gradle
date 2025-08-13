@@ -32,6 +32,8 @@ dependencies {
     //Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    // apache commons lang
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
     //MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
     //MyBatis
