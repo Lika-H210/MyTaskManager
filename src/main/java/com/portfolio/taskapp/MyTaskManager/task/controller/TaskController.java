@@ -168,6 +168,44 @@ public class TaskController {
   }
 
   @Operation(
+      summary = "新規の親タスク登録",
+      description = "新規の親タスクを登録します",
+      security = @SecurityRequirement(name = "basicAuth"),
+      parameters = {
+          @Parameter(
+              name = "projectPublicId",
+              required = true,
+              description = "プロジェクトの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "201",
+              description = "タスクが正常に作成された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合",
+              content = @Content()
+          )
+      }
+  )
+  @PostMapping("/projects/{projectPublicId}/tasks")
+  public ResponseEntity<Task> createParentTask(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String projectPublicId,
+      @Valid @RequestBody TaskRequest request) {
+    Task task = service.createParentTask(request, projectPublicId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(task);
+  }
+
+  @Operation(
       summary = "新規の子タスク登録",
       description = "新規の子タスクを登録します",
       security = @SecurityRequirement(name = "basicAuth"),
@@ -207,44 +245,6 @@ public class TaskController {
       String taskPublicId,
       @Valid @RequestBody TaskRequest request) {
     Task task = service.createSubtask(request, taskPublicId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(task);
-  }
-
-  @Operation(
-      summary = "新規の親タスク登録",
-      description = "新規の親タスクを登録します",
-      security = @SecurityRequirement(name = "basicAuth"),
-      parameters = {
-          @Parameter(
-              name = "projectPublicId",
-              required = true,
-              description = "プロジェクトの公開ID（UUID）",
-              schema = @Schema(type = "string", format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
-          )
-      },
-      responses = {
-          @ApiResponse(
-              responseCode = "201",
-              description = "タスクが正常に作成された場合",
-              content = @Content(mediaType = "application/json",
-                  schema = @Schema(implementation = Task.class))
-          ),
-          @ApiResponse(
-              responseCode = "404",
-              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合",
-              content = @Content()
-          )
-      }
-  )
-  @PostMapping("/projects/{projectPublicId}/tasks")
-  public ResponseEntity<Task> createParentTask(
-      @PathVariable
-      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-          message = "入力の形式に誤りがあります")
-      String projectPublicId,
-      @Valid @RequestBody TaskRequest request) {
-    Task task = service.createParentTask(request, projectPublicId);
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
