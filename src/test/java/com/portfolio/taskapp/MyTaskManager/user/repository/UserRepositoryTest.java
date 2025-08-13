@@ -75,21 +75,22 @@ class UserRepositoryTest {
   }
 
   @Test
-  void アカウントのprofile情報更新処理で更新対象項目が更新されていること() {
+  void アカウント情報更新処理で更新対象項目が更新されていること() {
     String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
     String email = "test@mail.com";
     UserAccount account = UserAccount.builder()
         .publicId(publicId)
         .userName("テスト太郎")
         .email(email)
+        .password("newHashedPassword")
         .build();
 
-    sut.updateProfile(account);
-    UserAccount actual = sut.findAccountByPublicId(publicId);
+    sut.updateAccount(account);
+    UserAccount actual = sut.findAccountByEmail(email);
 
     assertThat(actual)
         .usingRecursiveComparison()
-        .comparingOnlyFields("publicId", "userName", "email")
+        .comparingOnlyFields("publicId", "email", "password")
         .isEqualTo(account);
   }
 
@@ -114,37 +115,6 @@ class UserRepositoryTest {
   @Test
   void emailが未登録の場合にFalseを返すこと() {
     boolean actual = sut.existsByEmail("XXX@XXX.com");
-
-    assertThat(actual).isFalse();
-  }
-
-  // 更新時Email重複チェック
-  @Test
-  void emailが自身の以外のレコードで登録されているの場合にTrueを返すこと() {
-    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
-    String email = "sato@example.com";
-
-    boolean actual = sut.existsByEmailExcludingUser(publicId, email);
-
-    assertThat(actual).isTrue();
-  }
-
-  @Test
-  void emailが自身の元のemailと同じの場合にFalseを返すこと() {
-    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
-    String email = "taro@example.com";
-
-    boolean actual = sut.existsByEmailExcludingUser(publicId, email);
-
-    assertThat(actual).isFalse();
-  }
-
-  @Test
-  void 未登録のemailでレコード検証した場合にFalseを返すこと() {
-    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
-    String email = "XXX@XXX.com";
-
-    boolean actual = sut.existsByEmailExcludingUser(publicId, email);
 
     assertThat(actual).isFalse();
   }

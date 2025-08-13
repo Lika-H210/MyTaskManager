@@ -13,15 +13,11 @@ public interface UserRepository {
 
   void registerUserAccount(UserAccount userAccount);
 
-  void updateProfile(UserAccount userAccount);
+  void updateAccount(UserAccount userAccount);
 
   void deleteAccount(@Param("publicId") String publicId);
 
   // 登録時email重複チェック
   boolean existsByEmail(@Param("email") String email);
-
-  // 更新時email重複チェック
-  boolean existsByEmailExcludingUser(@Param("publicId") String publicId,
-      @Param("email") String email);
 
 }

@@ -1,8 +1,9 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
-import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
@@ -78,13 +79,13 @@ public class UserController {
   }
 
   @Operation(
-      summary = "ユーザープロフィール情報の更新",
-      description = "指定したユーザーのプロフィール情報（ユーザー名・メールアドレス）を更新します。パスワード更新は別途で追加予定です。",
+      summary = "ユーザー情報の更新",
+      description = "ユーザー情報を更新します。",
       security = @SecurityRequirement(name = "basicAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "プロフィール情報の更新に成功した場合",
+              description = "アカウント情報の更新に成功した場合",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = UserAccountResponse.class)
@@ -99,15 +100,20 @@ public class UserController {
               responseCode = "400",
               description = "リクエストされたアカウント情報が入力チェックに抵触した場合",
               content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "401",
+              description = "パスワードの検証に失敗した場合",
+              content = @Content()
           )
       }
   )
-  @PatchMapping("/me/profile")
-  public ResponseEntity<UserAccountResponse> updateUser(
+  @PatchMapping("/me/account")
+  public ResponseEntity<UserAccountResponse> updateAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Valid @RequestBody ProfileUpdateRequest request)
-      throws NotUniqueException {
-    UserAccountResponse updateAccount = service.updateProfile(userDetails, request);
+      @Valid @RequestBody AccountUpdateRequest request)
+      throws NotUniqueException, InvalidPasswordChangeException {
+    UserAccountResponse updateAccount = service.updateAccount(userDetails, request);
     if (updateAccount == null) {
       // 何も更新がなかった場合
       return ResponseEntity.noContent().build();

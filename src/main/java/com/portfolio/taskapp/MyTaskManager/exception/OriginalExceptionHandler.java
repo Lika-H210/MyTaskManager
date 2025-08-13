@@ -73,4 +73,19 @@ public class OriginalExceptionHandler {
 
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
+
+  @ExceptionHandler(InvalidPasswordChangeException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidPasswordChangeException(
+      InvalidPasswordChangeException ex) {
+    // 開発者向けログ出力
+    log.warn("Password update failed: {}", ex.getMessage());
+
+    //表示内容
+    Map<String, Object> responseBody = new LinkedHashMap<>();
+    responseBody.put("status", ex.getHttpStatus().value());
+    responseBody.put("error", ex.getHttpStatus());
+    responseBody.put("detail", ex.getMessage());
+
+    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
+  }
 }

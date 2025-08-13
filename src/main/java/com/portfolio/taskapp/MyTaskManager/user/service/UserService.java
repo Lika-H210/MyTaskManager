@@ -2,14 +2,17 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.ProfileUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
+import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,39 +57,58 @@ public class UserService {
   }
 
   @Transactional
-  public UserAccountResponse updateProfile(UserAccountDetails userDetails,
-      ProfileUpdateRequest request)
-      throws NotUniqueException {
+  public UserAccountResponse updateAccount(UserAccountDetails userDetails,
+      AccountUpdateRequest request)
+      throws NotUniqueException, InvalidPasswordChangeException {
 
     String publicId = userDetails.getAccount().getPublicId();
-    boolean nameIsNull = request.getUserName() == null;
-    boolean mailIsNull = request.getEmail() == null;
 
     // 更新情報がない場合
-    if (nameIsNull && mailIsNull) {
+    if (ObjectUtils.allNull(request.getUserName(), request.getEmail(),
+        request.getCurrentPassword(), request.getNewPassword())) {
       return null;
     }
 
-    if (!mailIsNull && repository.existsByEmailExcludingUser(publicId, request.getEmail())) {
+    // パスワード更新事前処理
+    String hashedPassword = null;
+    boolean currentIsNull = request.getCurrentPassword() == null;
+    boolean newIsNull = request.getNewPassword() == null;
+
+    // 現行パスワードと新パスワードがどちらかしか入力されていない場合(排他的論理和同等です)
+    if (currentIsNull != newIsNull) {
+      throw new InvalidPasswordChangeException(
+          "パスワード変更には現在のパスワードと新しいパスワードの両方が必要です");
+    } else if (!currentIsNull && !newIsNull) {
+      if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
+        throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
+      }
+      hashedPassword = passwordEncoder.encode(request.getNewPassword());
+    }
+
+    if (request.getEmail() != null && !request.getEmail().equals(userDetails.getUsername())
+        && repository.existsByEmail(request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 
-    UserAccount updateAccount = mapper.profileToUserAccount(request, publicId);
-    repository.updateProfile(updateAccount);
+    UserAccount updateAccount = mapper.updateRequestToUserAccount(request, publicId,
+        hashedPassword);
+    repository.updateAccount(updateAccount);
 
     // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
-    if (!mailIsNull) {
-      updateAuthInfo(userDetails, request);
+    if (request.getEmail() != null || hashedPassword != null) {
+      refreshSecurityContext(userDetails, updateAccount);
     }
 
     return mapper.toUserAccountResponse(updateAccount);
   }
 
-  private static void updateAuthInfo(UserAccountDetails userDetails, ProfileUpdateRequest request) {
+  private void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
     UserAccount updateUserAccount = UserAccount.builder()
         .publicId(userDetails.getAccount().getPublicId())
-        .email(request.getEmail() != null ? request.getEmail() : userDetails.getUsername())
-        .password(userDetails.getPassword())
+        .email(Optional.ofNullable(updateAccount.getEmail())
+            .orElse(userDetails.getUsername()))
+        .password(Optional.ofNullable(updateAccount.getPassword())
+            .orElse(userDetails.getPassword()))
         .build();
     UserAccountDetails updatedUserDetails = new UserAccountDetails(updateUserAccount);
 

@@ -28,8 +28,8 @@
     VALUES (#{publicId}, #{userName}, #{email}, #{password}, false)
   </insert>
 
-  <!-- ユーザープロフィールの更新 -->
-  <update id="updateProfile"
+  <!-- ユーザーアカウントの更新 -->
+  <update id="updateAccount"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
     UPDATE user_accounts
     <set>
@@ -37,7 +37,10 @@
         user_name = #{userName},
       </if>
       <if test="email != null and email != ''">
-        email = #{email}
+        email = #{email},
+      </if>
+      <if test="password != null and password != ''">
+        password = #{password}
       </if>
     </set>
     WHERE public_id = #{publicId}
@@ -58,13 +61,6 @@
     SELECT COUNT(*) > 0
     FROM user_accounts
     WHERE email = #{email}
-  </select>
-
-  <!--Email重複チェック　※DBのpublic_idのレコード以外でemailと同じemailが存在する場合True-->
-  <select id="existsByEmailExcludingUser" parameterType="map" resultType="boolean">
-    SELECT COUNT(*) > 0
-    FROM user_accounts
-    WHERE email = #{email} AND public_id != #{publicId}
   </select>
 
 </mapper>
