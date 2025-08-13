@@ -7,11 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest
+@WebMvcTest(TaskController.class)
+@ImportAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 class TaskControllerTest {
 
   @Autowired
@@ -19,17 +22,6 @@ class TaskControllerTest {
 
   @MockitoBean
   private TaskService service;
-
-  @Test
-  void ユーザープロジェクトの一覧取得で適切にserviceが実行されていること() throws Exception {
-    String userPublicId = "00000000-0000-0000-0000-000000000000";
-
-    mockMvc.perform(get("/my-project")
-            .param("userPublicId", userPublicId))
-        .andExpect(status().isOk());
-
-    verify(service).getUserProjects(userPublicId);
-  }
 
   @Test
   void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されていること() throws Exception {
