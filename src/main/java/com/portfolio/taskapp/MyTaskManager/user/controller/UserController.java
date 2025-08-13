@@ -54,7 +54,7 @@ public class UserController {
       }
   )
   @GetMapping("/me")
-  public ResponseEntity<UserAccountResponse> getMyAccountInfo(
+  public ResponseEntity<UserAccountResponse> getMyAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails) {
     UserAccountResponse response = service.findAccount(userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(response);
@@ -78,7 +78,8 @@ public class UserController {
       }
   )
   @PostMapping("/register")
-  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request)
+  public ResponseEntity<String> registerAccount(
+      @Valid @RequestBody UserAccountCreateRequest request)
       throws NotUniqueException {
     service.registerUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
