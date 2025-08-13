@@ -11,10 +11,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Schema(description = "ユーザーアカウント情報の更新用DTO。未更新項目は null を指定します。")
 public class AccountUpdateRequest {
 
-  @Schema(description = "ユーザー名")
-  @Size(min = 1, max = 50, message = "ユーザー名は1文字以上50字以内で入力してください")
+  @Schema(description = "ユーザー名。未更新の場合はnullを指定。")
+  @Size(max = 50, message = "ユーザー名は50字以内で入力してください")
   @Pattern.List({
       @Pattern(regexp = "^[^\\s\u3000].*$", message = "先頭にスペースは使用できません"),
       @Pattern(regexp = "^[a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF _\\-\\u3000]+$",
@@ -22,18 +23,16 @@ public class AccountUpdateRequest {
   })
   private String userName;
 
-  @Schema(description = "メールアドレス（ユニーク）")
+  @Schema(description = "メールアドレス。ユニーク、未更新の場合はnullを指定。")
   @Email(message = "正しいメールアドレス形式で入力してください")
   @Size(min = 1, max = 100, message = "メールアドレスは1文字以上100文字以下で入力してください")
   private String email;
 
-  @Schema(description = "現在のパスワード：パスワード更新には現在のパスワードと新しいパスワード何れも必要です")
+  @Schema(description = "現在のパスワード。未更新の場合はnullを指定。更新時は新しいパスワードも必須。)")
   @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
-  @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
-      message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
   private String currentPassword;
 
-  @Schema(description = "新しいパスワード：パスワード更新には現在のパスワードと新しいパスワード何れも必要です")
+  @Schema(description = "新しいパスワード。未更新の場合はnullを指定。更新時は現在のパスワードも必須。)")
   @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
   @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
       message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
