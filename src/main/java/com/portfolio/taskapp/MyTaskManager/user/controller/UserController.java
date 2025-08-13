@@ -16,6 +16,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -64,7 +65,7 @@ public class UserController {
       description = "新しいユーザーアカウントを登録します。登録後はログインが可能になります。",
       responses = {
           @ApiResponse(
-              responseCode = "200",
+              responseCode = "201",
               description = "アカウントの登録に成功した場合。メッセージが返されます。",
               content = @Content(schema = @Schema(type = "string", example = "アカウントを登録しました。ログインしてください。")
               )
@@ -80,7 +81,7 @@ public class UserController {
   public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request)
       throws NotUniqueException {
     service.registerUser(request);
-    return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
+    return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
   }
 
   @Operation(
@@ -113,7 +114,7 @@ public class UserController {
           )
       }
   )
-  @PatchMapping("/me/account")
+  @PatchMapping("/me")
   public ResponseEntity<UserAccountResponse> updateAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
       @Valid @RequestBody AccountUpdateRequest request)
