@@ -13,19 +13,22 @@ import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
+import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(TaskController.class)
-@ImportAutoConfiguration(SecurityConfig.class)
+@Import(SecurityConfig.class)
 class TaskControllerTest {
 
   @Autowired
@@ -97,7 +100,7 @@ class TaskControllerTest {
   @Test
   void プロジェクト登録でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
       throws Exception {
-    ProjectRequest project = new ProjectRequest(null, null, null);
+    ProjectRequest project = new ProjectRequest(null, "description", ProjectStatus.ACTIVE);
     String json = objectMapper.writeValueAsString(project);
 
     mockMvc.perform(post("/projects")
@@ -106,5 +109,50 @@ class TaskControllerTest {
             .content(json))
         .andExpect(status().isBadRequest());
   }
-  
+
+  @Test
+  void 親タスク登録時に適切なServiceメソッドが呼び出されていること() throws Exception {
+    String projectPublicId = "00000000-0000-0000-0000-111111111111";
+    TaskRequest request = new TaskRequest(
+        "task",
+        "description",
+        LocalDate.now().plusDays(7),
+        120,
+        0,
+        0,
+        TaskPriority.LOW);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/projects/{projectPublicId}/tasks", projectPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isCreated());
+
+    verify(service).createParentTask(any(TaskRequest.class), eq(projectPublicId));
+
+  }
+
+  @Test
+  void 親タスク登録時でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    String projectPublicId = "00000000-0000-0000-0000-111111111111";
+    TaskRequest request = new TaskRequest(
+        null,
+        "description",
+        LocalDate.now().plusDays(7),
+        120,
+        0,
+        0,
+        TaskPriority.LOW);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/projects/{projectPublicId}/tasks", projectPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+  }
 }
