@@ -114,26 +114,26 @@ class UserServiceTest {
     String newEmail = "New@example.com";
     String oldRawPassword = "oldRowPassword";
     String newRawPassword = "newRowPassword";
-    String oldHashPassword = "oldHashPassword";
-    String newHashPassword = "newHashPassword";
+    String oldHashedPassword = "oldHashedPassword";
+    String newHashedPassword = "newHashedPassword";
     AccountUpdateRequest request = new AccountUpdateRequest("name", newEmail, oldRawPassword,
         newRawPassword);
     UserAccount authAccount = UserAccount.builder()
         .publicId(publicId)
         .email(oldEmail)
-        .password(oldHashPassword)
+        .password(oldHashedPassword)
         .build();
     UserAccountDetails details = new UserAccountDetails(authAccount);
     UserAccount updateAccount = UserAccount.builder()
         .publicId(publicId)
         .email(newEmail)
-        .password(newHashPassword)
+        .password(newHashedPassword)
         .build();
 
-    when(passwordEncoder.matches(oldRawPassword, oldHashPassword)).thenReturn(true);
-    when(passwordEncoder.encode(newRawPassword)).thenReturn(newHashPassword);
-    when(repository.existsByEmailExcludingUser(publicId, newEmail)).thenReturn(false);
-    when(mapper.updateRequestToUserAccount(request, publicId, newHashPassword)).thenReturn(
+    when(passwordEncoder.matches(oldRawPassword, oldHashedPassword)).thenReturn(true);
+    when(passwordEncoder.encode(newRawPassword)).thenReturn(newHashedPassword);
+    when(repository.existsByEmail(newEmail)).thenReturn(false);
+    when(mapper.updateRequestToUserAccount(request, publicId, newHashedPassword)).thenReturn(
         updateAccount);
 
     // SecurityContext をクリア
@@ -143,10 +143,10 @@ class UserServiceTest {
     sut.updateAccount(details, request);
 
     // 検証: 処理工程の確認
-    verify(passwordEncoder).matches(oldRawPassword, oldHashPassword);
+    verify(passwordEncoder).matches(oldRawPassword, oldHashedPassword);
     verify(passwordEncoder).encode(newRawPassword);
-    verify(repository).existsByEmailExcludingUser(publicId, newEmail);
-    verify(mapper).updateRequestToUserAccount(request, publicId, newHashPassword);
+    verify(repository).existsByEmail(newEmail);
+    verify(mapper).updateRequestToUserAccount(request, publicId, newHashedPassword);
     verify(repository).updateAccount(updateAccount);
     verify(mapper).toUserAccountResponse(updateAccount);
 
@@ -157,7 +157,7 @@ class UserServiceTest {
 
     UserAccountDetails updatedDetails = (UserAccountDetails) authentication.getPrincipal();
     assertThat(updatedDetails.getUsername()).isEqualTo(newEmail);
-    assertThat(updatedDetails.getPassword()).isEqualTo(newHashPassword);
+    assertThat(updatedDetails.getPassword()).isEqualTo(newHashedPassword);
   }
 
 
@@ -165,14 +165,16 @@ class UserServiceTest {
   void アカウント更新時にemail重複チェックがTRUEの場合に重複例外がThrowされ以降の処理が実行されないこと()
       throws NotUniqueException {
     String publicId = "00000000-0000-0000-0000-000000000000";
-    String email = "user@example.com";
-    AccountUpdateRequest request = new AccountUpdateRequest(null, email, null, null);
+    String oldEmail = "Old@example.com";
+    String newEmail = "New@example.com";
+    AccountUpdateRequest request = new AccountUpdateRequest(null, oldEmail, null, null);
     UserAccount authAccount = UserAccount.builder()
         .publicId(publicId)
+        .email(newEmail)
         .build();
     UserAccountDetails details = new UserAccountDetails(authAccount);
 
-    when(repository.existsByEmailExcludingUser(publicId, email)).thenReturn(true);
+    when(repository.existsByEmail(oldEmail)).thenReturn(true);
 
     NotUniqueException thrown = assertThrows(NotUniqueException.class,
         () -> sut.updateAccount(details, request));

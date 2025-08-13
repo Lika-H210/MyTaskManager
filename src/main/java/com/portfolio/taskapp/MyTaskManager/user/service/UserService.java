@@ -85,8 +85,8 @@ public class UserService {
       hashedPassword = passwordEncoder.encode(request.getNewPassword());
     }
 
-    if (request.getEmail() != null && repository.existsByEmailExcludingUser(publicId,
-        request.getEmail())) {
+    if (request.getEmail() != null && !request.getEmail().equals(userDetails.getUsername())
+        && repository.existsByEmail(request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
     }
 

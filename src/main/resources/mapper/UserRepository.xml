@@ -63,11 +63,4 @@
     WHERE email = #{email}
   </select>
 
-  <!--Email重複チェック　※DBのpublic_idのレコード以外でemailと同じemailが存在する場合True-->
-  <select id="existsByEmailExcludingUser" parameterType="map" resultType="boolean">
-    SELECT COUNT(*) > 0
-    FROM user_accounts
-    WHERE email = #{email} AND public_id != #{publicId}
-  </select>
-
 </mapper>
