@@ -69,21 +69,20 @@ public class UserService {
       return null;
     }
 
+    // パスワード更新事前処理
+    String hashedPassword = null;
     boolean currentIsNull = request.getCurrentPassword() == null;
     boolean newIsNull = request.getNewPassword() == null;
 
-    // 現行パスワードと新パスワードがどちらかしか入力されていない場合
+    // 現行パスワードと新パスワードがどちらかしか入力されていない場合(排他的論理和同等です)
     if (currentIsNull != newIsNull) {
       throw new InvalidPasswordChangeException(
-          "パスワードの変更ができません。新・現の両方のパスワード情報が必要です。");
-    }
-
-    String updateHashedPassword = null;
-    if (!currentIsNull && !newIsNull) {
+          "パスワード変更には現在のパスワードと新しいパスワードの両方が必要です");
+    } else if (!currentIsNull && !newIsNull) {
       if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
-        throw new InvalidPasswordChangeException("現在のパスワードが誤っています");
+        throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
       }
-      updateHashedPassword = passwordEncoder.encode(request.getNewPassword());
+      hashedPassword = passwordEncoder.encode(request.getNewPassword());
     }
 
     if (request.getEmail() != null && repository.existsByEmailExcludingUser(publicId,
@@ -92,11 +91,11 @@ public class UserService {
     }
 
     UserAccount updateAccount = mapper.updateRequestToUserAccount(request, publicId,
-        updateHashedPassword);
+        hashedPassword);
     repository.updateAccount(updateAccount);
 
     // 認証情報に変更がない場合は処理終了。変更ありは認証情報を更新。
-    if (request.getEmail() != null || updateHashedPassword != null) {
+    if (request.getEmail() != null || hashedPassword != null) {
       refreshSecurityContext(userDetails, updateAccount);
     }
 
