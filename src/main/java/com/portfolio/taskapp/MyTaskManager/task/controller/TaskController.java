@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +92,11 @@ public class TaskController {
       }
   )
   @GetMapping("/projects/{projectPublicId}/tasks")
-  public List<TaskTree> getTaskTreeListByProjectPublicId(@PathVariable String projectPublicId) {
+  public List<TaskTree> getTaskTreeList(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String projectPublicId) {
     return service.getTasksByProjectPublicId(projectPublicId);
   }
 
@@ -123,7 +128,11 @@ public class TaskController {
       }
   )
   @GetMapping("/tasks/{taskPublicId}")
-  public TaskTree getTaskTree(@PathVariable String taskPublicId) {
+  public TaskTree getTaskTree(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String taskPublicId) {
     return service.getTaskTreeByTaskPublicId(taskPublicId);
   }
 
@@ -139,6 +148,11 @@ public class TaskController {
                   schema = @Schema(implementation = Project.class))
           ),
           @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          ),
+          @ApiResponse(
               responseCode = "404",
               description = "認証済みユーザーが削除済みまたは無効化されている場合",
               content = @Content()
@@ -148,52 +162,9 @@ public class TaskController {
   @PostMapping("/projects")
   public ResponseEntity<Project> createProject(
       @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Validated @RequestBody ProjectRequest request) {
+      @Valid @RequestBody ProjectRequest request) {
     Project project = service.createProject(request, userDetails.getAccount().getPublicId());
     return ResponseEntity.status(HttpStatus.CREATED).body(project);
-  }
-
-  @Operation(
-      summary = "新規の子タスク登録",
-      description = "新規の子タスクを登録します",
-      security = @SecurityRequirement(name = "basicAuth"),
-      parameters = {
-          @Parameter(
-              name = "taskPublicId",
-              required = true,
-              description = "親タスクの公開ID（UUID）",
-              schema = @Schema(type = "string", format = "uuid",
-                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
-          )
-      },
-      responses = {
-          @ApiResponse(
-              responseCode = "201",
-              description = "タスクが正常に作成された場合",
-              content = @Content(mediaType = "application/json",
-                  schema = @Schema(implementation = Task.class))
-          ),
-          @ApiResponse(
-              responseCode = "400",
-              description = "リクエストされたタスク情報が入力チェックに抵触した場合",
-              content = @Content()
-          ),
-          @ApiResponse(
-              responseCode = "404",
-              description = "指定した公開IDの親タスクが存在しないか、削除されている場合",
-              content = @Content()
-          )
-      }
-  )
-  @PostMapping("/tasks/{taskPublicId}/subtasks")
-  public ResponseEntity<Task> createSubtask(
-      @PathVariable
-      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
-          message = "入力の形式に誤りがあります")
-      String taskPublicId,
-      @Validated @RequestBody TaskRequest request) {
-    Task task = service.createSubtask(request, taskPublicId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
   @Operation(
@@ -229,8 +200,51 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId,
-      @Validated @RequestBody TaskRequest request) {
+      @Valid @RequestBody TaskRequest request) {
     Task task = service.createParentTask(request, projectPublicId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(task);
+  }
+
+  @Operation(
+      summary = "新規の子タスク登録",
+      description = "新規の子タスクを登録します",
+      security = @SecurityRequirement(name = "basicAuth"),
+      parameters = {
+          @Parameter(
+              name = "taskPublicId",
+              required = true,
+              description = "親タスクの公開ID（UUID）",
+              schema = @Schema(type = "string", format = "uuid",
+                  example = "5998fd5d-a2cd-11ef-b71f-6845f15f510c")
+          )
+      },
+      responses = {
+          @ApiResponse(
+              responseCode = "201",
+              description = "タスクが正常に作成された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDの親タスクが存在しないか、削除されている場合",
+              content = @Content()
+          )
+      }
+  )
+  @PostMapping("/tasks/{taskPublicId}/subtasks")
+  public ResponseEntity<Task> createSubtask(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String taskPublicId,
+      @Valid @RequestBody TaskRequest request) {
+    Task task = service.createSubtask(request, taskPublicId);
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
@@ -253,6 +267,11 @@ public class TaskController {
               description = "プロジェクトが正常に更新された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Project.class))
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
           )
       }
   )
@@ -262,7 +281,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId,
-      @Validated @RequestBody ProjectRequest request) {
+      @Valid @RequestBody ProjectRequest request) {
     Project project = service.updateProject(request, projectPublicId);
     return ResponseEntity.ok(project);
   }
@@ -286,6 +305,11 @@ public class TaskController {
               description = "タスクが正常に更新された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
           )
       }
   )
@@ -295,7 +319,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId,
-      @Validated @RequestBody TaskRequest request) {
+      @Valid @RequestBody TaskRequest request) {
     Task task = service.updateTask(request, taskPublicId);
     return ResponseEntity.ok(task);
   }

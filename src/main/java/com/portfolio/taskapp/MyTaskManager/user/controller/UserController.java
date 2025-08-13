@@ -16,6 +16,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -53,7 +54,7 @@ public class UserController {
       }
   )
   @GetMapping("/me")
-  public ResponseEntity<UserAccountResponse> getMyAccountInfo(
+  public ResponseEntity<UserAccountResponse> getMyAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails) {
     UserAccountResponse response = service.findAccount(userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(response);
@@ -64,18 +65,24 @@ public class UserController {
       description = "新しいユーザーアカウントを登録します。登録後はログインが可能になります。",
       responses = {
           @ApiResponse(
-              responseCode = "200",
+              responseCode = "201",
               description = "アカウントの登録に成功した場合。メッセージが返されます。",
               content = @Content(schema = @Schema(type = "string", example = "アカウントを登録しました。ログインしてください。")
               )
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
           )
       }
   )
   @PostMapping("/register")
-  public ResponseEntity<String> registerUser(@Valid @RequestBody UserAccountCreateRequest request)
+  public ResponseEntity<String> registerAccount(
+      @Valid @RequestBody UserAccountCreateRequest request)
       throws NotUniqueException {
     service.registerUser(request);
-    return ResponseEntity.ok("アカウントを登録しました。ログインしてください。");
+    return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
   }
 
   @Operation(
@@ -98,7 +105,7 @@ public class UserController {
           ),
           @ApiResponse(
               responseCode = "400",
-              description = "リクエストされたアカウント情報が入力チェックに抵触した場合",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
               content = @Content()
           ),
           @ApiResponse(
@@ -108,7 +115,7 @@ public class UserController {
           )
       }
   )
-  @PatchMapping("/me/account")
+  @PatchMapping("/me")
   public ResponseEntity<UserAccountResponse> updateAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
       @Valid @RequestBody AccountUpdateRequest request)
