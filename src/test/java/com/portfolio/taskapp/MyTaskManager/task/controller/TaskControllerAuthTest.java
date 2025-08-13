@@ -1,20 +1,26 @@
 package com.portfolio.taskapp.MyTaskManager.task.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
+import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -48,6 +54,34 @@ class TaskControllerAuthTest {
         .andExpect(status().isOk());
 
     verify(service).getUserProjects(userDetails.getAccount().getPublicId());
+  }
+
+  @Test
+  void プロジェクト登録で適切にserviceが実行されていること() throws Exception {
+    ProjectRequest project = new ProjectRequest("newProject", "description", ProjectStatus.ACTIVE);
+    String json = objectMapper.writeValueAsString(project);
+
+    mockMvc.perform(post("/projects")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isCreated());
+
+    verify(service).createProject(any(ProjectRequest.class),
+        eq(userDetails.getAccount().getPublicId()));
+  }
+
+  @Test
+  void プロジェクト登録でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    ProjectRequest project = new ProjectRequest(null, null, null);
+    String json = objectMapper.writeValueAsString(project);
+
+    mockMvc.perform(post("/projects")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
   }
 
 }
