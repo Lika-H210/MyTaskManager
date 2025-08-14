@@ -84,8 +84,8 @@ class TaskControllerTest {
   }
 
   @Test
-  void プロジェクト登録で適切にserviceが実行されていること() throws Exception {
-    ProjectRequest project = new ProjectRequest("newProject", "description", ProjectStatus.ACTIVE);
+  void プロジェクト登録で201ステータスとなり適切にserviceが実行されていること() throws Exception {
+    ProjectRequest project = createProjectRequestWithCaption("projectCaption");
     String json = objectMapper.writeValueAsString(project);
 
     mockMvc.perform(post("/projects")
@@ -99,9 +99,9 @@ class TaskControllerTest {
   }
 
   @Test
-  void プロジェクト登録でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+  void プロジェクト登録でバリデーションに抵触する場合に400ステータスが返されること()
       throws Exception {
-    ProjectRequest project = new ProjectRequest(null, "description", ProjectStatus.ACTIVE);
+    ProjectRequest project = createProjectRequestWithCaption(null);
     String json = objectMapper.writeValueAsString(project);
 
     mockMvc.perform(post("/projects")
@@ -109,19 +109,15 @@ class TaskControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
+
+    verify(service, never()).createProject(any(), any());
   }
 
   @Test
-  void 親タスク登録時に適切なServiceメソッドが呼び出されていること() throws Exception {
+  void 親タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
+      throws Exception {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
-    TaskRequest request = new TaskRequest(
-        "task",
-        "description",
-        LocalDate.now().plusDays(7),
-        120,
-        0,
-        0,
-        TaskPriority.LOW);
+    TaskRequest request = createTaskRequestWithCaption("taskCaption");
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -132,21 +128,13 @@ class TaskControllerTest {
         .andExpect(status().isCreated());
 
     verify(service).createParentTask(any(TaskRequest.class), eq(projectPublicId));
-
   }
 
   @Test
-  void 親タスク登録時でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+  void 親タスク登録時でバリデーションに抵触する場合に400ステータスが返されること()
       throws Exception {
     String projectPublicId = "00000000-0000-0000-0000-111111111111";
-    TaskRequest request = new TaskRequest(
-        null,
-        "description",
-        LocalDate.now().plusDays(7),
-        120,
-        0,
-        0,
-        TaskPriority.LOW);
+    TaskRequest request = createTaskRequestWithCaption(null);
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -155,10 +143,13 @@ class TaskControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
+
+    verify(service, never()).createParentTask(any(), any());
   }
 
   @Test
-  void 子タスク登録時に適切なServiceメソッドが呼び出されていること() throws Exception {
+  void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
+      throws Exception {
     String taskPublicId = "00000000-0000-0000-0000-222222222222";
     TaskRequest request = createTaskRequestWithCaption("caption");
 
@@ -189,6 +180,11 @@ class TaskControllerTest {
         .andExpect(status().isBadRequest());
 
     verify(service, never()).createSubtask(any(), any());
+  }
+
+  // ProjectRequest生成(Captionのみ引数で設定)
+  private ProjectRequest createProjectRequestWithCaption(String caption) {
+    return new ProjectRequest(caption, "description", ProjectStatus.ACTIVE);
   }
 
   // TaskRequest生成(Captionのみ引数で設定)
