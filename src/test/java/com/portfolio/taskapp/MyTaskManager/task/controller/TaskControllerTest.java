@@ -2,6 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -155,4 +156,51 @@ class TaskControllerTest {
             .content(json))
         .andExpect(status().isBadRequest());
   }
+
+  @Test
+  void 子タスク登録時に適切なServiceメソッドが呼び出されていること() throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption("caption");
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isCreated());
+
+    verify(service).createSubtask(any(TaskRequest.class), eq(taskPublicId));
+  }
+
+
+  @Test
+  void 子タスク登録時でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption(null);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).createSubtask(any(), any());
+  }
+
+  // TaskRequest生成(Captionのみ引数で設定)
+  private TaskRequest createTaskRequestWithCaption(String caption) {
+    return new TaskRequest(
+        caption,
+        "description",
+        LocalDate.now().plusDays(7),
+        120,
+        0,
+        0,
+        TaskPriority.LOW);
+  }
+
 }
