@@ -216,6 +216,39 @@ class TaskControllerTest {
     verify(service, never()).updateProject(any(), any());
   }
 
+  @Test
+  void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption("caption");
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateTask(any(TaskRequest.class), eq(taskPublicId));
+  }
+
+  @Test
+  void タスク更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption(null);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).updateTask(any(), any());
+  }
+
   // ProjectRequest生成(Captionのみ引数で設定)
   private ProjectRequest createProjectRequestWithCaption(String caption) {
     return new ProjectRequest(caption, "description", ProjectStatus.ACTIVE);
