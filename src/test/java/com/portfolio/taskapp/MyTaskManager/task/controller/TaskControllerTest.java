@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -180,6 +181,72 @@ class TaskControllerTest {
         .andExpect(status().isBadRequest());
 
     verify(service, never()).createSubtask(any(), any());
+  }
+
+  @Test
+  void プロジェクト更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+    String projectPublicId = "00000000-0000-0000-0000-111111111111";
+    ProjectRequest request = createProjectRequestWithCaption("caption");
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/projects/{projectPublicId}", projectPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateProject(any(ProjectRequest.class), eq(projectPublicId));
+  }
+
+  @Test
+  void プロジェクト更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    String projectPublicId = "00000000-0000-0000-0000-111111111111";
+    ProjectRequest request = createProjectRequestWithCaption(null);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/projects/{projectPublicId}", projectPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).updateProject(any(), any());
+  }
+
+  @Test
+  void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption("caption");
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateTask(any(TaskRequest.class), eq(taskPublicId));
+  }
+
+  @Test
+  void タスク更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    String taskPublicId = "00000000-0000-0000-0000-222222222222";
+    TaskRequest request = createTaskRequestWithCaption(null);
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).updateTask(any(), any());
   }
 
   // ProjectRequest生成(Captionのみ引数で設定)
