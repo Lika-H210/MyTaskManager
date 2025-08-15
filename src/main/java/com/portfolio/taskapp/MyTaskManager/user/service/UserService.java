@@ -66,7 +66,7 @@ public class UserService {
     // 更新情報がない場合
     if (ObjectUtils.allNull(request.getUserName(), request.getEmail(),
         request.getCurrentPassword(), request.getNewPassword())) {
-      return null;
+      return new UserAccountResponse();
     }
 
     // パスワード更新事前処理

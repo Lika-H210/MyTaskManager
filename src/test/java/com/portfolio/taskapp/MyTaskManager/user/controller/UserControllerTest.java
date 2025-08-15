@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
@@ -96,6 +98,40 @@ class UserControllerTest {
     verify(service, never()).registerUser(any());
   }
 
+  @Test
+  void アカウント更新で適切なserviceが呼び出され200ステータスが返されること()
+      throws Exception {
+    AccountUpdateRequest request = createAccountUpdateRequest("user@email.com");
+
+    when(service.updateAccount(any(UserAccountDetails.class), any(AccountUpdateRequest.class)))
+        .thenReturn(new UserAccountResponse());
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(patch("/users/me")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateAccount(any(UserAccountDetails.class), any(AccountUpdateRequest.class));
+  }
+
+  @Test
+  void アカウント更新でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
+      throws Exception {
+    AccountUpdateRequest request = createAccountUpdateRequest("email");
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(patch("/users/me")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).updateAccount(any(), any());
+  }
+
   // UserAccountCreateRequest生成(passwordのみ引数で設定)
   private static UserAccountCreateRequest createAccountCreateRequest
   (String email) {
@@ -106,4 +142,13 @@ class UserControllerTest {
     );
   }
 
+  private static AccountUpdateRequest createAccountUpdateRequest
+      (String email) {
+    return new AccountUpdateRequest(
+        "New Name",
+        email,
+        "oldPassword",
+        "newPassword"
+    );
+  }
 }
