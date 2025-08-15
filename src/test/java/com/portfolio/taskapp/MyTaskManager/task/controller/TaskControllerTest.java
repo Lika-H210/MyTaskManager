@@ -68,24 +68,20 @@ class TaskControllerTest {
 
   @Test
   void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されていること() throws Exception {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
-
-    mockMvc.perform(get("/projects/{projectPublicId}/tasks", projectPublicId)
+    mockMvc.perform(get("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
             .with(user(userDetails)))
         .andExpect(status().isOk());
 
-    verify(service).getTasksByProjectPublicId(projectPublicId);
+    verify(service).getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   @Test
   void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること() throws Exception {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
-
-    mockMvc.perform(get("/tasks/{taskPublicId}", taskPublicId)
+    mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
             .with(user(userDetails)))
         .andExpect(status().isOk());
 
-    verify(service).getTaskTreeByTaskPublicId(taskPublicId);
+    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
   }
 
   @Test
@@ -121,29 +117,27 @@ class TaskControllerTest {
   @Test
   void 親タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
       throws Exception {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
     TaskRequest request = createTaskRequestWithCaption("taskCaption");
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(post("/projects/{projectPublicId}/tasks", projectPublicId)
+    mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
 
-    verify(service).createParentTask(any(TaskRequest.class), eq(projectPublicId));
+    verify(service).createParentTask(any(TaskRequest.class), eq(PROJECT_PUBLIC_ID));
   }
 
   @Test
   void 親タスク登録時でバリデーションに抵触する場合に400ステータスが返されること()
       throws Exception {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
     TaskRequest request = createTaskRequestWithCaption(null);
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(post("/projects/{projectPublicId}/tasks", projectPublicId)
+    mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
@@ -155,30 +149,28 @@ class TaskControllerTest {
   @Test
   void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
       throws Exception {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     TaskRequest request = createTaskRequestWithCaption("caption");
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", taskPublicId)
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
 
-    verify(service).createSubtask(any(TaskRequest.class), eq(taskPublicId));
+    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
   }
 
 
   @Test
   void 子タスク登録時でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
       throws Exception {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     TaskRequest request = createTaskRequestWithCaption(null);
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", taskPublicId)
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
@@ -189,29 +181,27 @@ class TaskControllerTest {
 
   @Test
   void プロジェクト更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
     ProjectRequest request = createProjectRequestWithCaption("caption");
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(put("/projects/{projectPublicId}", projectPublicId)
+    mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isOk());
 
-    verify(service).updateProject(any(ProjectRequest.class), eq(projectPublicId));
+    verify(service).updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID));
   }
 
   @Test
   void プロジェクト更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
       throws Exception {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
     ProjectRequest request = createProjectRequestWithCaption(null);
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(put("/projects/{projectPublicId}", projectPublicId)
+    mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
@@ -222,29 +212,27 @@ class TaskControllerTest {
 
   @Test
   void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     TaskRequest request = createTaskRequestWithCaption("caption");
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isOk());
 
-    verify(service).updateTask(any(TaskRequest.class), eq(taskPublicId));
+    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
   }
 
   @Test
   void タスク更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
       throws Exception {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     TaskRequest request = createTaskRequestWithCaption(null);
 
     String json = objectMapper.writeValueAsString(request);
 
-    mockMvc.perform(put("/tasks/{taskPublicId}", taskPublicId)
+    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
             .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
