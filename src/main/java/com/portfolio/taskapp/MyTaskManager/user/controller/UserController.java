@@ -72,7 +72,7 @@ public class UserController {
           ),
           @ApiResponse(
               responseCode = "400",
-              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反等）だった場合",
               content = @Content()
           )
       }
