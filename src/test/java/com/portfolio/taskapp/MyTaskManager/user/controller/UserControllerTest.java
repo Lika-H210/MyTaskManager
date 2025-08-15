@@ -103,9 +103,6 @@ class UserControllerTest {
       throws Exception {
     AccountUpdateRequest request = createAccountUpdateRequest("user@email.com");
 
-    when(service.updateAccount(any(UserAccountDetails.class), any(AccountUpdateRequest.class)))
-        .thenReturn(new UserAccountResponse());
-
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(patch("/users/me")
