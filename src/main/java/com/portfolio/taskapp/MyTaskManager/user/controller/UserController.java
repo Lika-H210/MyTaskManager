@@ -92,16 +92,11 @@ public class UserController {
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "アカウント情報の更新に成功した場合",
+              description = "アカウント情報の更新に成功した場合(更新対象項目がなかった場合は空オブジェクトを返します）",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = UserAccountResponse.class)
               )
-          ),
-          @ApiResponse(
-              responseCode = "204",
-              description = "更新内容がない場合",
-              content = @Content()
           ),
           @ApiResponse(
               responseCode = "400",
@@ -121,10 +116,6 @@ public class UserController {
       @Valid @RequestBody AccountUpdateRequest request)
       throws NotUniqueException, InvalidPasswordChangeException {
     UserAccountResponse updateAccount = service.updateAccount(userDetails, request);
-    if (updateAccount == null) {
-      // 何も更新がなかった場合
-      return ResponseEntity.noContent().build();
-    }
     return ResponseEntity.ok(updateAccount);
   }
 
