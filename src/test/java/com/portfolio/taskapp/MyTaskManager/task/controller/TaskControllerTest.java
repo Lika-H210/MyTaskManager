@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -43,6 +44,9 @@ class TaskControllerTest {
   private TaskService service;
 
   private UserAccountDetails userDetails;
+
+  private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
+  private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @BeforeEach
   void setUpAuthentication() {
@@ -247,6 +251,26 @@ class TaskControllerTest {
         .andExpect(status().isBadRequest());
 
     verify(service, never()).updateTask(any(), any());
+  }
+
+  @Test
+  void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
+      throws Exception {
+    mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isNoContent());
+
+    verify(service).deleteProject(PROJECT_PUBLIC_ID);
+  }
+
+  @Test
+  void タスク削除処理で204ステータスになり適切なserviceが実行されること()
+      throws Exception {
+    mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isNoContent());
+
+    verify(service).deleteTask(TASK_PUBLIC_ID);
   }
 
   // ProjectRequest生成(Captionのみ引数で設定)
