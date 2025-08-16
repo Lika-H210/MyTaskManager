@@ -5,6 +5,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -19,6 +21,7 @@ import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,9 @@ class UserControllerTest {
 
   @MockitoBean
   private UserService service;
+
+  @MockitoBean
+  private HttpServletRequest servletRequest;
 
   private UserAccountDetails userDetails;
 
@@ -127,6 +133,18 @@ class UserControllerTest {
         .andExpect(status().isBadRequest());
 
     verify(service, never()).updateAccount(any(), any());
+  }
+
+  @Test
+  void アカウント削除で適切なserviceが実行と認証情報の削除が実行され204ステータスが返されること()
+      throws Exception {
+    mockMvc.perform(delete("/users/me")
+            .with(user(userDetails)))
+        .andExpect(status().isNoContent())
+        // 認証情報がクリアされることを確認
+        .andExpect(unauthenticated());
+
+    verify(service).deleteAccount(userDetails.getAccount().getPublicId());
   }
 
   // UserAccountCreateRequest生成(passwordのみ引数で設定)

@@ -139,8 +139,8 @@ public class UserController {
   public ResponseEntity<Void> deleteAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
       HttpServletRequest request) throws ServletException {
-    request.logout();
     service.deleteAccount(userDetails.getAccount().getPublicId());
+    request.logout();
     return ResponseEntity.noContent().build();
   }
 
