@@ -1,15 +1,15 @@
 package com.portfolio.taskapp.MyTaskManager.user.mapper;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserAccountMapper {
 
-  public UserAccount CreateRequestToUserAccount(UserAccountCreateRequest request, String publicId,
+  public UserAccount CreateRequestToUserAccount(AccountRegisterRequest request, String publicId,
       String hashedPassword) {
     return UserAccount.builder()
         .publicId(publicId)
@@ -29,8 +29,8 @@ public class UserAccountMapper {
         .build();
   }
 
-  public UserAccountResponse toUserAccountResponse(UserAccount account) {
-    return new UserAccountResponse(
+  public AccountResponse toUserAccountResponse(UserAccount account) {
+    return new AccountResponse(
         account.getPublicId(),
         account.getUserName(),
         account.getEmail(),

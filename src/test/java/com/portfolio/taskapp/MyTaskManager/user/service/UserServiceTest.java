@@ -14,8 +14,8 @@ import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,7 +66,7 @@ class UserServiceTest {
     String email = "user@example.com";
     String rawPassword = "rawPassword";
     String hashedPassword = "hashedPassword";
-    UserAccountCreateRequest request = new UserAccountCreateRequest(userName, email, rawPassword);
+    AccountRegisterRequest request = new AccountRegisterRequest(userName, email, rawPassword);
     UserAccount registerAccount = UserAccount.builder()
         .publicId(publicId)
         .userName(userName)
@@ -92,7 +92,7 @@ class UserServiceTest {
     String userName = "ユーザー名";
     String email = "user@example.com";
     String rawPassword = "rawPassword";
-    UserAccountCreateRequest request = new UserAccountCreateRequest(userName, email, rawPassword);
+    AccountRegisterRequest request = new AccountRegisterRequest(userName, email, rawPassword);
 
     when(repository.existsByEmail(email)).thenReturn(true);
 

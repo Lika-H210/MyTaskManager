@@ -6,9 +6,9 @@ import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeExcept
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,13 +36,13 @@ public class UserService {
     this.mapper = mapper;
   }
 
-  public UserAccountResponse findAccount(String publicId) {
+  public AccountResponse findAccount(String publicId) {
     UserAccount account = repository.findAccountByPublicId(publicId);
     return mapper.toUserAccountResponse(account);
   }
 
   @Transactional
-  public void registerUser(UserAccountCreateRequest request) throws NotUniqueException {
+  public void registerUser(AccountRegisterRequest request) throws NotUniqueException {
     // email重複チェック
     if (repository.existsByEmail(request.getEmail())) {
       throw new NotUniqueException("email", "このメールアドレスは使用できません");
@@ -57,7 +57,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserAccountResponse updateAccount(UserAccountDetails userDetails,
+  public AccountResponse updateAccount(UserAccountDetails userDetails,
       AccountUpdateRequest request)
       throws NotUniqueException, InvalidPasswordChangeException {
 
@@ -66,7 +66,7 @@ public class UserService {
     // 更新情報がない場合
     if (ObjectUtils.allNull(request.getUserName(), request.getEmail(),
         request.getCurrentPassword(), request.getNewPassword())) {
-      return new UserAccountResponse();
+      return new AccountResponse();
     }
 
     // パスワード更新事前処理
