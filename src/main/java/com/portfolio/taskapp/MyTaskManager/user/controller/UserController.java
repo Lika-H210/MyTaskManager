@@ -3,9 +3,9 @@ package com.portfolio.taskapp.MyTaskManager.user.controller;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -49,14 +49,14 @@ public class UserController {
               responseCode = "200",
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
-                  schema = @Schema(implementation = UserAccountResponse.class))
+                  schema = @Schema(implementation = AccountResponse.class))
           )
       }
   )
   @GetMapping("/me")
-  public ResponseEntity<UserAccountResponse> getMyAccount(
+  public ResponseEntity<AccountResponse> getMyAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails) {
-    UserAccountResponse response = service.findAccount(userDetails.getAccount().getPublicId());
+    AccountResponse response = service.findAccount(userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(response);
   }
 
@@ -79,7 +79,7 @@ public class UserController {
   )
   @PostMapping("/register")
   public ResponseEntity<String> registerAccount(
-      @Valid @RequestBody UserAccountCreateRequest request)
+      @Valid @RequestBody AccountRegisterRequest request)
       throws NotUniqueException {
     service.registerUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
@@ -95,7 +95,7 @@ public class UserController {
               description = "アカウント情報の更新に成功した場合(更新対象項目がなかった場合は空オブジェクトを返します）",
               content = @Content(
                   mediaType = "application/json",
-                  schema = @Schema(implementation = UserAccountResponse.class)
+                  schema = @Schema(implementation = AccountResponse.class)
               )
           ),
           @ApiResponse(
@@ -111,11 +111,11 @@ public class UserController {
       }
   )
   @PatchMapping("/me")
-  public ResponseEntity<UserAccountResponse> updateAccount(
+  public ResponseEntity<AccountResponse> updateAccount(
       @AuthenticationPrincipal UserAccountDetails userDetails,
       @Valid @RequestBody AccountUpdateRequest request)
       throws NotUniqueException, InvalidPasswordChangeException {
-    UserAccountResponse updateAccount = service.updateAccount(userDetails, request);
+    AccountResponse updateAccount = service.updateAccount(userDetails, request);
     return ResponseEntity.ok(updateAccount);
   }
 

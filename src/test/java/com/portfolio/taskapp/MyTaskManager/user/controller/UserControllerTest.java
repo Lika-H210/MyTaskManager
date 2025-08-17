@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountCreateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.UserAccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +56,7 @@ class UserControllerTest {
   @Test
   void アカウント情報取得時に適切なServiceが呼び出され200ステータスとJSON形式のレスポンスが返されること()
       throws Exception {
-    UserAccountResponse response = new UserAccountResponse();
+    AccountResponse response = new AccountResponse();
 
     when(service.findAccount(userDetails.getAccount().getPublicId())).thenReturn(response);
 
@@ -73,7 +73,7 @@ class UserControllerTest {
   @Test
   void アカウント登録で適切なserviceが呼び出され201ステータスかつ成功メッセージが返り値となること()
       throws Exception {
-    UserAccountCreateRequest request = createAccountCreateRequest("user@email.com");
+    AccountRegisterRequest request = createAccountCreateRequest("user@email.com");
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -83,13 +83,13 @@ class UserControllerTest {
         .andExpect(status().isCreated())
         .andExpect(content().string("登録に成功しました。"));
 
-    verify(service).registerUser(any(UserAccountCreateRequest.class));
+    verify(service).registerUser(any(AccountRegisterRequest.class));
   }
 
   @Test
   void アカウント登録でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
       throws Exception {
-    UserAccountCreateRequest request = createAccountCreateRequest(null);
+    AccountRegisterRequest request = createAccountCreateRequest(null);
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(post("/users/register")
@@ -144,9 +144,9 @@ class UserControllerTest {
   }
 
   // UserAccountCreateRequest生成(passwordのみ引数で設定)
-  private static UserAccountCreateRequest createAccountCreateRequest
+  private static AccountRegisterRequest createAccountCreateRequest
   (String email) {
-    return new UserAccountCreateRequest(
+    return new AccountRegisterRequest(
         "user name",
         email,
         "password"

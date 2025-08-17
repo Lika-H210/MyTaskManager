@@ -10,9 +10,10 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Schema(description = "アカウント登録のリクエスト内容")
 @Getter
 @AllArgsConstructor
-public class UserAccountCreateRequest {
+public class AccountRegisterRequest {
 
   @Schema(description = "ユーザー名")
   @NotBlank(message = "ユーザー名は必須です")

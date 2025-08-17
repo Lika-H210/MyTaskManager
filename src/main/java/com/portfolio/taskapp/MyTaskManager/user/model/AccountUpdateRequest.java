@@ -8,10 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Schema(description = "アカウント更新のリクエスト内容。未更新項目は null を指定します。")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "ユーザーアカウント情報の更新用DTO。未更新項目は null を指定します。")
 public class AccountUpdateRequest {
 
   @Schema(description = "ユーザー名。未更新の場合はnullを指定。")
