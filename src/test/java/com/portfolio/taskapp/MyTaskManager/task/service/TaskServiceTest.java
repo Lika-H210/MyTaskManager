@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
@@ -65,10 +66,11 @@ class TaskServiceTest {
   void 未登録のユーザー公開IDでプロジェクト一覧取得を実行すた場合に早期リターンで空のリストが返されること() {
     when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(null);
 
-    List<Project> actual = sut.getUserProjects(USER_PUBLIC_ID);
+    assertThatThrownBy(() -> sut.getUserProjects(USER_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("Authenticated user not found in database");
 
     verify(repository, never()).findProjectsByUserId(any());
-    assertThat(actual).isEmpty();
   }
 
   @Test
