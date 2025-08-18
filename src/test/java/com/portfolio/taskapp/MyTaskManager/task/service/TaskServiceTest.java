@@ -39,6 +39,11 @@ class TaskServiceTest {
 
   private TaskService sut;
 
+  private static final String USER_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
+  private static final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-000000000001";
+  private static final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-000000000002";
+
+
   @BeforeEach
   void setUp() {
     sut = new TaskService(repository, converter, mapper);
@@ -46,24 +51,21 @@ class TaskServiceTest {
 
   @Test
   void ユーザープロジェクトの一覧取得で適切なrepositoryが呼び出せていること() {
-    String userPublicId = "00000000-0000-0000-0000-000000000000";
     Integer userId = 999;
 
-    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(userId);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(userId);
 
-    sut.getUserProjects(userPublicId);
+    sut.getUserProjects(USER_PUBLIC_ID);
 
-    verify(repository).findUserIdByUserPublicId(userPublicId);
+    verify(repository).findUserIdByUserPublicId(USER_PUBLIC_ID);
     verify(repository).findProjectsByUserId(userId);
   }
 
   @Test
   void 未登録のユーザー公開IDでプロジェクト一覧取得を実行すた場合に早期リターンで空のリストが返されること() {
-    String userPublicId = "00000000-0000-0000-0000-000000000000";
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(null);
 
-    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(null);
-
-    List<Project> actual = sut.getUserProjects(userPublicId);
+    List<Project> actual = sut.getUserProjects(USER_PUBLIC_ID);
 
     verify(repository, never()).findProjectsByUserId(any());
     assertThat(actual).isEmpty();
@@ -71,16 +73,16 @@ class TaskServiceTest {
 
   @Test
   void プロジェクトに紐づくタスク取得時に適切なrepositoryとconverterが呼び出せていること() {
-    String projectPublicId = "00000000-0000-0000-0000-111111111111";
     Integer projectId = 9999;
+
     List<Task> taskList = List.of();
 
-    when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
+    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
     when(repository.findTasksByProjectId(projectId)).thenReturn(taskList);
 
-    sut.getTasksByProjectPublicId(projectPublicId);
+    sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
 
-    verify(repository).findProjectIdByProjectPublicId(projectPublicId);
+    verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).findTasksByProjectId(projectId);
     verify(converter).convertToTaskTreeList(taskList);
   }
@@ -89,21 +91,20 @@ class TaskServiceTest {
   @Test
   void 単独の親子タスク取得する際に必要なrepositoryとconverterが呼び出されていること() {
     // 事前準備
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     Integer taskId = 99999;
     List<Task> taskList = List.of();
     TaskTree taskTree = new TaskTree();
     List<TaskTree> taskTreesList = List.of(taskTree);
 
-    when(repository.findTaskIdByTaskPublicId(taskPublicId)).thenReturn(taskId);
+    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskId);
     when(repository.findTasksByTaskId(taskId)).thenReturn(taskList);
     when(converter.convertToTaskTreeList(taskList)).thenReturn(taskTreesList);
 
     // 実行
-    TaskTree actual = sut.getTaskTreeByTaskPublicId(taskPublicId);
+    TaskTree actual = sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
 
     // 検証
-    verify(repository).findTaskIdByTaskPublicId(taskPublicId);
+    verify(repository).findTaskIdByTaskPublicId(TASK_PUBLIC_ID);
     verify(repository).findTasksByTaskId(taskId);
     verify(converter).convertToTaskTreeList(taskList);
 
@@ -113,12 +114,9 @@ class TaskServiceTest {
   // 異常系；convert結果が空の場合(repositoryのスタブは正常系でテスト済みのため省略)
   @Test
   void 単独の親子タスク取得する際にconvert処理で空のリストが返った場合に例外処理が実行されること() {
-    // 事前準備
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
-
     when(converter.convertToTaskTreeList(anyList())).thenReturn(List.of());
 
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(taskPublicId))
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("指定されたタスクに対応するTaskTreeが1件ではありません");
   }
@@ -127,12 +125,11 @@ class TaskServiceTest {
   @Test
   void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に例外処理が実行されること() {
     // 事前準備
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
     List<TaskTree> taskTreesList = List.of(new TaskTree(), new TaskTree());
 
     when(converter.convertToTaskTreeList(anyList())).thenReturn(taskTreesList);
 
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(taskPublicId))
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("指定されたタスクに対応するTaskTreeが1件ではありません");
   }
@@ -140,43 +137,40 @@ class TaskServiceTest {
   // プロジェクト登録処理
   @Test
   void プロジェクト登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    String userPublicId = "00000000-0000-0000-000000000000";
     Integer userId = 999;
     ProjectRequest request = new ProjectRequest();
     Project project = new Project();
 
-    when(repository.findUserIdByUserPublicId(userPublicId)).thenReturn(userId);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(userId);
     when(mapper.toProject(eq(request), eq(userId), any(String.class))).thenReturn(project);
 
-    sut.createProject(request, userPublicId);
+    sut.createProject(request, USER_PUBLIC_ID);
 
-    verify(repository).findUserIdByUserPublicId(userPublicId);
+    verify(repository).findUserIdByUserPublicId(USER_PUBLIC_ID);
     verify(mapper).toProject(eq(request), eq(userId), any(String.class));
     verify(repository).createProject(project);
   }
 
   @Test
   void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    String projectPublicId = "00000000-0000-0000-000000000000";
-    Integer projectId = 999;
+    Integer projectId = 9999;
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(repository.findProjectIdByProjectPublicId(projectPublicId)).thenReturn(projectId);
+    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
     when(mapper.toTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
 
-    sut.createParentTask(request, projectPublicId);
+    sut.createParentTask(request, PROJECT_PUBLIC_ID);
 
-    verify(repository).findProjectIdByProjectPublicId(projectPublicId);
+    verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toTask(eq(request), eq(projectId), any(String.class));
     verify(repository).createTask(task);
   }
 
   @Test
   void 子タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    String taskPublicId = "00000000-0000-0000-0000-222222222222";
-    Integer taskId = 999;
-    Integer projectId = 111;
+    Integer taskId = 9999;
+    Integer projectId = 999;
     Task parentTask = Task.builder()
         .id(taskId)
         .projectId(projectId)
@@ -184,12 +178,12 @@ class TaskServiceTest {
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(repository.findTaskByTaskPublicId(taskPublicId)).thenReturn(parentTask);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    sut.createSubtask(request, taskPublicId);
+    sut.createSubtask(request, TASK_PUBLIC_ID);
 
-    verify(repository).findTaskByTaskPublicId(taskPublicId);
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
     verify(repository).createTask(task);
   }
@@ -197,33 +191,31 @@ class TaskServiceTest {
   // プロジェクト更新処理
   @Test
   void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
-    String projectPublicId = "00000000-0000-0000-111111111111";
     ProjectRequest request = new ProjectRequest();
     Project project = new Project();
 
-    when(mapper.toProject(request, null, projectPublicId)).thenReturn(project);
+    when(mapper.toProject(request, null, PROJECT_PUBLIC_ID)).thenReturn(project);
 
-    sut.updateProject(request, projectPublicId);
+    sut.updateProject(request, PROJECT_PUBLIC_ID);
 
-    verify(mapper).toProject(request, null, projectPublicId);
+    verify(mapper).toProject(request, null, PROJECT_PUBLIC_ID);
     verify(repository).updateProject(project);
-    verify(repository).findProjectByProjectPublicId(projectPublicId);
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   // タスク更新処理
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
-    String taskPublicId = "00000000-0000-0000-222222222222";
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(mapper.toTask(request, null, taskPublicId)).thenReturn(task);
+    when(mapper.toTask(request, null, PROJECT_PUBLIC_ID)).thenReturn(task);
 
-    sut.updateTask(request, taskPublicId);
+    sut.updateTask(request, PROJECT_PUBLIC_ID);
 
-    verify(mapper).toTask(request, null, taskPublicId);
+    verify(mapper).toTask(request, null, PROJECT_PUBLIC_ID);
     verify(repository).updateTask(task);
-    verify(repository).findTaskByTaskPublicId(taskPublicId);
+    verify(repository).findTaskByTaskPublicId(PROJECT_PUBLIC_ID);
   }
 
 }
