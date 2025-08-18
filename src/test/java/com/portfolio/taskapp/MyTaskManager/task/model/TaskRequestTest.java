@@ -28,14 +28,7 @@ class TaskRequestTest {
 
   @Test
   void タスクのリクエストで入力チェックに抵触しないこと() {
-    TaskRequest request = new TaskRequest(
-        VALID_CAPTION,
-        VALID_DESCRIPTION,
-        VALID_DUE_DATE,
-        VALID_ESTIMATE_TIME,
-        VALID_ACTUAL_TIME,
-        VALID_PROGRESS,
-        VALID_PRIORITY);
+    TaskRequest request = createTaskRequest();
 
     Set<ConstraintViolation<TaskRequest>> validators = validator.validate(request);
 
@@ -79,6 +72,17 @@ class TaskRequestTest {
         Arguments.of(withInvalidPriority(null),
             "優先度は必須です")
     );
+  }
+
+  private static TaskRequest createTaskRequest() {
+    return new TaskRequest(
+        VALID_CAPTION,
+        VALID_DESCRIPTION,
+        VALID_DUE_DATE,
+        VALID_ESTIMATE_TIME,
+        VALID_ACTUAL_TIME,
+        VALID_PROGRESS,
+        VALID_PRIORITY);
   }
 
   private static TaskRequest withInvalidCaption(String invalidCaption) {
