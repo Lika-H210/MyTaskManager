@@ -171,8 +171,8 @@ class TaskServiceTest {
 
   @Test
   void 子タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    Integer taskId = 9999;
-    Integer projectId = 999;
+    Integer taskId = 99999;
+    Integer projectId = 9999;
     Task parentTask = Task.builder()
         .id(taskId)
         .projectId(projectId)
