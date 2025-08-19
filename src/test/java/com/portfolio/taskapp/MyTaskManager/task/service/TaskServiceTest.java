@@ -68,7 +68,7 @@ class TaskServiceTest {
 
     assertThatThrownBy(() -> sut.getUserProjects(USER_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("Authenticated user not found in database");
+        .hasMessageContaining("user not found");
 
     verify(repository, never()).findProjectsByUserId(any());
   }

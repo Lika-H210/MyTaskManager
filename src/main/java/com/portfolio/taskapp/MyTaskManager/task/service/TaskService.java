@@ -131,7 +131,7 @@ public class TaskService {
 
   private Integer requireUserIdByPublicId(String userPublicId) {
     return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("Authenticated user not found in database"));
+        .orElseThrow(() -> new RecordNotFoundException("user not found"));
   }
 
   private Integer requireProjectIdByPublicId(String projectPublicId) {
