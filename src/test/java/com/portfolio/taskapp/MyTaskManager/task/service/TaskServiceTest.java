@@ -63,7 +63,7 @@ class TaskServiceTest {
   }
 
   @Test
-  void 未登録のユーザー公開IDでプロジェクト一覧取得を実行すた場合に早期リターンで空のリストが返されること() {
+  void 未登録のユーザー公開IDでプロジェクト一覧取得を実行した場合に例外がThrowされること() {
     when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(null);
 
     assertThatThrownBy(() -> sut.getUserProjects(USER_PUBLIC_ID))

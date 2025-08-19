@@ -10,6 +10,7 @@ import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,10 +31,7 @@ public class TaskService {
   }
 
   public List<Project> getUserProjects(String userPublicId) {
-    Integer userId = repository.findUserIdByUserPublicId(userPublicId);
-    if (userId == null) {
-      throw new RecordNotFoundException("Authenticated user not found in database");
-    }
+    Integer userId = requireUserIdByPublicId(userPublicId);
     return repository.findProjectsByUserId(userId);
   }
 
@@ -65,10 +63,7 @@ public class TaskService {
 
   @Transactional
   public Project createProject(ProjectRequest request, String userPublicId) {
-    Integer userId = repository.findUserIdByUserPublicId(userPublicId);
-    if (userId == null) {
-      throw new RecordNotFoundException("Authenticated user not found in database");
-    }
+    Integer userId = requireUserIdByPublicId(userPublicId);
 
     String publicId = UUID.randomUUID().toString();
     Project project = mapper.toProject(request, userId, publicId);
@@ -143,4 +138,10 @@ public class TaskService {
     }
     repository.deleteTask(taskPublicId);
   }
+
+  private Integer requireUserIdByPublicId(String userPublicId) {
+    return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("Authenticated user not found in database"));
+  }
+
 }
