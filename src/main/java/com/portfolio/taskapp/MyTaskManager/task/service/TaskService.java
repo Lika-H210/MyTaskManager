@@ -36,10 +36,7 @@ public class TaskService {
   }
 
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
-    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
-    if (projectId == null) {
-      throw new RecordNotFoundException("project not found");
-    }
+    Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
     List<Task> taskList = repository.findTasksByProjectId(projectId);
     return converter.convertToTaskTreeList(taskList);
@@ -75,10 +72,7 @@ public class TaskService {
 
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId) {
-    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
-    if (projectId == null) {
-      throw new RecordNotFoundException("project not found");
-    }
+    Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toTask(request, projectId, publicId);
@@ -142,6 +136,11 @@ public class TaskService {
   private Integer requireUserIdByPublicId(String userPublicId) {
     return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
         .orElseThrow(() -> new RecordNotFoundException("Authenticated user not found in database"));
+  }
+
+  private Integer requireProjectIdByPublicId(String projectPublicId) {
+    return Optional.ofNullable(repository.findProjectIdByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
   }
 
 }

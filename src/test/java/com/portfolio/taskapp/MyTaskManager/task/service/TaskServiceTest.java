@@ -73,10 +73,10 @@ class TaskServiceTest {
     verify(repository, never()).findProjectsByUserId(any());
   }
 
+  // 親子タスク一覧取得：正常系
   @Test
-  void プロジェクトに紐づくタスク取得時に適切なrepositoryとconverterが呼び出せていること() {
+  void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {
     Integer projectId = 9999;
-
     List<Task> taskList = List.of();
 
     when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
@@ -87,6 +87,18 @@ class TaskServiceTest {
     verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).findTasksByProjectId(projectId);
     verify(converter).convertToTaskTreeList(taskList);
+  }
+
+  // 親子タスク一覧取得：異常系(404)
+  @Test
+  void プロジェクトに紐づく親子タスク一覧取得時に紐づけるタスク情報が取得できなかった場合例外をthrowすること() {
+    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessageContaining("project not found");
+
+    verify(repository, never()).findTasksByProjectId(any());
   }
 
   // 正常系
@@ -143,6 +155,7 @@ class TaskServiceTest {
     verify(repository).createProject(project);
   }
 
+  // 親タスク登録処理：正常系
   @Test
   void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
     Integer projectId = 9999;
