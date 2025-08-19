@@ -43,10 +43,8 @@ public class TaskService {
   }
 
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
-    Integer taskId = repository.findTaskIdByTaskPublicId(taskPublicId);
-    if (taskId == null) {
-      throw new RecordNotFoundException("task not found");
-    }
+    Integer taskId = Optional.ofNullable(repository.findTaskIdByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
     List<Task> taskList = repository.findTasksByTaskId(taskId);
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
@@ -84,10 +82,8 @@ public class TaskService {
 
   @Transactional
   public Task createSubtask(TaskRequest request, String taskPublicId) {
-    Task parentTask = repository.findTaskByTaskPublicId(taskPublicId);
-    if (parentTask == null) {
-      throw new RecordNotFoundException("parent task not found");
-    }
+    Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("parent task not found"));
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toSubtask(request, parentTask, publicId);

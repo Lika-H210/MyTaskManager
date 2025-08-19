@@ -101,9 +101,9 @@ class TaskServiceTest {
     verify(repository, never()).findTasksByProjectId(any());
   }
 
-  // 正常系
+  // 単独親子タスク取得：正常系
   @Test
-  void 単独の親子タスク取得する際に必要なrepositoryとconverterが呼び出されていること() {
+  void 単独の親子タスク取得する際に必要なrepositoryとconverterが呼び出され単独親子タスクが返されていること() {
     // 事前準備
     Integer taskId = 99999;
     List<Task> taskList = List.of();
@@ -125,12 +125,26 @@ class TaskServiceTest {
     assertThat(actual).isEqualTo(taskTree);
   }
 
-  // 異常系；convert結果が複数要素のリストの場合(repositoryのスタブは正常系でテスト済みのため省略)
+  // 単独親子タスク取得：異常系(404)
   @Test
-  void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に例外処理が実行されること() {
+  void 単独の親子タスク取得で取得対象タスクの内部Idを取得できない場合に適切な例外がThrowされること() {
+    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessageContaining("task not found");
+
+    verify(repository, never()).findTasksByTaskId(any());
+  }
+
+  // 単独親子タスク取得：異常系(500)　※convert結果が複数要素のリストの場合（IllegalStateException）
+  @Test
+  void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に適切な例外がThrowされること() {
     // 事前準備
+    Integer taskId = 99999;
     List<TaskTree> taskTreesList = List.of(new TaskTree(), new TaskTree());
 
+    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskId);
     when(converter.convertToTaskTreeList(anyList())).thenReturn(taskTreesList);
 
     assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
@@ -172,10 +186,11 @@ class TaskServiceTest {
     verify(repository).createTask(task);
   }
 
+  // 子タスク登録処理：正常系
   @Test
-  void 子タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    Integer taskId = 99999;
+  void 子タスク登録処理で適切なrepositoryとmapperが呼び出され更新内容のタスクが返されていること() {
     Integer projectId = 9999;
+    Integer taskId = 99999;
     Task parentTask = Task.builder()
         .id(taskId)
         .projectId(projectId)
@@ -186,11 +201,27 @@ class TaskServiceTest {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    sut.createSubtask(request, TASK_PUBLIC_ID);
+    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
     verify(repository).createTask(task);
+
+    assertThat(actual).isEqualTo(task);
+  }
+
+  // 子タスク登録処理：異常系(404)
+  @Test
+  void 子タスク登録処理でタスク公開Idに紐づくタスク情報を取得できなかった場合に適切な例外がThrowされること() {
+    TaskRequest request = new TaskRequest();
+
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessageContaining("task not found");
+
+    verify(mapper, never()).toSubtask(any(), any(), any());
   }
 
   // プロジェクト更新処理
