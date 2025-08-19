@@ -50,6 +50,7 @@ class TaskServiceTest {
     sut = new TaskService(repository, converter, mapper);
   }
 
+  // ユーザープロジェクト一覧取得：正常系
   @Test
   void ユーザープロジェクトの一覧取得で適切なrepositoryが呼び出せていること() {
     Integer userId = 999;
@@ -62,6 +63,7 @@ class TaskServiceTest {
     verify(repository).findProjectsByUserId(userId);
   }
 
+  // ユーザープロジェクト一覧取得：異常系(404：ユーザーId取得メソッドの例外ルート確認）
   @Test
   void 未登録のユーザー公開IDでプロジェクト一覧取得を実行した場合に例外がThrowされること() {
     when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(null);
@@ -89,7 +91,7 @@ class TaskServiceTest {
     verify(converter).convertToTaskTreeList(taskList);
   }
 
-  // 親子タスク一覧取得：異常系(404)
+  // 親子タスク一覧取得：異常系(404：プロジェクトId取得メソッドの例外ルート確認)
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に紐づけるタスク情報が取得できなかった場合例外をthrowすること() {
     when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
@@ -137,7 +139,7 @@ class TaskServiceTest {
     verify(repository, never()).findTasksByTaskId(any());
   }
 
-  // 単独親子タスク取得：異常系(500)　※convert結果が複数要素のリストの場合（IllegalStateException）
+  // 単独親子タスク取得：異常系(500)　※convert結果が複数要素のリストの場合
   @Test
   void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に適切な例外がThrowされること() {
     // 事前準備
@@ -162,11 +164,13 @@ class TaskServiceTest {
     when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(userId);
     when(mapper.toProject(eq(request), eq(userId), any(String.class))).thenReturn(project);
 
-    sut.createProject(request, USER_PUBLIC_ID);
+    Project actual = sut.createProject(request, USER_PUBLIC_ID);
 
     verify(repository).findUserIdByUserPublicId(USER_PUBLIC_ID);
     verify(mapper).toProject(eq(request), eq(userId), any(String.class));
     verify(repository).createProject(project);
+
+    assertThat(actual).isEqualTo(project);
   }
 
   // 親タスク登録処理：正常系
@@ -179,11 +183,13 @@ class TaskServiceTest {
     when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
     when(mapper.toTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
 
-    sut.createParentTask(request, PROJECT_PUBLIC_ID);
+    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID);
 
     verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toTask(eq(request), eq(projectId), any(String.class));
     verify(repository).createTask(task);
+
+    assertThat(actual).isEqualTo(task);
   }
 
   // 子タスク登録処理：正常系
@@ -245,13 +251,13 @@ class TaskServiceTest {
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(mapper.toTask(request, null, PROJECT_PUBLIC_ID)).thenReturn(task);
+    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
 
-    sut.updateTask(request, PROJECT_PUBLIC_ID);
+    sut.updateTask(request, TASK_PUBLIC_ID);
 
-    verify(mapper).toTask(request, null, PROJECT_PUBLIC_ID);
+    verify(mapper).toTask(request, null, TASK_PUBLIC_ID);
     verify(repository).updateTask(task);
-    verify(repository).findTaskByTaskPublicId(PROJECT_PUBLIC_ID);
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
 
 }
