@@ -57,8 +57,8 @@ public class TaskService {
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
 
     if (taskTreeList.size() != 1) {
-      // TODO: カスタム例外（仮：TaskTreeCountMismatchException）に差し替える
-      throw new IllegalStateException("指定されたタスクに対応するTaskTreeが1件ではありません");
+      throw new IllegalStateException(
+          "TaskTree count mismatch: expected 1, but got " + taskTreeList.size());
     }
     return taskTreeList.getFirst();
   }

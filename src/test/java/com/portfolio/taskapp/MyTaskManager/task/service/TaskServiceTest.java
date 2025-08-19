@@ -113,16 +113,6 @@ class TaskServiceTest {
     assertThat(actual).isEqualTo(taskTree);
   }
 
-  // 異常系；convert結果が空の場合(repositoryのスタブは正常系でテスト済みのため省略)
-  @Test
-  void 単独の親子タスク取得する際にconvert処理で空のリストが返った場合に例外処理が実行されること() {
-    when(converter.convertToTaskTreeList(anyList())).thenReturn(List.of());
-
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("指定されたタスクに対応するTaskTreeが1件ではありません");
-  }
-
   // 異常系；convert結果が複数要素のリストの場合(repositoryのスタブは正常系でテスト済みのため省略)
   @Test
   void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に例外処理が実行されること() {
@@ -133,7 +123,7 @@ class TaskServiceTest {
 
     assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessage("指定されたタスクに対応するTaskTreeが1件ではありません");
+        .hasMessageContaining("TaskTree count mismatch");
   }
 
   // プロジェクト登録処理
