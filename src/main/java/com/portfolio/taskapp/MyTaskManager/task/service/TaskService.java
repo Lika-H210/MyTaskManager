@@ -36,20 +36,15 @@ public class TaskService {
   }
 
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
-    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
-    if (projectId == null) {
-      throw new RecordNotFoundException("project not found");
-    }
+    Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
     List<Task> taskList = repository.findTasksByProjectId(projectId);
     return converter.convertToTaskTreeList(taskList);
   }
 
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
-    Integer taskId = repository.findTaskIdByTaskPublicId(taskPublicId);
-    if (taskId == null) {
-      throw new RecordNotFoundException("task not found");
-    }
+    Integer taskId = Optional.ofNullable(repository.findTaskIdByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
     List<Task> taskList = repository.findTasksByTaskId(taskId);
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
@@ -75,10 +70,7 @@ public class TaskService {
 
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId) {
-    Integer projectId = repository.findProjectIdByProjectPublicId(projectPublicId);
-    if (projectId == null) {
-      throw new RecordNotFoundException("project not found");
-    }
+    Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toTask(request, projectId, publicId);
@@ -90,10 +82,8 @@ public class TaskService {
 
   @Transactional
   public Task createSubtask(TaskRequest request, String taskPublicId) {
-    Task parentTask = repository.findTaskByTaskPublicId(taskPublicId);
-    if (parentTask == null) {
-      throw new RecordNotFoundException("parent task not found");
-    }
+    Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("parent task not found"));
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toSubtask(request, parentTask, publicId);
@@ -141,7 +131,12 @@ public class TaskService {
 
   private Integer requireUserIdByPublicId(String userPublicId) {
     return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("Authenticated user not found in database"));
+        .orElseThrow(() -> new RecordNotFoundException("user not found"));
+  }
+
+  private Integer requireProjectIdByPublicId(String projectPublicId) {
+    return Optional.ofNullable(repository.findProjectIdByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
   }
 
 }
