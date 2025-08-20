@@ -17,9 +17,13 @@ import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -170,6 +174,86 @@ class UserServiceTest {
     sut.updateAccount(details, request);
 
     verify(repository, never()).existsByEmail(any());
+  }
+
+  // パスワード検証+ハッシュ化メソッド：正常系（パスワード更新）
+  @Test
+  void パスワード更新で正常に更新ができる場合に適切なpasswordEncoderが実行されていること()
+      throws InvalidPasswordChangeException {
+    AccountUpdateRequest request = new AccountUpdateRequest(null, null, PASSWORD_RAW,
+        NEW_PASSWORD_RAW);
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+
+    when(passwordEncoder.matches(PASSWORD_RAW, PASSWORD_HASHED)).thenReturn(true);
+
+    sut.preparePasswordForUpdate(details, request);
+
+    verify(passwordEncoder).matches(PASSWORD_RAW, PASSWORD_HASHED);
+    verify(passwordEncoder).encode(NEW_PASSWORD_RAW);
+  }
+
+  // パスワード検証+ハッシュ化メソッド：正常系（パスワード未更新）
+  @Test
+  void パスワード更新で現新両パスワードがnullの場合にnullが返されること()
+      throws InvalidPasswordChangeException {
+    AccountUpdateRequest request = new AccountUpdateRequest(null, EMAIL, null, null);
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+
+    String actual = sut.preparePasswordForUpdate(details, request);
+
+    assertThat(actual).isNull();
+  }
+
+  // パスワード検証+ハッシュ化メソッド：異常系（パスワード検証結果不一致）
+  @Test
+  void パスワード更新で現在のパスワードと認証のパスワードが一致しない場合に例外がThrowされること() {
+    AccountUpdateRequest request = new AccountUpdateRequest(null, null, PASSWORD_RAW,
+        NEW_PASSWORD_RAW);
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+
+    when(passwordEncoder.matches(PASSWORD_RAW, PASSWORD_HASHED)).thenReturn(false);
+
+    assertThatThrownBy(() -> sut.preparePasswordForUpdate(details, request))
+        .isInstanceOf(InvalidPasswordChangeException.class)
+        .hasMessage("現在のパスワードをご確認ください");
+
+    verify(passwordEncoder, never()).encode(any());
+  }
+
+  // パスワード検証+ハッシュ化メソッド：異常系（パスワード必要情報不足）
+  @ParameterizedTest
+  @MethodSource("passwordInputPattern")
+  void パスワード更新でリクエストの現または新パスワードの片方がnullの場合に例外がThrowされること(
+      AccountUpdateRequest request) {
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+
+    assertThatThrownBy(() -> sut.preparePasswordForUpdate(details, request))
+        .isInstanceOf(InvalidPasswordChangeException.class)
+        .hasMessage("パスワード変更には現在のパスワードと新しいパスワードの両方が必要です");
+
+    verify(passwordEncoder, never()).matches(any(), any());
+  }
+
+  private static Stream<Arguments> passwordInputPattern() {
+    return Stream.of(
+        Arguments.of(new AccountUpdateRequest(null, null, PASSWORD_RAW, null)),
+        Arguments.of(new AccountUpdateRequest(null, null, null, NEW_PASSWORD_RAW))
+    );
   }
 
 }
