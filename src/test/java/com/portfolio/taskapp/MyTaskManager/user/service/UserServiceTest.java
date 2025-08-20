@@ -39,10 +39,10 @@ class UserServiceTest {
 
   private UserService sut;
 
-  private static final String VALID_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
-  private static final String VALID_EMAIL = "user@example.com";
-  private static final String VALID_PASSWORD_RAW = "rawPassword";
-  private static final String VALID_PASSWORD_HASHED = "hashedPassword";
+  private static final String PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
+  private static final String EMAIL = "user@example.com";
+  private static final String PASSWORD_RAW = "rawPassword";
+  private static final String PASSWORD_HASHED = "hashedPassword";
 
   @BeforeEach
   void setUp() {
@@ -53,40 +53,40 @@ class UserServiceTest {
   void アカウント情報取得時に適切なrepositoryとmapperが呼び出されていること() {
     UserAccount account = new UserAccount();
 
-    when(repository.findAccountByPublicId(VALID_PUBLIC_ID)).thenReturn(account);
+    when(repository.findAccountByPublicId(PUBLIC_ID)).thenReturn(account);
 
-    sut.findAccount(VALID_PUBLIC_ID);
+    sut.findAccount(PUBLIC_ID);
 
-    verify(repository).findAccountByPublicId(VALID_PUBLIC_ID);
+    verify(repository).findAccountByPublicId(PUBLIC_ID);
     verify(mapper).toUserAccountResponse(account);
   }
 
   @Test
   void アカウント登録時に適切にrepositoryとencoderが呼び出されていること()
       throws NotUniqueException {
-    AccountRegisterRequest request = new AccountRegisterRequest(null, VALID_EMAIL,
-        VALID_PASSWORD_RAW);
+    AccountRegisterRequest request = new AccountRegisterRequest(null, EMAIL,
+        PASSWORD_RAW);
     UserAccount registerAccount = new UserAccount();
 
-    when(repository.existsByEmail(VALID_EMAIL)).thenReturn(false);
-    when(passwordEncoder.encode(VALID_PASSWORD_RAW)).thenReturn(VALID_PASSWORD_HASHED);
+    when(repository.existsByEmail(EMAIL)).thenReturn(false);
+    when(passwordEncoder.encode(PASSWORD_RAW)).thenReturn(PASSWORD_HASHED);
     when(mapper.CreateRequestToUserAccount(eq(request), any(String.class),
-        eq(VALID_PASSWORD_HASHED)))
+        eq(PASSWORD_HASHED)))
         .thenReturn(registerAccount);
 
     sut.registerUser(request);
 
-    verify(repository).existsByEmail(VALID_EMAIL);
-    verify(passwordEncoder).encode(VALID_PASSWORD_RAW);
-    verify(mapper).CreateRequestToUserAccount(eq(request), any(), eq(VALID_PASSWORD_HASHED));
+    verify(repository).existsByEmail(EMAIL);
+    verify(passwordEncoder).encode(PASSWORD_RAW);
+    verify(mapper).CreateRequestToUserAccount(eq(request), any(), eq(PASSWORD_HASHED));
     verify(repository).registerUserAccount(registerAccount);
   }
 
   @Test
   void アカウント登録時のemail重複チェックがTRUEの場合に重複例外がThrowされ以降の処理が実行されないこと() {
-    AccountRegisterRequest request = new AccountRegisterRequest(null, VALID_EMAIL, null);
+    AccountRegisterRequest request = new AccountRegisterRequest(null, EMAIL, null);
 
-    when(repository.existsByEmail(VALID_EMAIL)).thenReturn(true);
+    when(repository.existsByEmail(EMAIL)).thenReturn(true);
 
     assertThatThrownBy(() -> sut.registerUser(request))
         .isInstanceOf(NotUniqueException.class)
@@ -101,22 +101,22 @@ class UserServiceTest {
     // 事前準備
     String newRawPassword = "newRowPassword";
     String newHashedPassword = "newHashedPassword";
-    AccountUpdateRequest request = new AccountUpdateRequest(null, VALID_EMAIL, VALID_PASSWORD_RAW,
+    AccountUpdateRequest request = new AccountUpdateRequest(null, EMAIL, PASSWORD_RAW,
         newRawPassword);
     UserAccount authAccount = UserAccount.builder()
-        .publicId(VALID_PUBLIC_ID)
-        .password(VALID_PASSWORD_HASHED)
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
         .build();
     UserAccountDetails details = new UserAccountDetails(authAccount);
     UserAccount updateAccount = UserAccount.builder()
-        .email(VALID_EMAIL)
+        .email(EMAIL)
         .password(newHashedPassword)
         .build();
 
-    when(passwordEncoder.matches(VALID_PASSWORD_RAW, VALID_PASSWORD_HASHED)).thenReturn(true);
+    when(passwordEncoder.matches(PASSWORD_RAW, PASSWORD_HASHED)).thenReturn(true);
     when(passwordEncoder.encode(newRawPassword)).thenReturn(newHashedPassword);
-    when(repository.existsByEmail(VALID_EMAIL)).thenReturn(false);
-    when(mapper.updateRequestToUserAccount(request, VALID_PUBLIC_ID, newHashedPassword))
+    when(repository.existsByEmail(EMAIL)).thenReturn(false);
+    when(mapper.updateRequestToUserAccount(request, PUBLIC_ID, newHashedPassword))
         .thenReturn(updateAccount);
 
     // SecurityContext をクリア
@@ -126,10 +126,10 @@ class UserServiceTest {
     sut.updateAccount(details, request);
 
     // 検証: 処理工程の確認
-    verify(passwordEncoder).matches(VALID_PASSWORD_RAW, VALID_PASSWORD_HASHED);
+    verify(passwordEncoder).matches(PASSWORD_RAW, PASSWORD_HASHED);
     verify(passwordEncoder).encode(newRawPassword);
-    verify(repository).existsByEmail(VALID_EMAIL);
-    verify(mapper).updateRequestToUserAccount(request, VALID_PUBLIC_ID, newHashedPassword);
+    verify(repository).existsByEmail(EMAIL);
+    verify(mapper).updateRequestToUserAccount(request, PUBLIC_ID, newHashedPassword);
     verify(repository).updateAccount(updateAccount);
     verify(mapper).toUserAccountResponse(updateAccount);
 
@@ -139,17 +139,17 @@ class UserServiceTest {
     assertThat(authentication.getPrincipal()).isInstanceOf(UserAccountDetails.class);
 
     UserAccountDetails updatedDetails = (UserAccountDetails) authentication.getPrincipal();
-    assertThat(updatedDetails.getUsername()).isEqualTo(VALID_EMAIL);
+    assertThat(updatedDetails.getUsername()).isEqualTo(EMAIL);
     assertThat(updatedDetails.getPassword()).isEqualTo(newHashedPassword);
   }
 
 
   @Test
   void アカウント更新時にemail重複チェックがTRUEの場合に重複例外がThrowされ以降の処理が実行されないこと() {
-    AccountUpdateRequest request = new AccountUpdateRequest(null, VALID_EMAIL, null, null);
+    AccountUpdateRequest request = new AccountUpdateRequest(null, EMAIL, null, null);
     UserAccountDetails details = new UserAccountDetails(new UserAccount());
 
-    when(repository.existsByEmail(VALID_EMAIL)).thenReturn(true);
+    when(repository.existsByEmail(EMAIL)).thenReturn(true);
 
     assertThatThrownBy(() -> sut.updateAccount(details, request))
         .isInstanceOf(NotUniqueException.class)
