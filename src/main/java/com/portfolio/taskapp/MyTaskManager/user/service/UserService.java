@@ -43,10 +43,7 @@ public class UserService {
 
   @Transactional
   public void registerUser(AccountRegisterRequest request) throws NotUniqueException {
-    // email重複チェック
-    if (repository.existsByEmail(request.getEmail())) {
-      throw new NotUniqueException("email", "このメールアドレスは使用できません");
-    }
+    validateEmailUniqueness(request.getEmail());
 
     String publicId = UUID.randomUUID().toString();
     String hashedPassword = passwordEncoder.encode(request.getPassword());
@@ -69,25 +66,10 @@ public class UserService {
       return new AccountResponse();
     }
 
-    // パスワード更新事前処理
-    String hashedPassword = null;
-    boolean currentIsNull = request.getCurrentPassword() == null;
-    boolean newIsNull = request.getNewPassword() == null;
+    String hashedPassword = preparePasswordForUpdate(userDetails, request);
 
-    // 現行パスワードと新パスワードがどちらかしか入力されていない場合(排他的論理和同等です)
-    if (currentIsNull != newIsNull) {
-      throw new InvalidPasswordChangeException(
-          "パスワード変更には現在のパスワードと新しいパスワードの両方が必要です");
-    } else if (!currentIsNull && !newIsNull) {
-      if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
-        throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
-      }
-      hashedPassword = passwordEncoder.encode(request.getNewPassword());
-    }
-
-    if (request.getEmail() != null && !request.getEmail().equals(userDetails.getUsername())
-        && repository.existsByEmail(request.getEmail())) {
-      throw new NotUniqueException("email", "このメールアドレスは使用できません");
+    if (request.getEmail() != null && !request.getEmail().equals(userDetails.getUsername())) {
+      validateEmailUniqueness(request.getEmail());
     }
 
     UserAccount updateAccount = mapper.updateRequestToUserAccount(request, publicId,
@@ -100,6 +82,43 @@ public class UserService {
     }
 
     return mapper.toUserAccountResponse(updateAccount);
+  }
+
+  @Transactional
+  public void deleteAccount(String publicId) {
+    if (repository.findAccountByPublicId(publicId) == null) {
+      throw new RecordNotFoundException("account not found");
+    }
+    repository.deleteAccount(publicId);
+  }
+
+  // ──────────────── Private methods ────────────────
+
+  private void validateEmailUniqueness(String requestEmail)
+      throws NotUniqueException {
+    if (repository.existsByEmail(requestEmail)) {
+      throw new NotUniqueException("email", "このメールアドレスは使用できません");
+    }
+  }
+
+  private String preparePasswordForUpdate(UserAccountDetails userDetails,
+      AccountUpdateRequest request)
+      throws InvalidPasswordChangeException {
+    // 現・新パスワードの入力状態: 0=両方なし, 1=どちらかのみ, 2=両方あり
+    int state = (request.getCurrentPassword() == null ? 0 : 1)
+        + (request.getNewPassword() == null ? 0 : 1);
+
+    return switch (state) {
+      case 1 -> throw new InvalidPasswordChangeException(
+          "パスワード変更には現在のパスワードと新しいパスワードの両方が必要です");
+      case 2 -> {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
+          throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
+        }
+        yield passwordEncoder.encode(request.getNewPassword());
+      }
+      default -> null;
+    };
   }
 
   private void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
@@ -119,14 +138,6 @@ public class UserService {
             userDetails.getAuthorities());
 
     SecurityContextHolder.getContext().setAuthentication(newAuth);
-  }
-
-  @Transactional
-  public void deleteAccount(String publicId) {
-    if (repository.findAccountByPublicId(publicId) == null) {
-      throw new RecordNotFoundException("account not found");
-    }
-    repository.deleteAccount(publicId);
   }
 
 }
