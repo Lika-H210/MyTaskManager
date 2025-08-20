@@ -41,7 +41,7 @@ class UserServiceTest {
 
   private static final String VALID_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
   private static final String VALID_EMAIL = "user@example.com";
-  private static final String VALID_PASSWORD_RAW = "rowPassword";
+  private static final String VALID_PASSWORD_RAW = "rawPassword";
   private static final String VALID_PASSWORD_HASHED = "hashedPassword";
 
   @BeforeEach
