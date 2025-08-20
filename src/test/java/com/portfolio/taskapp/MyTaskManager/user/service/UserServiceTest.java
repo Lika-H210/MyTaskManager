@@ -14,6 +14,7 @@ import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeExcept
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,6 +139,37 @@ class UserServiceTest {
     verify(mapper).toUserAccountResponse(updateAccount);
     // 認証情報更新メソッドの間接呼び出し確認
     assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+  }
+
+  @Test
+  void アカウント更新時に全項目nullの場合に早期リターンすること()
+      throws NotUniqueException, InvalidPasswordChangeException {
+    AccountUpdateRequest request = new AccountUpdateRequest(null, null, null, null);
+    UserAccountDetails details = new UserAccountDetails(new UserAccount());
+
+    AccountResponse actual = sut.updateAccount(details, request);
+
+    assertThat(actual).usingRecursiveComparison()
+        .isEqualTo(new AccountResponse());
+  }
+
+  @Test
+  void アカウント更新で自身の登録済みEmailで更新した場合に重複チェックが実行されないこと()
+      throws NotUniqueException, InvalidPasswordChangeException {
+    AccountUpdateRequest request = new AccountUpdateRequest(null, EMAIL, null, null);
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(EMAIL)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    UserAccount updateAccount = new UserAccount();
+
+    when(mapper.updateRequestToUserAccount(request, PUBLIC_ID, null))
+        .thenReturn(updateAccount);
+
+    sut.updateAccount(details, request);
+
+    verify(repository, never()).existsByEmail(any());
   }
 
 }
