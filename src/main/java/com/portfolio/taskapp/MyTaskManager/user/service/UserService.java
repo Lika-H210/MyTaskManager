@@ -101,7 +101,7 @@ public class UserService {
     }
   }
 
-  private String preparePasswordForUpdate(UserAccountDetails userDetails,
+  String preparePasswordForUpdate(UserAccountDetails userDetails,
       AccountUpdateRequest request)
       throws InvalidPasswordChangeException {
     // 現・新パスワードの入力状態: 0=両方なし, 1=どちらかのみ, 2=両方あり
