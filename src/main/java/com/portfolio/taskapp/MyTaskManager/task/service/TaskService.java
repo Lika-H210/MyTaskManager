@@ -110,7 +110,11 @@ public class TaskService {
   public Task updateTask(TaskRequest request, String taskPublicId) {
 
     Task task = mapper.toTask(request, null, taskPublicId);
-    repository.updateTask(task);
+    int updateRows = repository.updateTask(task);
+
+    if (updateRows == 0) {
+      throw new RecordNotFoundException("task not found");
+    }
 
     return repository.findTaskByTaskPublicId(taskPublicId);
   }

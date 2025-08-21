@@ -100,6 +100,7 @@
     priority = #{priority}
     WHERE
     public_id = #{publicId}
+    AND is_deleted = false
   </update>
 
   <!--論理削除-->

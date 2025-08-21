@@ -269,12 +269,28 @@ class TaskServiceTest {
     Task task = new Task();
 
     when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.updateTask(task)).thenReturn(1);
 
     sut.updateTask(request, TASK_PUBLIC_ID);
 
     verify(mapper).toTask(request, null, TASK_PUBLIC_ID);
     verify(repository).updateTask(task);
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+  }
+
+  @Test
+  void タスク更新処理で更新対象のレコードがない場合に例外がthrowされること() {
+    TaskRequest request = new TaskRequest();
+    Task task = new Task();
+
+    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.updateTask(task)).thenReturn(0);
+
+    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("task not found");
+
+    verify(repository, never()).findTaskByTaskPublicId(any());
   }
 
 }
