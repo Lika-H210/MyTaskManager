@@ -97,7 +97,11 @@ public class TaskService {
   public Project updateProject(ProjectRequest request, String projectPublicId) {
 
     Project project = mapper.toProject(request, null, projectPublicId);
-    repository.updateProject(project);
+    int updateRows = repository.updateProject(project);
+
+    if (updateRows == 0) {
+      throw new RecordNotFoundException("project not found");
+    }
 
     return repository.findProjectByProjectPublicId(projectPublicId);
   }
