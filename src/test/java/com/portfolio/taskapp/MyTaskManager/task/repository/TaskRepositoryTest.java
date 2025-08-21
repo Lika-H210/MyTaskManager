@@ -226,23 +226,11 @@ class TaskRepositoryTest {
     Project project = Project.builder()
         .publicId(publicId)
         .projectCaption("更新プロジェクト名")
-        .description("更新プロジェクト詳細")
-        .status(ARCHIVED)
         .build();
 
-    // 更新前情報の取得
-    Project beforeProject = sut.findProjectByProjectPublicId(publicId);
+    int actual = sut.updateProject(project);
 
-    // 実行
-    sut.updateProject(project);
-
-    // 更新情報の取得
-    Project actual = sut.findProjectByProjectPublicId(publicId);
-
-    assertThat(actual)
-        .usingRecursiveComparison()
-        .comparingOnlyFields("projectCaption", "description", "status")
-        .isEqualTo(beforeProject);
+    assertThat(actual).isEqualTo(0);
   }
 
   @Test
@@ -297,6 +285,47 @@ class TaskRepositoryTest {
         .comparingOnlyFields("taskCaption", "description", "dueDate", "estimatedTime",
             "actualTime", "progress", "priority")
         .isEqualTo(task);
+  }
+
+  //タスク更新
+  @Test
+  void タスクの更新で更新対象のレコードが論理削除済みの場合は更新されないこと() {
+    String publicId = "55555555-eeee-ffff-0000-1234567890ab";
+    Task task = Task.builder()
+        .publicId(publicId)
+        .taskCaption("更新タスク名")
+        .dueDate(LocalDate.of(2025, 9, 1))
+        .build();
+
+    int actual = sut.updateTask(task);
+
+    assertThat(actual).isEqualTo(0);
+  }
+
+  @Test
+  void タスクの更新処理で更新対象でない項目は更新されないこと() {
+    String publicId = "11111111-aaaa-bbbb-cccc-1234567890ab";
+    Task task = Task.builder()
+        .id(999)
+        .projectId(999)
+        .publicId(publicId)
+        .parentTaskId(999)
+        .taskCaption("必須項目")  // 必須制約のため入力（検証対象外）
+        .dueDate(LocalDate.now())   // 必須制約のため入力（検証対象外）
+        .createdAt(LocalDateTime.of(1900, 1, 1, 0, 0, 0))
+        .isDeleted(true)
+        .build();
+
+    Task beforeTask = sut.findTaskByTaskPublicId(publicId);
+
+    sut.updateTask(task);
+
+    Task actual = sut.findTaskByTaskPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .comparingOnlyFields("id", "projectId", "parentTaskId", "createdAt", "isDeleted")
+        .isEqualTo(beforeTask);
   }
 
   @Test

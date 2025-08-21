@@ -320,6 +320,11 @@ public class TaskController {
               responseCode = "400",
               description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
               content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのタスクが存在しないか、削除されている場合",
+              content = @Content()
           )
       }
   )
