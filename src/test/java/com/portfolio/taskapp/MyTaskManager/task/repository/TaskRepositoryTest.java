@@ -228,19 +228,9 @@ class TaskRepositoryTest {
         .projectCaption("更新プロジェクト名")
         .build();
 
-    // 更新前情報の取得
-    Project beforeProject = sut.findProjectByProjectPublicId(publicId);
+    int actual = sut.updateProject(project);
 
-    // 実行
-    sut.updateProject(project);
-
-    // 更新情報の取得
-    Project actual = sut.findProjectByProjectPublicId(publicId);
-
-    assertThat(actual)
-        .usingRecursiveComparison()
-        .comparingOnlyFields("projectCaption", "description", "status")
-        .isEqualTo(beforeProject);
+    assertThat(actual).isEqualTo(0);
   }
 
   @Test
