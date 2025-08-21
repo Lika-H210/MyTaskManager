@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -54,6 +55,7 @@ class UserServiceTest {
   @BeforeEach
   void setUp() {
     sut = new UserService(repository, passwordEncoder, mapper);
+    SecurityContextHolder.clearContext();
   }
 
   // アカウント情報取得：正常系
@@ -254,6 +256,56 @@ class UserServiceTest {
         Arguments.of(new AccountUpdateRequest(null, null, PASSWORD_RAW, null)),
         Arguments.of(new AccountUpdateRequest(null, null, null, NEW_PASSWORD_RAW))
     );
+  }
+
+  // 認証情報更新メソッド：正常系（更新情報あり）
+  @Test
+  void 認証情報の更新処理でパスワードとemailが更新されていること() {
+    // 準備
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(EMAIL)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    UserAccount updateAccount = UserAccount.builder()
+        .email(NEW_EMAIL)
+        .password(NEW_PASSWORD_HASHED)
+        .build();
+
+    sut.refreshSecurityContext(details, updateAccount);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserAccountDetails actual = (UserAccountDetails) authentication.getPrincipal();
+
+    assertThat(actual.getAccount().getPublicId()).isEqualTo(PUBLIC_ID);
+    assertThat(actual.getUsername()).isEqualTo(NEW_EMAIL);
+    assertThat(actual.getPassword()).isEqualTo(NEW_PASSWORD_HASHED);
+    assertThat(authentication.getAuthorities()).isEmpty();
+  }
+
+  // 認証情報更新メソッド：正常系（更新情報なし）
+  @Test
+  void 認証情報の更新処理で更新情報がnullの場合は元の認証情報が維持されていること() {
+    // 準備
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(EMAIL)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    UserAccount updateAccount = UserAccount.builder()
+        .email(null)
+        .password(null)
+        .build();
+
+    sut.refreshSecurityContext(details, updateAccount);
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserAccountDetails actual = (UserAccountDetails) authentication.getPrincipal();
+
+    assertThat(actual.getAccount().getPublicId()).isEqualTo(PUBLIC_ID);
+    assertThat(actual.getUsername()).isEqualTo(EMAIL);
+    assertThat(actual.getPassword()).isEqualTo(PASSWORD_HASHED);
+    assertThat(authentication.getAuthorities()).isEmpty();
   }
 
 }
