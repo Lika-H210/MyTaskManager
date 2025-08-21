@@ -45,7 +45,9 @@
 
   <select id="findProjectByProjectPublicId" parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
-    SELECT * FROM projects WHERE public_id = #{projectPublicId}
+    SELECT * FROM projects
+    WHERE public_id = #{projectPublicId}
+    AND is_deleted = false
   </select>
 
   <select id="findTaskByTaskPublicId" parameterType="String"
@@ -82,6 +84,7 @@
     description = #{description},
     status = #{status}
     WHERE public_id = #{publicId}
+    AND is_deleted = false
   </update>
 
   <!--タスク更新-->

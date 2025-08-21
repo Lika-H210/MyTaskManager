@@ -1,13 +1,14 @@
 package com.portfolio.taskapp.MyTaskManager.task.repository;
 
 import static com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus.ACTIVE;
+import static com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus.ARCHIVED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -111,6 +112,25 @@ class TaskRepositoryTest {
   }
 
   @Test
+  void projectPublicIdに紐づくプロジェクトの情報が取得できること() {
+    String projectPublicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+    Project actual = sut.findProjectByProjectPublicId(projectPublicId);
+
+    assertThat(actual).isNotNull();
+    assertThat(actual.getPublicId()).isEqualTo(projectPublicId);
+  }
+
+  @Test
+  void projectPublicIdに紐づくプロジェクトが論理削除済みの場合に情報が取得できないこと() {
+    String projectPublicId = "a3333333-bbbb-cccc-dddd-eeeeeeeeeeee";
+
+    Project actual = sut.findProjectByProjectPublicId(projectPublicId);
+
+    assertThat(actual).isNull();
+  }
+
+  @Test
   void taskPublicIdに紐づく未削除タスクの情報が取得できること() {
     String taskPublicId = "22222222-bbbb-cccc-dddd-1234567890ab";
 
@@ -118,9 +138,6 @@ class TaskRepositoryTest {
 
     assertThat(actual).isNotNull();
     assertThat(actual.getPublicId()).isEqualTo(taskPublicId);
-    assertThat(actual)
-        .usingRecursiveComparison()
-        .isNotNull();
   }
 
   @Test
@@ -190,7 +207,7 @@ class TaskRepositoryTest {
         .publicId(publicId)
         .projectCaption("更新プロジェクト名")
         .description("更新プロジェクト詳細")
-        .status(ProjectStatus.ARCHIVED)
+        .status(ARCHIVED)
         .build();
 
     sut.updateProject(project);
@@ -201,6 +218,59 @@ class TaskRepositoryTest {
         .usingRecursiveComparison()
         .comparingOnlyFields("projectCaption", "description", "status")
         .isEqualTo(project);
+  }
+
+  @Test
+  void プロジェクトの更新で更新対象のレコードが論理削除済みの場合は更新されないこと() {
+    String publicId = "a3333333-bbbb-cccc-dddd-eeeeeeeeeeee";
+    Project project = Project.builder()
+        .publicId(publicId)
+        .projectCaption("更新プロジェクト名")
+        .description("更新プロジェクト詳細")
+        .status(ARCHIVED)
+        .build();
+
+    // 更新前情報の取得
+    Project beforeProject = sut.findProjectByProjectPublicId(publicId);
+
+    // 実行
+    sut.updateProject(project);
+
+    // 更新情報の取得
+    Project actual = sut.findProjectByProjectPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .comparingOnlyFields("projectCaption", "description", "status")
+        .isEqualTo(beforeProject);
+  }
+
+  @Test
+  void プロジェクトの更新対象でない項目は更新されないこと() {
+    String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
+    Project project = Project.builder()
+        .id(999)
+        .userId(999)
+        .publicId(publicId)
+        .projectCaption("必須項目") // 必須制約のため入力（検証対象外）
+        .createdAt(LocalDateTime
+            .of(1900, 1, 1, 0, 0, 0))
+        .isDeleted(true)
+        .build();
+
+    // 更新前情報の取得
+    Project beforeProject = sut.findProjectByProjectPublicId(publicId);
+
+    // 実行
+    sut.updateProject(project);
+
+    // 更新情報の取得
+    Project actual = sut.findProjectByProjectPublicId(publicId);
+
+    assertThat(actual)
+        .usingRecursiveComparison()
+        .comparingOnlyFields("id", "userId", "createdAt", "isDeleted")
+        .isEqualTo(beforeProject);
   }
 
   //タスク更新

@@ -30,7 +30,7 @@ public interface TaskRepository {
 
   void createTask(Task task);
 
-  void updateProject(Project project);
+  int updateProject(Project project);
 
   void updateTask(Task task);
 
