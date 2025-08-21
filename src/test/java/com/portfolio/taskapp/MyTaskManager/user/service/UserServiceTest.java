@@ -12,12 +12,14 @@ import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +60,11 @@ class UserServiceTest {
     SecurityContextHolder.clearContext();
   }
 
+  @AfterEach
+  void tearDown() {
+    SecurityContextHolder.clearContext();
+  }
+  
   // アカウント情報取得：正常系
   @Test
   void アカウント情報取得時に適切なrepositoryとmapperが呼び出されていること() {
@@ -308,4 +315,24 @@ class UserServiceTest {
     assertThat(authentication.getAuthorities()).isEmpty();
   }
 
+  @Test
+  void 削除処理で適切なrepositoryを呼び出せていること() {
+    when(repository.findAccountByPublicId(PUBLIC_ID)).thenReturn(new UserAccount());
+
+    sut.deleteAccount(PUBLIC_ID);
+
+    verify(repository).findAccountByPublicId(PUBLIC_ID);
+    verify(repository).deleteAccount(PUBLIC_ID);
+  }
+
+  @Test
+  void 削除処理を存在しないアカウントの公開IDで実行した場合例外かThrowされ以降の処理は実行されないこと() {
+    when(repository.findAccountByPublicId(PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.deleteAccount(PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("account not found");
+
+    verify(repository, never()).deleteAccount(any());
+  }
 }
