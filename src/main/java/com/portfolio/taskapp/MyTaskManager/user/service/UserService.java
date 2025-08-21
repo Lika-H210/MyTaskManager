@@ -121,7 +121,7 @@ public class UserService {
     };
   }
 
-  private void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
+  void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
     UserAccount updateUserAccount = UserAccount.builder()
         .publicId(userDetails.getAccount().getPublicId())
         .email(Optional.ofNullable(updateAccount.getEmail())
