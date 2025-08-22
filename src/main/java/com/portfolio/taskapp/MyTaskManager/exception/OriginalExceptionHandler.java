@@ -79,6 +79,19 @@ public class OriginalExceptionHandler {
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
 
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+    // 開発者向けログ出力
+    log.error("unexpected error has occurred", ex);
+
+    //表示内容
+    HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+    String detail = "An unexpected error occurred. Please contact support.";
+    Map<String, Object> responseBody = createErrorBody(status, detail);
+
+    return ResponseEntity.status(status).body(responseBody);
+  }
+
   private static Map<String, Object> createErrorBody(HttpStatus status, Object detail) {
     Map<String, Object> responseBody = new LinkedHashMap<>();
     responseBody.put("status", status.value());
