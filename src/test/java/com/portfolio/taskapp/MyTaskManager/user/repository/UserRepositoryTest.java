@@ -109,11 +109,14 @@ class UserRepositoryTest {
     assertThat(actual.getUserName()).isEqualTo(account.getUserName());
   }
 
-  // アカウント更新処理：未更新項目確認(email,password ※検証用データ取得に含まれる内容のみ検証)
+  // アカウント更新処理：未更新項目確認(email,password)
   @Test
   void アカウント情報更新処理で更新対象項目がnullの場合は更新前の情報が維持されていること() {
     String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
-    String email = "tanaka@example.com";
+    // 事前状態の取得
+    String beforeEmail = sut.findAccountByPublicId(publicId).getEmail();
+    String beforePassword = sut.findAccountByEmail(beforeEmail).getPassword();
+
     UserAccount account = UserAccount.builder()
         .publicId(publicId)
         // 更新実行には一つ以上の変更field必須
@@ -122,16 +125,11 @@ class UserRepositoryTest {
         .password(null)
         .build();
 
-    UserAccount beforeAccount = sut.findAccountByEmail(email);
-
     sut.updateAccount(account);
-    UserAccount actual = sut.findAccountByEmail(email);
+    UserAccount actual = sut.findAccountByEmail(beforeEmail);
 
-    assertThat(actual.getEmail()).isEqualTo(email);
-    assertThat(actual)
-        .usingRecursiveComparison()
-        .comparingOnlyFields("email", "password")
-        .isEqualTo(beforeAccount);
+    assertThat(actual.getEmail()).isEqualTo(beforeEmail);
+    assertThat(actual.getPassword()).isEqualTo(beforePassword);
   }
 
   // アカウント更新処理：未更新項目確認(userName ※未検証項目の検証)
