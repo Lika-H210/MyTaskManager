@@ -74,13 +74,13 @@ class UserRepositoryTest {
         .isEqualTo(account);
   }
 
+  // アカウント更新処理：更新項目確認(email,password ※検証用データ取得に含まれる内容のみ検証)
   @Test
-  void アカウント情報更新処理で更新対象項目が更新されていること() {
+  void アカウント情報更新処理でemailとpasswordが更新されていること() {
     String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
     String email = "test@mail.com";
     UserAccount account = UserAccount.builder()
         .publicId(publicId)
-        .userName("テスト太郎")
         .email(email)
         .password("newHashedPassword")
         .build();
@@ -92,6 +92,63 @@ class UserRepositoryTest {
         .usingRecursiveComparison()
         .comparingOnlyFields("publicId", "email", "password")
         .isEqualTo(account);
+  }
+
+  // アカウント更新処理：更新項目確認(userName ※未検証項目の検証)
+  @Test
+  void アカウント情報更新処理でuserNameが更新されていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+    UserAccount account = UserAccount.builder()
+        .publicId(publicId)
+        .userName("テスト太郎")
+        .build();
+
+    sut.updateAccount(account);
+    UserAccount actual = sut.findAccountByPublicId(publicId);
+
+    assertThat(actual.getUserName()).isEqualTo(account.getUserName());
+  }
+
+  // アカウント更新処理：未更新項目確認(email,password)
+  @Test
+  void アカウント情報更新処理で更新対象項目がnullの場合は更新前の情報が維持されていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+    // 事前状態の取得
+    String beforeEmail = sut.findAccountByPublicId(publicId).getEmail();
+    String beforePassword = sut.findAccountByEmail(beforeEmail).getPassword();
+
+    UserAccount account = UserAccount.builder()
+        .publicId(publicId)
+        // 更新実行には一つ以上の変更field必須
+        .userName("テスト太郎")
+        .email(null)
+        .password(null)
+        .build();
+
+    sut.updateAccount(account);
+    UserAccount actual = sut.findAccountByEmail(beforeEmail);
+
+    assertThat(actual.getEmail()).isEqualTo(beforeEmail);
+    assertThat(actual.getPassword()).isEqualTo(beforePassword);
+  }
+
+  // アカウント更新処理：未更新項目確認(userName ※未検証項目の検証)
+  @Test
+  void アカウント情報更新処理でuserNameがnullの場合は更新前の情報が維持されていること() {
+    String publicId = "5e8c0d2a-1234-4f99-a111-abcdef111111";
+    UserAccount account = UserAccount.builder()
+        .publicId(publicId)
+        .userName(null)
+        // 更新実行には一つ以上の変更field必須
+        .email("tanaka@example.com")
+        .build();
+
+    UserAccount beforeAccount = sut.findAccountByPublicId(publicId);
+
+    sut.updateAccount(account);
+    UserAccount actual = sut.findAccountByPublicId(publicId);
+
+    assertThat(actual.getUserName()).isEqualTo(beforeAccount.getUserName());
   }
 
   @Test
