@@ -33,17 +33,18 @@
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
     UPDATE user_accounts
     <set>
-      <if test="userName != null and userName != ''">
+      <if test="userName != null">
         user_name = #{userName},
       </if>
-      <if test="email != null and email != ''">
+      <if test="email != null">
         email = #{email},
       </if>
-      <if test="password != null and password != ''">
+      <if test="password != null">
         password = #{password}
       </if>
     </set>
     WHERE public_id = #{publicId}
+    AND is_deleted = false
   </update>
 
   <!-- アカウントの論理削除-->
