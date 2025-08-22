@@ -20,14 +20,12 @@ public class OriginalExceptionHandler {
   @ExceptionHandler(NotUniqueException.class)
   public ResponseEntity<Map<String, Object>> handleNotUniqueException(NotUniqueException ex) {
     // 開発者向けログ出力
-    log.warn("Duplicate value error: {}", ex.getMessage(), ex);
+    log.warn("duplicate value error: {}", ex.getMessage());
 
     //表示内容
     HttpStatus status = HttpStatus.BAD_REQUEST;
-    Map<String, Object> responseBody = new LinkedHashMap<>();
-    responseBody.put("status", status.value());
-    responseBody.put("error", status);
-    responseBody.put("detail", Map.of(ex.getField(), ex.getMessage()));
+    Map<String, String> detail = Map.of(ex.getField(), ex.getMessage());
+    Map<String, Object> responseBody = createErrorBody(status, detail);
 
     return ResponseEntity.badRequest().body(responseBody);
   }
@@ -36,9 +34,9 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
       MethodArgumentNotValidException ex) {
     // 開発者向けログ出力
-    log.warn("Validation error occurred", ex);
+    log.warn("validation error occurred");
 
-    // [field:エラーメッセージ]の一覧を作成（ただし同一fieldで複数エラーの場合は最初のメッセージのみ返す）
+    // [field:エラーメッセージ]の一覧を作成
     Map<String, List<String>> errors = ex.getBindingResult()
         .getFieldErrors()
         .stream()
@@ -51,10 +49,8 @@ public class OriginalExceptionHandler {
             )
         ));
 
-    Map<String, Object> responseBody = new LinkedHashMap<>();
-    responseBody.put("status", HttpStatus.BAD_REQUEST.value());
-    responseBody.put("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
-    responseBody.put("detail", errors);
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    Map<String, Object> responseBody = createErrorBody(status, errors);
 
     return ResponseEntity.badRequest().body(responseBody);
   }
@@ -63,13 +59,10 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
       RecordNotFoundException ex) {
     // 開発者向けログ出力
-    log.info("resource not fount: {}", ex.getMessage(), ex);
+    log.info("record not found: {}", ex.getMessage());
 
     //表示内容
-    Map<String, Object> responseBody = new LinkedHashMap<>();
-    responseBody.put("status", ex.getHttpStatus().value());
-    responseBody.put("error", ex.getHttpStatus());
-    responseBody.put("detail", ex.getMessage());
+    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
 
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
@@ -78,14 +71,20 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleInvalidPasswordChangeException(
       InvalidPasswordChangeException ex) {
     // 開発者向けログ出力
-    log.warn("Password update failed: {}", ex.getMessage());
+    log.warn("password update failed: {}", ex.getMessage());
 
     //表示内容
-    Map<String, Object> responseBody = new LinkedHashMap<>();
-    responseBody.put("status", ex.getHttpStatus().value());
-    responseBody.put("error", ex.getHttpStatus());
-    responseBody.put("detail", ex.getMessage());
+    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
 
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
+
+  private static Map<String, Object> createErrorBody(HttpStatus status, Object detail) {
+    Map<String, Object> responseBody = new LinkedHashMap<>();
+    responseBody.put("status", status.value());
+    responseBody.put("error", status.getReasonPhrase());
+    responseBody.put("detail", detail);
+    return responseBody;
+  }
+
 }
