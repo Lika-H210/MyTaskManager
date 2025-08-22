@@ -1,5 +1,7 @@
 package com.portfolio.taskapp.MyTaskManager.exception;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,7 +23,7 @@ public class OriginalExceptionHandler {
   @ExceptionHandler(NotUniqueException.class)
   public ResponseEntity<Map<String, Object>> handleNotUniqueException(NotUniqueException ex) {
     // 開発者向けログ出力
-    log.warn("duplicate value error: {}", ex.getMessage());
+    log.warn("Duplicate value error: {}", ex.getMessage());
 
     //表示内容
     HttpStatus status = HttpStatus.BAD_REQUEST;
@@ -31,10 +34,10 @@ public class OriginalExceptionHandler {
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(
+  public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException ex) {
     // 開発者向けログ出力
-    log.warn("validation error occurred");
+    log.warn("Request body validation error occurred");
 
     // [field:エラーメッセージ]の一覧を作成
     Map<String, List<String>> errors = ex.getBindingResult()
@@ -55,11 +58,41 @@ public class OriginalExceptionHandler {
     return ResponseEntity.badRequest().body(responseBody);
   }
 
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(
+      HttpMessageNotReadableException ex) {
+    // 開発者向けログ出力
+    log.warn("Value type error occurred: {}", ex.getMessage(), ex);
+
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    String detail = ex.getMessage();
+    Map<String, Object> responseBody = createErrorBody(status, detail);
+
+    return ResponseEntity.badRequest().body(responseBody);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
+      ConstraintViolationException ex) {
+
+    log.warn("Request parameter validation error occurred: {}", ex.getMessage(), ex);
+
+    HttpStatus status = HttpStatus.BAD_REQUEST;
+    Map<String, String> detail = ex.getConstraintViolations().stream()
+        .collect(Collectors.toMap(
+            cv -> cv.getPropertyPath().toString(),
+            ConstraintViolation::getMessage
+        ));
+    Map<String, Object> responseBody = createErrorBody(status, detail);
+
+    return ResponseEntity.status(status).body(responseBody);
+  }
+
   @ExceptionHandler(RecordNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
       RecordNotFoundException ex) {
     // 開発者向けログ出力
-    log.info("record not found: {}", ex.getMessage());
+    log.info("Record not found: {}", ex.getMessage());
 
     //表示内容
     Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
@@ -71,7 +104,7 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleInvalidPasswordChangeException(
       InvalidPasswordChangeException ex) {
     // 開発者向けログ出力
-    log.warn("password update failed: {}", ex.getMessage());
+    log.warn("Password update failed: {}", ex.getMessage());
 
     //表示内容
     Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
@@ -82,7 +115,7 @@ public class OriginalExceptionHandler {
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
     // 開発者向けログ出力
-    log.error("unexpected error has occurred", ex);
+    log.error("Unexpected error occurred", ex);
 
     //表示内容
     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
