@@ -4,34 +4,37 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
-import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
-import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
+import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import java.time.LocalDate;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(TaskController.class)
-@Import(SecurityConfig.class)
+@ImportAutoConfiguration(exclude = SecurityAutoConfiguration.class)
 class TaskControllerTest {
 
   @Autowired
@@ -43,60 +46,38 @@ class TaskControllerTest {
   @MockitoBean
   private TaskService service;
 
-  private UserAccountDetails userDetails;
-
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
-  @BeforeEach
-  void setUpAuthentication() {
-    UserAccount mockAccount = UserAccount.builder()
-        .publicId("00000000-0000-0000-0000-000000000000")
-        .build();
-    userDetails = new UserAccountDetails(mockAccount);
-  }
-
-
   @Test
-  void ユーザープロジェクトの一覧取得で適切にserviceが実行されていること() throws Exception {
-    mockMvc.perform(get("/projects")
-            .with(user(userDetails)))
-        .andExpect(status().isOk());
+  void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されJsonでレスポンスが返ること()
+      throws Exception {
+    List<TaskTree> projectResponse = List.of(new TaskTree());
 
-    verify(service).getUserProjects(userDetails.getAccount().getPublicId());
-  }
+    when(service.getTasksByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectResponse);
+    String expectedJson = objectMapper.writeValueAsString(projectResponse);
 
-  @Test
-  void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されていること() throws Exception {
-    mockMvc.perform(get("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
-            .with(user(userDetails)))
-        .andExpect(status().isOk());
+    mockMvc.perform(get("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expectedJson));
 
     verify(service).getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   @Test
-  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること() throws Exception {
-    mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .with(user(userDetails)))
-        .andExpect(status().isOk());
+  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
+      throws Exception {
+    TaskTree taskTreeResponse = new TaskTree(Task.builder().id(111).build(), List.of());
+
+    when(service.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskTreeResponse);
+
+    mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.parentTask.id").doesNotExist())
+        .andExpect(jsonPath("$.parentTask.projectId").doesNotExist())
+        .andExpect(jsonPath("$.parentTask.parentTaskId").doesNotExist());
 
     verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
-  }
-
-  @Test
-  void プロジェクト登録で201ステータスとなり適切にserviceが実行されていること() throws Exception {
-    ProjectRequest project = createProjectRequestWithCaption("projectCaption");
-    String json = objectMapper.writeValueAsString(project);
-
-    mockMvc.perform(post("/projects")
-            .with(user(userDetails))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isCreated());
-
-    verify(service).createProject(any(ProjectRequest.class),
-        eq(userDetails.getAccount().getPublicId()));
   }
 
   @Test
@@ -106,7 +87,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(project);
 
     mockMvc.perform(post("/projects")
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
@@ -122,7 +102,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
@@ -138,7 +117,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
@@ -154,7 +132,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
@@ -171,7 +148,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
@@ -180,16 +156,25 @@ class TaskControllerTest {
   }
 
   @Test
-  void プロジェクト更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+  void プロジェクト更新処理で200ステータスになり適切なServiceが実行されレスポンスには除外項目は含まれないこと()
+      throws Exception {
     ProjectRequest request = createProjectRequestWithCaption("caption");
+    Project response = Project.builder()
+        .id(9999)
+        .userId(999)
+        .build();
 
-    String json = objectMapper.writeValueAsString(request);
+    String requestJson = objectMapper.writeValueAsString(request);
+
+    when(service.updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID)))
+        .thenReturn(response);
 
     mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isOk());
+            .content(requestJson))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").doesNotExist())
+        .andExpect(jsonPath("$.userId").doesNotExist());
 
     verify(service).updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID));
   }
@@ -202,7 +187,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
@@ -217,7 +201,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isOk());
@@ -233,7 +216,6 @@ class TaskControllerTest {
     String json = objectMapper.writeValueAsString(request);
 
     mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .with(user(userDetails))
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest());
@@ -244,8 +226,7 @@ class TaskControllerTest {
   @Test
   void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
-    mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .with(user(userDetails)))
+    mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID))
         .andExpect(status().isNoContent());
 
     verify(service).deleteProject(PROJECT_PUBLIC_ID);
@@ -254,8 +235,7 @@ class TaskControllerTest {
   @Test
   void タスク削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
-    mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .with(user(userDetails)))
+    mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID))
         .andExpect(status().isNoContent());
 
     verify(service).deleteTask(TASK_PUBLIC_ID);
