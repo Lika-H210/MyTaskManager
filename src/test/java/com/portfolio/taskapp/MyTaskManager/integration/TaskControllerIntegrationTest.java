@@ -54,7 +54,6 @@ class TaskControllerIntegrationTest {
     userDetails = new UserAccountDetails(mockAccount);
   }
 
-
   @Test
   void ユーザープロジェクトの一覧取得で適切にserviceが実行されていること() throws Exception {
     mockMvc.perform(get("/projects")
@@ -62,13 +61,6 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isOk());
 
     verify(service).getUserProjects(userDetails.getAccount().getPublicId());
-  }
-
-  @Test
-  void ユーザープロジェクトの一覧取得で認証情報がない場合302ステータスとなること()
-      throws Exception {
-    mockMvc.perform(get("/projects"))
-        .andExpect(status().isFound());
   }
 
   @Test
@@ -85,6 +77,14 @@ class TaskControllerIntegrationTest {
 
     verify(service).createProject(any(ProjectRequest.class),
         eq(userDetails.getAccount().getPublicId()));
+  }
+
+  // 異常系：未認証での実行時挙動確認
+  @Test
+  void ユーザープロジェクトの一覧取得で認証情報がない場合302ステータスとなること()
+      throws Exception {
+    mockMvc.perform(get("/projects"))
+        .andExpect(status().isFound());
   }
 
   // 異常系：400レスポンスの代表結合テスト

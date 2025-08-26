@@ -76,13 +76,6 @@ class UserControllerIntegrationTest {
   }
 
   @Test
-  void アカウント情報取得時に認証情報がない場合は302ステータスが返されること()
-      throws Exception {
-    mockMvc.perform(get("/users/me"))
-        .andExpect(status().isFound());
-  }
-
-  @Test
   void アカウント更新で適切なserviceが呼び出され200ステータスが返されること()
       throws Exception {
     AccountUpdateRequest request = new AccountUpdateRequest(
@@ -115,6 +108,14 @@ class UserControllerIntegrationTest {
     verify(service).deleteAccount(userDetails.getAccount().getPublicId());
   }
 
+  // 異常系：未認証での実行時挙動確認
+  @Test
+  void アカウント情報取得時に認証情報がない場合は302ステータスが返されること()
+      throws Exception {
+    mockMvc.perform(get("/users/me"))
+        .andExpect(status().isFound());
+  }
+
   // 異常系：400レスポンスの代表結合テスト
   @Test
   void アカウント更新でリクエストオブジェクトがバリデーションに抵触した場合400レスポンスが返ること()
@@ -136,6 +137,5 @@ class UserControllerIntegrationTest {
 
     verify(service, never()).updateAccount(any(), any());
   }
-
 
 }
