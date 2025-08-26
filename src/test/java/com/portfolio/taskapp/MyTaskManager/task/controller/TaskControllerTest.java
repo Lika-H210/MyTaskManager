@@ -165,7 +165,7 @@ class TaskControllerTest {
     verify(service).deleteTask(TASK_PUBLIC_ID);
   }
 
-  // TaskRequest生成(Captionのみ引数で設定)
+  // TaskRequest生成(正常系)
   private TaskRequest createNormalTaskRequest() {
     return new TaskRequest(
         "caption",
