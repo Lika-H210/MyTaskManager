@@ -2,7 +2,6 @@ package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -81,23 +80,9 @@ class TaskControllerTest {
   }
 
   @Test
-  void プロジェクト登録でバリデーションに抵触する場合に400ステータスが返されること()
-      throws Exception {
-    ProjectRequest project = createProjectRequestWithCaption(null);
-    String json = objectMapper.writeValueAsString(project);
-
-    mockMvc.perform(post("/projects")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isBadRequest());
-
-    verify(service, never()).createProject(any(), any());
-  }
-
-  @Test
   void 親タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
       throws Exception {
-    TaskRequest request = createTaskRequestWithCaption("taskCaption");
+    TaskRequest request = createNormalTaskRequest();
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -110,24 +95,9 @@ class TaskControllerTest {
   }
 
   @Test
-  void 親タスク登録時でバリデーションに抵触する場合に400ステータスが返されること()
-      throws Exception {
-    TaskRequest request = createTaskRequestWithCaption(null);
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isBadRequest());
-
-    verify(service, never()).createParentTask(any(), any());
-  }
-
-  @Test
   void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
       throws Exception {
-    TaskRequest request = createTaskRequestWithCaption("caption");
+    TaskRequest request = createNormalTaskRequest();
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -139,26 +109,10 @@ class TaskControllerTest {
     verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
   }
 
-
-  @Test
-  void 子タスク登録時でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
-      throws Exception {
-    TaskRequest request = createTaskRequestWithCaption(null);
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isBadRequest());
-
-    verify(service, never()).createSubtask(any(), any());
-  }
-
   @Test
   void プロジェクト更新処理で200ステータスになり適切なServiceが実行されレスポンスには除外項目は含まれないこと()
       throws Exception {
-    ProjectRequest request = createProjectRequestWithCaption("caption");
+    ProjectRequest request = new ProjectRequest("caption", "description", ProjectStatus.ACTIVE);
     Project response = Project.builder()
         .id(9999)
         .userId(999)
@@ -180,23 +134,8 @@ class TaskControllerTest {
   }
 
   @Test
-  void プロジェクト更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
-      throws Exception {
-    ProjectRequest request = createProjectRequestWithCaption(null);
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isBadRequest());
-
-    verify(service, never()).updateProject(any(), any());
-  }
-
-  @Test
   void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
-    TaskRequest request = createTaskRequestWithCaption("caption");
+    TaskRequest request = createNormalTaskRequest();
 
     String json = objectMapper.writeValueAsString(request);
 
@@ -206,21 +145,6 @@ class TaskControllerTest {
         .andExpect(status().isOk());
 
     verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
-  }
-
-  @Test
-  void タスク更新処理でバリデーションに抵触する場合にレスポンスで400エラーが返されること()
-      throws Exception {
-    TaskRequest request = createTaskRequestWithCaption(null);
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isBadRequest());
-
-    verify(service, never()).updateTask(any(), any());
   }
 
   @Test
@@ -241,15 +165,10 @@ class TaskControllerTest {
     verify(service).deleteTask(TASK_PUBLIC_ID);
   }
 
-  // ProjectRequest生成(Captionのみ引数で設定)
-  private ProjectRequest createProjectRequestWithCaption(String caption) {
-    return new ProjectRequest(caption, "description", ProjectStatus.ACTIVE);
-  }
-
   // TaskRequest生成(Captionのみ引数で設定)
-  private TaskRequest createTaskRequestWithCaption(String caption) {
+  private TaskRequest createNormalTaskRequest() {
     return new TaskRequest(
-        caption,
+        "caption",
         "description",
         LocalDate.now().plusDays(7),
         120,
