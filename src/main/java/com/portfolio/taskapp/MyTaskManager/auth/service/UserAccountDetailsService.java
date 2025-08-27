@@ -23,10 +23,15 @@ public class UserAccountDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    if (email == null || email.isBlank()) {
+      log.warn("Login failed. reason=missing_email");
+      throw new UsernameNotFoundException("Login failed.");
+    }
+
     UserAccount account = repository.findAccountByEmail(email);
     if (account == null) {
-      log.warn("Login failed. Invalid credentials provided");
-      throw new UsernameNotFoundException("認証に失敗しました");
+      log.warn("Login failed. reason=invalid_credentials");
+      throw new UsernameNotFoundException("Login failed.");
     }
     return new UserAccountDetails(account);
   }
