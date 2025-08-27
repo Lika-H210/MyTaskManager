@@ -35,7 +35,13 @@ public class SecurityConfig {
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .anyRequest().authenticated()
         )
-        .formLogin(withDefaults());
+        .formLogin(withDefaults())
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login?logout")
+            .deleteCookies("JSESSIONID")
+            .invalidateHttpSession(true)
+        );
 
     return http.build();
   }
