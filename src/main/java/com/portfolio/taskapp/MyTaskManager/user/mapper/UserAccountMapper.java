@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAccountMapper {
 
-  public UserAccount CreateRequestToUserAccount(AccountRegisterRequest request, String publicId,
+  public UserAccount createRequestToUserAccount(AccountRegisterRequest request, String publicId,
       String hashedPassword) {
     return UserAccount.builder()
         .publicId(publicId)
