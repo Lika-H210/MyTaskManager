@@ -1,5 +1,8 @@
-package com.portfolio.taskapp.MyTaskManager.exception;
+package com.portfolio.taskapp.MyTaskManager.exception.handler;
 
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;

@@ -10,9 +10,9 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
-import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
-import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
-import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
@@ -64,7 +64,7 @@ class UserServiceTest {
   void tearDown() {
     SecurityContextHolder.clearContext();
   }
-  
+
   // アカウント情報取得：正常系
   @Test
   void アカウント情報取得時に適切なrepositoryとmapperが呼び出されていること() {
@@ -87,14 +87,14 @@ class UserServiceTest {
 
     when(repository.existsByEmail(EMAIL)).thenReturn(false);
     when(passwordEncoder.encode(PASSWORD_RAW)).thenReturn(PASSWORD_HASHED);
-    when(mapper.CreateRequestToUserAccount(eq(request), any(String.class), eq(PASSWORD_HASHED)))
+    when(mapper.createRequestToUserAccount(eq(request), any(String.class), eq(PASSWORD_HASHED)))
         .thenReturn(registerAccount);
 
     sut.registerUser(request);
 
     verify(repository).existsByEmail(EMAIL);
     verify(passwordEncoder).encode(PASSWORD_RAW);
-    verify(mapper).CreateRequestToUserAccount(eq(request), any(String.class), eq(PASSWORD_HASHED));
+    verify(mapper).createRequestToUserAccount(eq(request), any(String.class), eq(PASSWORD_HASHED));
     verify(repository).registerUserAccount(registerAccount);
   }
 

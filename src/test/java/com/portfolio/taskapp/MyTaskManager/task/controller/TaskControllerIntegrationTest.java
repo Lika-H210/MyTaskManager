@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.integration;
+package com.portfolio.taskapp.MyTaskManager.task.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -16,7 +16,6 @@ import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
-import com.portfolio.taskapp.MyTaskManager.task.controller.TaskController;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;

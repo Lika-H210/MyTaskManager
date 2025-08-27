@@ -2,9 +2,9 @@ package com.portfolio.taskapp.MyTaskManager.user.service;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
-import com.portfolio.taskapp.MyTaskManager.exception.InvalidPasswordChangeException;
-import com.portfolio.taskapp.MyTaskManager.exception.NotUniqueException;
-import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
@@ -47,7 +47,7 @@ public class UserService {
 
     String publicId = UUID.randomUUID().toString();
     String hashedPassword = passwordEncoder.encode(request.getPassword());
-    UserAccount registerAccount = mapper.CreateRequestToUserAccount(request, publicId,
+    UserAccount registerAccount = mapper.createRequestToUserAccount(request, publicId,
         hashedPassword);
 
     repository.registerUserAccount(registerAccount);

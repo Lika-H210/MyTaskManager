@@ -2,7 +2,7 @@ package com.portfolio.taskapp.MyTaskManager.task.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.exception.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
