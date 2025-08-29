@@ -22,11 +22,11 @@ class TaskConverterTest {
     // 事前準備
     Task parentTask800 = Task.builder().id(800).parentTaskId(null).build();
     Task parentTask900 = Task.builder().id(900).parentTaskId(null).build();
-    Task childTask801 = Task.builder().id(801).parentTaskId(800).build();
-    Task childTask802 = Task.builder().id(802).parentTaskId(800).build();
-    Task childTaskDummy = Task.builder().id(9999).parentTaskId(999).build();
-    List<Task> taskList = List.of(parentTask800, childTask801, parentTask900, childTask802,
-        childTaskDummy);
+    Task subtask801 = Task.builder().id(801).parentTaskId(800).build();
+    Task subtask802 = Task.builder().id(802).parentTaskId(800).build();
+    Task subtaskDummy = Task.builder().id(9999).parentTaskId(999).build();
+    List<Task> taskList = List.of(parentTask800, subtask801, parentTask900, subtask802,
+        subtaskDummy);
 
     // 実行
     List<TaskTree> actual = sut.convertToTaskTreeList(taskList);
@@ -35,16 +35,16 @@ class TaskConverterTest {
     assertThat(actual).hasSize(2);
 
     assertThat(actual.getFirst().getParentTask()).isEqualTo(parentTask800);
-    assertThat(actual.getFirst().getChildTaskList()).isEqualTo(List.of(childTask801, childTask802));
+    assertThat(actual.getFirst().getSubtaskList()).isEqualTo(List.of(subtask801, subtask802));
 
     assertThat(actual.get(1).getParentTask()).isEqualTo(parentTask900);
-    assertThat(actual.get(1).getChildTaskList()).isEmpty();
+    assertThat(actual.get(1).getSubtaskList()).isEmpty();
   }
 
   @Test
   void 引数のタスクリストが子タスクのみの場合に空リストを返すこと() {
-    Task childTask = Task.builder().id(801).parentTaskId(800).build();
-    List<Task> taskList = List.of(childTask);
+    Task subtask = Task.builder().id(801).parentTaskId(800).build();
+    List<Task> taskList = List.of(subtask);
 
     List<TaskTree> actual = sut.convertToTaskTreeList(taskList);
 
