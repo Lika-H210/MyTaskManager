@@ -35,6 +35,11 @@ public class TaskService {
     return repository.findProjectsByUserId(userId);
   }
 
+  public Project getProject(String projectPublicId) {
+    return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
+  }
+
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
     Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
