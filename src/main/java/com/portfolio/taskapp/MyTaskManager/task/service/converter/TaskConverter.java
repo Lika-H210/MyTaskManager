@@ -18,7 +18,7 @@ public class TaskConverter {
     }
 
     // 子タスクのみのMap(Keyは親タスクのId)
-    Map<Integer, List<Task>> childTaskMap = taskList.stream()
+    Map<Integer, List<Task>> subtaskMap = taskList.stream()
         .filter(task -> task.getParentTaskId() != null)
         .collect(Collectors.groupingBy(Task::getParentTaskId));
 
@@ -27,7 +27,7 @@ public class TaskConverter {
         .filter(task -> task.getParentTaskId() == null)
         .map(parentTask -> new TaskTree(
             parentTask,
-            childTaskMap.getOrDefault(parentTask.getId(), Collections.emptyList())
+            subtaskMap.getOrDefault(parentTask.getId(), Collections.emptyList())
         ))
         .toList();
   }

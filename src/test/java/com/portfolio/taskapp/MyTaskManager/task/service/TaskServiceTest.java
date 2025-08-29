@@ -75,6 +75,27 @@ class TaskServiceTest {
     verify(repository, never()).findProjectsByUserId(any());
   }
 
+  // 単独プロジェクト取得：正常系
+  @Test
+  void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
+    Project project = new Project();
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    sut.getProject(PROJECT_PUBLIC_ID);
+
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+  }
+
+  // 単独プロジェクト取得：異常系
+  @Test
+  void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getProject(PROJECT_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("project not found");
+  }
+
   // 親子タスク一覧取得：正常系
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {

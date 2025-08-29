@@ -16,6 +16,6 @@ public class TaskTree {
   private Task parentTask;
 
   @Schema(description = "親タスクに紐づく子タスクのリスト")
-  private List<Task> childTaskList;
+  private List<Task> subtaskList;
 
 }

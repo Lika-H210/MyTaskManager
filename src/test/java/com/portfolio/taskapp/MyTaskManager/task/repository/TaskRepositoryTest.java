@@ -99,14 +99,14 @@ class TaskRepositoryTest {
     List<Task> actualParent = actual.stream()
         .filter(task -> task.getId().equals(parentTaskId))
         .toList();
-    List<Task> actualChildTasks = actual.stream()
+    List<Task> actualSubtasks = actual.stream()
         .filter(task -> Objects.equals(task.getParentTaskId(), parentTaskId))
         .toList();
 
     // 検証
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actualParent.size()).isEqualTo(1);
-    assertThat(actualChildTasks.size()).isEqualTo(1);
+    assertThat(actualSubtasks.size()).isEqualTo(1);
     assertThat(actual)
         .allSatisfy(task -> assertThat(task.isDeleted()).isFalse());
   }

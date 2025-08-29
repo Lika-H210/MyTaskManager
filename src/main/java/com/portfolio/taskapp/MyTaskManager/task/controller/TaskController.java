@@ -65,6 +65,34 @@ public class TaskController {
   }
 
   @Operation(
+      summary = "プロジェクトの単体取得",
+      description = "プロジェクトの公開Idに紐づくプロジェクト情報を取得します",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "リクエストが正常に処理された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Project.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのプロジェクトが存在しないか、削除されている場合",
+              content = @Content()
+          )
+      }
+  )
+  @GetMapping("/projects/{projectPublicId}")
+  public ResponseEntity<Project> getProject(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String projectPublicId) {
+    Project project = service.getProject(projectPublicId);
+    return ResponseEntity.ok(project);
+  }
+
+  @Operation(
       summary = "プロジェクトの親子タスク一覧取得",
       description = "プロジェクトのid情報に紐づく全親子タスク情報の一覧を取得します。",
       security = @SecurityRequirement(name = "basicAuth"),
