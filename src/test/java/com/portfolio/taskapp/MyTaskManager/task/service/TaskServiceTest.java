@@ -81,7 +81,7 @@ class TaskServiceTest {
     Project project = new Project();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
-    sut.getProject(PROJECT_PUBLIC_ID);
+    sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
@@ -91,7 +91,7 @@ class TaskServiceTest {
   void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getProject(PROJECT_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("project not found");
   }
@@ -173,6 +173,27 @@ class TaskServiceTest {
     assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("TaskTree count mismatch");
+  }
+
+  // 単独タスク取得：正常系
+  @Test
+  void 単独タスク取得で適切なrepositoryが呼び出せていること() {
+    Task task = new Task();
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    sut.getTaskByTaskPublicId(TASK_PUBLIC_ID);
+
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+  }
+
+  // 単独タスク取得：異常系
+  @Test
+  void 単独タスク取得でタスクが存在しない場合に例外がThrowされること() {
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getTaskByTaskPublicId(TASK_PUBLIC_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("task not found");
   }
 
   // プロジェクト登録処理

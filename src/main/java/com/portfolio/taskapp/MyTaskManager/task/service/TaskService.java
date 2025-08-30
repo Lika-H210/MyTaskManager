@@ -35,7 +35,7 @@ public class TaskService {
     return repository.findProjectsByUserId(userId);
   }
 
-  public Project getProject(String projectPublicId) {
+  public Project getProjectByProjectPublicId(String projectPublicId) {
     return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
   }
@@ -59,6 +59,11 @@ public class TaskService {
           "TaskTree count mismatch: expected 1, but got " + taskTreeList.size());
     }
     return taskTreeList.getFirst();
+  }
+
+  public Task getTaskByTaskPublicId(String taskPublicId) {
+    return Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
   }
 
   @Transactional

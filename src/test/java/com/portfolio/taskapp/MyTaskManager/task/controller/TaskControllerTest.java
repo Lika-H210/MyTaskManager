@@ -19,10 +19,8 @@ import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
-import com.portfolio.taskapp.MyTaskManager.task.model.TaskTree;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -60,7 +58,7 @@ class TaskControllerTest {
         .status(ProjectStatus.ACTIVE)
         .build();
 
-    when(service.getProject(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(service.getProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
     String expectedJson = objectMapper.writeValueAsString(project);
 
     mockMvc.perform(get("/projects/{projectPublicId}", PROJECT_PUBLIC_ID))
@@ -69,32 +67,46 @@ class TaskControllerTest {
         .andExpect(jsonPath("$.id").doesNotExist())
         .andExpect(jsonPath("$.userId").doesNotExist());
 
-    verify(service).getProject(PROJECT_PUBLIC_ID);
+    verify(service).getProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   @Test
   void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されJsonでレスポンスが返ること()
       throws Exception {
-    mockMvc.perform(get("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID))
+    mockMvc.perform(get("/projects/{projectPublicId}/task-trees", PROJECT_PUBLIC_ID))
         .andExpect(status().isOk());
 
     verify(service).getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   @Test
-  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
+  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること()
       throws Exception {
-    TaskTree taskTreeResponse = new TaskTree(Task.builder().id(111).build(), List.of());
+    mockMvc.perform(get("/task-trees/{taskPublicId}", TASK_PUBLIC_ID))
+        .andExpect(status().isOk());
 
-    when(service.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskTreeResponse);
+    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
+  }
+
+  @Test
+  void 単独タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
+      throws Exception {
+    Task task = Task.builder()
+        .id(99999)
+        .publicId(TASK_PUBLIC_ID)
+        .projectId(9999)
+        .parentTaskId(90000)
+        .build();
+
+    when(service.getTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
 
     mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.parentTask.id").doesNotExist())
-        .andExpect(jsonPath("$.parentTask.projectId").doesNotExist())
-        .andExpect(jsonPath("$.parentTask.parentTaskId").doesNotExist());
+        .andExpect(jsonPath("$.id").doesNotExist())
+        .andExpect(jsonPath("$.projectId").doesNotExist())
+        .andExpect(jsonPath("$.parentTaskId").doesNotExist());
 
-    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
+    verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
 
   @Test

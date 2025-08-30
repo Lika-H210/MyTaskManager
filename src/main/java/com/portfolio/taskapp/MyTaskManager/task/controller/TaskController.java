@@ -88,7 +88,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    Project project = service.getProject(projectPublicId);
+    Project project = service.getProjectByProjectPublicId(projectPublicId);
     return ResponseEntity.ok(project);
   }
 
@@ -119,7 +119,7 @@ public class TaskController {
           )
       }
   )
-  @GetMapping("/projects/{projectPublicId}/tasks")
+  @GetMapping("/projects/{projectPublicId}/task-trees")
   public List<TaskTree> getTaskTreeList(
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
@@ -155,13 +155,41 @@ public class TaskController {
           )
       }
   )
-  @GetMapping("/tasks/{taskPublicId}")
+  @GetMapping("/task-trees/{taskPublicId}")
   public TaskTree getTaskTree(
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
     return service.getTaskTreeByTaskPublicId(taskPublicId);
+  }
+
+  @Operation(
+      summary = "タスクの単体取得",
+      description = "タスクの公開Idに紐づくタスク情報を取得します",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "リクエストが正常に処理された場合",
+              content = @Content(mediaType = "application/json",
+                  schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "404",
+              description = "指定した公開IDのタスクが存在しないか、削除されている場合",
+              content = @Content()
+          )
+      }
+  )
+  @GetMapping("/tasks/{taskPublicId}")
+  public ResponseEntity<Task> getTask(
+      @PathVariable
+      @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+          message = "入力の形式に誤りがあります")
+      String taskPublicId) {
+    Task task = service.getTaskByTaskPublicId(taskPublicId);
+    return ResponseEntity.ok(task);
   }
 
   @Operation(
