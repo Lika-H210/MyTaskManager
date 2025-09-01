@@ -1,0 +1,32 @@
+/* フォーム中央寄せ＆最大幅設定 */
+.form-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 15px;
+}
+
+/* テキスト入力欄の幅調整 */
+.full-width-input {
+  width: 100%;
+}
+
+/* 必須マークのデザイン*/
+.required {
+  color: red;
+  margin-left: 0.25rem;
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+/* 数値・日付・選択肢欄の固定幅 */
+.short-input {
+  width: 200px;
+  max-width: 100%;
+}
+
+/* 列幅：最小幅 */
+.col-with-min-fixed {
+  width: 60px;
+  text-align: center;
+  white-space: nowrap;
+}
