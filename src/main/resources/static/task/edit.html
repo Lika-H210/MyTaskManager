@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>タスク詳細/編集</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+
+<body class="container my-4">
+<div class="form-wrapper">
+  <h3 class="mb-3">タスク詳細/編集</h3>
+  <form id="task-form">
+
+    <div class="mb-3">
+      <label for="task-caption" class="form-label">
+        タスク名<span class="required">必須</span>
+      </label>
+      <input type="text" class="form-control full-width-input" id="task-caption" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label">詳細説明</label>
+      <textarea class="form-control full-width-input" id="description" rows="5"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="due-date" class="form-label">
+        期限日<span class="required">必須</span>
+      </label>
+      <input type="date" class="form-control short-input" id="due-date" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="estimated-time" class="form-label">
+        見積時間（分）<span class="required">必須</span>
+      </label>
+      <input type="number" class="form-control short-input" id="estimated-time" required min="1">
+    </div>
+
+    <div class="mb-3">
+      <label for="actual-time" class="form-label">
+        実績時間（分）<span class="required">必須</span>
+      </label>
+      <input type="number" class="form-control short-input" id="actual-time" required min="0">
+    </div>
+
+    <div class="mb-3">
+      <label for="progress" class="form-label">
+        進捗率（%）<span class="required">必須</span>
+      </label>
+      <input type="number" class="form-control short-input" id="progress" required min="0"
+             max="100">
+    </div>
+
+    <div class="mb-3">
+      <label for="priority" class="form-label">優先順位</label>
+      <select class="form-select short-input" id="priority">
+        <option value="LOW">LOW</option>
+        <option value="MEDIUM">MEDIUM</option>
+        <option value="HIGH">HIGH</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">作成日時</label>
+      <span id="created-at"></span>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">更新日時</label>
+      <span id="updated-at"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">更新</button>
+    <button type="button" class="btn btn-secondary" id="back-button">戻る</button>
+  </form>
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const projectPublicId = params.get("projectPublicId");
+  const parentTaskPublicId = params.get("parentTaskPublicId");
+  const taskPublicId = params.get("taskPublicId");
+  const from = params.get("from");
+
+  // 初期表示: GET API で詳細取得
+  fetch(`/tasks/${taskPublicId}`)
+    .then(res => res.json())
+    .then(task => {
+      document.getElementById('task-caption').value = task.taskCaption;
+      document.getElementById('description').value = task.description;
+      document.getElementById('due-date').value = task.dueDate;
+      document.getElementById('estimated-time').value = task.estimatedTime;
+      document.getElementById('actual-time').value = task.actualTime;
+      document.getElementById('progress').value = task.progress;
+      document.getElementById('priority').value = task.priority;
+      document.getElementById('created-at').innerText = task.createdAt;
+      document.getElementById('updated-at').innerText = task.updatedAt;
+    })
+    .catch(err => console.error(err));
+
+  // 更新ボタン
+  document.getElementById('task-form').addEventListener('submit', e => {
+    e.preventDefault();
+
+    const requestBody = {
+      taskCaption: document.getElementById('task-caption').value,
+      description: document.getElementById('description').value,
+      dueDate: document.getElementById('due-date').value,
+      estimatedTime: document.getElementById('estimated-time').value,
+      actualTime: document.getElementById('actual-time').value,
+      progress: document.getElementById('progress').value,
+      priority: document.getElementById('priority').value,
+    };
+
+    fetch(`/tasks/${taskPublicId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    })
+    .then(res => {
+    if (res.ok) {
+      if (from === "child") {
+        window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+      } else {
+        window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+      }
+    } else {
+      return res.json().then(err => { throw err; });
+    }
+  })
+    .catch(err => {
+      console.error(err);
+      alert('更新に失敗しました');
+      if (from === "child") {
+        window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+      } else {
+        window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+      }
+    });
+  });
+
+  // 戻るボタン
+  document.getElementById('back-button').addEventListener('click', () => {
+  if (from === "child") {
+    window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+  } else {
+    window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>親子タスク一覧</title>
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link href="../css/style.css" rel="stylesheet">
+</head>
+
+<body class="container mt-5">
+<div class="form-wrapper">
+  <h2>親子タスク一覧</h2>
+
+  <table class="table table-bordered">
+    <thead class="table-primary">
+    <tr>
+      <th>親タスク</th>
+      <th class="col-with-min-fixed">期限日</th>
+      <th class="col-with-min-fixed">進捗率</th>
+      <th class="col-with-min-fixed">優先度</th>
+      <th class="col-with-min-fixed">子タスク</th>
+      <th class="col-with-min-fixed">編集</th>
+      <th class="col-with-min-fixed">削除</th>
+    </tr>
+    </thead>
+    <tbody id="task-table-body"></tbody>
+  </table>
+
+  <button id="create-parent-task-btn" class="btn btn-primary">親タスク登録</button>
+  <button type="button" class="btn btn-secondary" id="back-button">戻る</button>
+
+</div>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const projectPublicId = params.get("projectPublicId");
+
+
+  fetch(`/projects/${projectPublicId}/task-trees`)
+    .then(res => res.json())
+    .then(taskTrees => {
+      const tbody = document.getElementById("task-table-body");
+      taskTrees.forEach(tree => {
+        const parent = tree.parentTask;
+        if (parent.isDeleted) return; // 論理削除は表示しない
+
+        // 親タスク行
+        const parentRow = document.createElement("tr");
+        const dateStr = parent.dueDate;
+        const displayDate = dateStr ? dateStr.slice(5, 10) : "";
+        parentRow.innerHTML = `
+          <td>
+            <button class="btn btn-sm btn-outline-primary"
+                      type="button" data-bs-toggle="collapse"
+                      data-bs-target="#child-${parent.publicId}">
+                ▼
+            </button>
+            ${parent.taskCaption}
+          </td>
+          <td>${displayDate}</td>
+          <td>${parent.progress}%</td>
+          <td>${parent.priority}</td>
+          <td>
+            <a href="/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parent.publicId}"
+               title="子タスク一覧">
+              📂
+            </a>
+          </td>
+          <td>
+            <a href="/task/edit.html?projectPublicId=${projectPublicId}&taskPublicId=${parent.publicId}&from=parent"
+               title="タスク詳細">
+              📝
+            </a>
+          </td>
+          <td>
+            <button class="btn btn-link p-0 btn-delete" title="削除" style="color:red;">
+              ❌
+            </button>
+          </td>
+        `;
+        tbody.appendChild(parentRow);
+
+        // 削除ボタン処理
+        parentRow.querySelector(".btn-delete").addEventListener("click", () => {
+          if (confirm("このタスクを削除しますか？")) {
+            fetch(`/tasks/${parent.publicId}`, { method: "DELETE" })
+              .then(res => {
+                if (!res.ok) throw new Error("削除に失敗しました");
+                parentRow.remove(); // 画面から削除
+              })
+              .catch(err => alert(err.message));
+          }
+        });
+
+        // 子タスク行（collapseで隠す）
+        const subtaskRow = document.createElement("tr");
+        const subtasks = tree.subtaskList
+          .filter(c => !c.isDeleted)
+          .map(c => {
+            const due = c.dueDate ? c.dueDate.slice(5, 10) : ""; // "MM-DD" だけ取得
+            return `
+              <li>
+                ${c.taskCaption}（期限: ${due}, 進捗: ${c.progress}%）
+              </li>
+            `;
+          }).join("");
+
+        subtaskRow.innerHTML = `
+          <td colspan="7" class="p-0">
+            <div class="collapse ps-7" id="child-${parent.publicId}">
+              <ul class="list-unstyled m-2">
+                ${subtasks || "<li>---</li>"}
+              </ul>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(subtaskRow);
+      });
+    })
+    .catch(err => console.error("Error loading tasks:", err));
+
+  // 親タスク登録ボタン
+  document.getElementById('create-parent-task-btn').addEventListener('click', () => {
+    window.location.href = `/task/create-parent.html?projectPublicId=${projectPublicId}`;
+  });
+
+  // 戻るボタン（プロジェクト一覧へ戻る）
+  document.getElementById('back-button').addEventListener('click', () => {
+    window.location.href = `/project/list.html`;
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
