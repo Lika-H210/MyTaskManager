@@ -10,6 +10,7 @@ import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountPasswordUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.Optional;
@@ -76,6 +77,26 @@ public class UserService {
 
     UserAccount account = mapper
         .updateEmailRequestToUserAccount(request, userDetails.getAccount().getPublicId());
+    repository.updateAccount(account);
+
+    refreshSecurityContext(userDetails, account);
+
+    return mapper.toUserAccountResponse(account);
+  }
+
+  @Transactional
+  public AccountResponse updatePassword(UserAccountDetails userDetails,
+      AccountPasswordUpdateRequest request) throws InvalidPasswordChangeException {
+
+    if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
+      throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
+    }
+
+    String newHashedPassword = passwordEncoder.encode(request.getNewPassword());
+
+    UserAccount account = mapper
+        .updatePasswordRequestToUserAccount(newHashedPassword,
+            userDetails.getAccount().getPublicId());
     repository.updateAccount(account);
 
     refreshSecurityContext(userDetails, account);

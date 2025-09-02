@@ -7,6 +7,7 @@ import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountPasswordUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -145,6 +146,35 @@ public class UserController {
   }
 
   @Operation(
+      summary = "パスワードの更新",
+      description = "アカウント情報（認証情報）のパスワードのみを更新します。",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "更新に成功した場合",
+              content = @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = AccountResponse.class)
+              )
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          )
+      }
+  )
+  @PutMapping("/me/password")
+  public ResponseEntity<AccountResponse> updatePassword(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
+      @Valid @RequestBody AccountPasswordUpdateRequest request)
+      throws InvalidPasswordChangeException {
+    AccountResponse updateAccount = service.updatePassword(userDetails, request);
+    return ResponseEntity.ok(updateAccount);
+  }
+
+  @Operation(
       summary = "ユーザー情報の更新",
       description = "ユーザー情報を更新します。",
       security = @SecurityRequirement(name = "basicAuth"),
@@ -160,11 +190,6 @@ public class UserController {
           @ApiResponse(
               responseCode = "400",
               description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
-              content = @Content()
-          ),
-          @ApiResponse(
-              responseCode = "401",
-              description = "パスワードの検証に失敗した場合",
               content = @Content()
           )
       }
