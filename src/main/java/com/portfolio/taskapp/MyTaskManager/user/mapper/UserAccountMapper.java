@@ -3,7 +3,6 @@ package com.portfolio.taskapp.MyTaskManager.user.mapper;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
-import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import org.springframework.stereotype.Component;
@@ -42,16 +41,6 @@ public class UserAccountMapper {
     return UserAccount.builder()
         .publicId(publicId)
         .password(newHashedPassword)
-        .build();
-  }
-
-  public UserAccount updateRequestToUserAccount(AccountUpdateRequest request, String publicId,
-      String hashedPassword) {
-    return UserAccount.builder()
-        .publicId(publicId)
-        .userName(request.getUserName())
-        .email(request.getEmail())
-        .password(hashedPassword)
         .build();
   }
 
