@@ -6,6 +6,7 @@ import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,6 +113,34 @@ public class UserController {
       @AuthenticationPrincipal UserAccountDetails userDetails,
       @Valid @RequestBody AccountUserInfoUpdateRequest request) {
     AccountResponse updateAccount = service.updateUserInfo(userDetails, request);
+    return ResponseEntity.ok(updateAccount);
+  }
+
+  @Operation(
+      summary = "メルアドレスの更新",
+      description = "アカウント情報（認証情報）のメルアドレスのみを更新します。",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "更新に成功した場合",
+              content = @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = AccountResponse.class)
+              )
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          )
+      }
+  )
+  @PutMapping("/me/email")
+  public ResponseEntity<AccountResponse> updateEmail(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
+      @Valid @RequestBody AccountEmailUpdateRequest request) throws NotUniqueException {
+    AccountResponse updateAccount = service.updateEmail(userDetails, request);
     return ResponseEntity.ok(updateAccount);
   }
 
