@@ -6,6 +6,7 @@ import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -83,6 +85,34 @@ public class UserController {
       throws NotUniqueException {
     service.registerUser(request);
     return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
+  }
+
+  @Operation(
+      summary = "ユーザー情報の更新",
+      description = "認証情報以外のユーザー情報を更新します。",
+      security = @SecurityRequirement(name = "basicAuth"),
+      responses = {
+          @ApiResponse(
+              responseCode = "200",
+              description = "アカウント情報の更新に成功した場合",
+              content = @Content(
+                  mediaType = "application/json",
+                  schema = @Schema(implementation = AccountResponse.class)
+              )
+          ),
+          @ApiResponse(
+              responseCode = "400",
+              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          )
+      }
+  )
+  @PutMapping("/me/info")
+  public ResponseEntity<AccountResponse> updateUserInfo(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
+      @Valid @RequestBody AccountUserInfoUpdateRequest request) {
+    AccountResponse updateAccount = service.updateUserInfo(userDetails, request);
+    return ResponseEntity.ok(updateAccount);
   }
 
   @Operation(
