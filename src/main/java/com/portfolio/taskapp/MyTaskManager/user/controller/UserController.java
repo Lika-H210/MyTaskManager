@@ -5,7 +5,6 @@ import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChang
 import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
-import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountPasswordUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
@@ -25,7 +24,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -171,35 +169,6 @@ public class UserController {
       @Valid @RequestBody AccountPasswordUpdateRequest request)
       throws InvalidPasswordChangeException {
     AccountResponse updateAccount = service.updatePassword(userDetails, request);
-    return ResponseEntity.ok(updateAccount);
-  }
-
-  @Operation(
-      summary = "ユーザー情報の更新",
-      description = "ユーザー情報を更新します。",
-      security = @SecurityRequirement(name = "basicAuth"),
-      responses = {
-          @ApiResponse(
-              responseCode = "200",
-              description = "アカウント情報の更新に成功した場合(更新対象項目がなかった場合は空オブジェクトを返します）",
-              content = @Content(
-                  mediaType = "application/json",
-                  schema = @Schema(implementation = AccountResponse.class)
-              )
-          ),
-          @ApiResponse(
-              responseCode = "400",
-              description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
-              content = @Content()
-          )
-      }
-  )
-  @PatchMapping("/me")
-  public ResponseEntity<AccountResponse> updateAccount(
-      @AuthenticationPrincipal UserAccountDetails userDetails,
-      @Valid @RequestBody AccountUpdateRequest request)
-      throws NotUniqueException, InvalidPasswordChangeException {
-    AccountResponse updateAccount = service.updateAccount(userDetails, request);
     return ResponseEntity.ok(updateAccount);
   }
 
