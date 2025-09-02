@@ -9,6 +9,7 @@ import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,6 +52,16 @@ public class UserService {
         hashedPassword);
 
     repository.registerUserAccount(registerAccount);
+  }
+
+  @Transactional
+  public AccountResponse updateUserInfo(UserAccountDetails userDetails,
+      AccountUserInfoUpdateRequest request) {
+    UserAccount account = mapper
+        .updateUserInfoRequestToUserAccount(request, userDetails.getAccount().getPublicId());
+    repository.updateAccount(account);
+
+    return mapper.toUserAccountResponse(account);
   }
 
   @Transactional

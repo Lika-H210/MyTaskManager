@@ -4,6 +4,7 @@ import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +17,14 @@ public class UserAccountMapper {
         .userName(request.getUserName())
         .email(request.getEmail())
         .password(hashedPassword)
+        .build();
+  }
+
+  public UserAccount updateUserInfoRequestToUserAccount(AccountUserInfoUpdateRequest request,
+      String publicId) {
+    return UserAccount.builder()
+        .publicId(publicId)
+        .userName(request.getUserName())
         .build();
   }
 
