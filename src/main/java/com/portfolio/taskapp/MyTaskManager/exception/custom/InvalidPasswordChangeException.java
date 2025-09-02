@@ -10,6 +10,6 @@ public class InvalidPasswordChangeException extends Exception {
 
   public InvalidPasswordChangeException(String message) {
     super(message);
-    this.httpStatus = HttpStatus.UNAUTHORIZED;
+    this.httpStatus = HttpStatus.BAD_REQUEST;
   }
 }

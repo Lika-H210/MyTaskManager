@@ -37,6 +37,14 @@ public class UserAccountMapper {
         .build();
   }
 
+  public UserAccount updatePasswordRequestToUserAccount(String newHashedPassword,
+      String publicId) {
+    return UserAccount.builder()
+        .publicId(publicId)
+        .password(newHashedPassword)
+        .build();
+  }
+
   public UserAccount updateRequestToUserAccount(AccountUpdateRequest request, String publicId,
       String hashedPassword) {
     return UserAccount.builder()

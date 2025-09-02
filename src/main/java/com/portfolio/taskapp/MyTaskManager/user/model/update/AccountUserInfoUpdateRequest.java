@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Schema(description = "アカウントのユーザー情報（認証情報以外）の更新用DTO")
+@NoArgsConstructor
 @Getter
 public class AccountUserInfoUpdateRequest {
 
