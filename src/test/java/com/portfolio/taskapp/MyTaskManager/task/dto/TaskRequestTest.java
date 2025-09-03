@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.task.model;
+package com.portfolio.taskapp.MyTaskManager.task.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,22 +30,22 @@ class TaskRequestTest {
   void タスクのリクエストで入力チェックに抵触しないこと() {
     TaskRequest request = createTaskRequest();
 
-    Set<ConstraintViolation<TaskRequest>> validators = validator.validate(request);
+    Set<ConstraintViolation<TaskRequest>> violations = validator.validate(request);
 
-    assertThat(validators).isEmpty();
+    assertThat(violations).isEmpty();
   }
 
   @ParameterizedTest
-  @MethodSource("invalidFieldCases")
+  @MethodSource("requestFieldInvalidPattern")
   void タスクのリクエストで入力チェックに抵触し例外がスローされていること(TaskRequest request,
       String message) {
-    Set<ConstraintViolation<TaskRequest>> validators = validator.validate(request);
+    Set<ConstraintViolation<TaskRequest>> violations = validator.validate(request);
 
-    assertThat(validators).isNotEmpty();
-    assertThat(validators).extracting("message").contains(message);
+    assertThat(violations).isNotEmpty();
+    assertThat(violations).extracting("message").contains(message);
   }
 
-  private static Stream<Arguments> invalidFieldCases() {
+  private static Stream<Arguments> requestFieldInvalidPattern() {
     return Stream.of(
         Arguments.of(withInvalidCaption(null),
             "タスク名は必須です。"),

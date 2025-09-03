@@ -2,8 +2,8 @@ package com.portfolio.taskapp.MyTaskManager.task.mapper;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.task.model.ProjectRequest;
-import com.portfolio.taskapp.MyTaskManager.task.model.TaskRequest;
+import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
+import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import org.springframework.stereotype.Component;
 
 @Component

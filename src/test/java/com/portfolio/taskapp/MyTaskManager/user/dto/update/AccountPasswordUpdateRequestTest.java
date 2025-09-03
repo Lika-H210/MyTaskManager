@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.user.model.update;
+package com.portfolio.taskapp.MyTaskManager.user.dto.update;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

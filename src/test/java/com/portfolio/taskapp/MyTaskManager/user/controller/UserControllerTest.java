@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.dto.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

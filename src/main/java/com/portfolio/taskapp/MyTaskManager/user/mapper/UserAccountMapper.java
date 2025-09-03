@@ -1,10 +1,10 @@
 package com.portfolio.taskapp.MyTaskManager.user.mapper;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
-import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
-import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
-import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.dto.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.dto.AccountResponse;
+import com.portfolio.taskapp.MyTaskManager.user.dto.update.AccountEmailUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.dto.update.AccountUserInfoUpdateRequest;
 import org.springframework.stereotype.Component;
 
 @Component

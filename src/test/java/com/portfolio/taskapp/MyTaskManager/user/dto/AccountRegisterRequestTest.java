@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.user.model;
+package com.portfolio.taskapp.MyTaskManager.user.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,23 +24,23 @@ class AccountRegisterRequestTest {
   void ユーザー登録処理のリクエストで入力チェックに抵触しないこと() {
     AccountRegisterRequest request = createRegisterRequest();
 
-    Set<ConstraintViolation<AccountRegisterRequest>> validations = validator.validate(request);
+    Set<ConstraintViolation<AccountRegisterRequest>> violations = validator.validate(request);
 
-    assertThat(validations).isEmpty();
+    assertThat(violations).isEmpty();
   }
 
   @ParameterizedTest
-  @MethodSource("accountRegisterRequestPattern")
+  @MethodSource("accountRegisterInvalidPattern")
   void ユーザー登録処理のリクエストで入力チェックに抵触し例外がスローされていること(
       AccountRegisterRequest request, String errorMessage) {
 
-    Set<ConstraintViolation<AccountRegisterRequest>> validations = validator.validate(request);
+    Set<ConstraintViolation<AccountRegisterRequest>> violations = validator.validate(request);
 
-    assertThat(validations.size()).isEqualTo(1);
-    assertThat(validations).extracting("message").contains(errorMessage);
+    assertThat(violations.size()).isEqualTo(1);
+    assertThat(violations).extracting("message").contains(errorMessage);
   }
 
-  private static Stream<Arguments> accountRegisterRequestPattern() {
+  private static Stream<Arguments> accountRegisterInvalidPattern() {
 
     return Stream.of(
         Arguments.of(withInvalidName(" "),
