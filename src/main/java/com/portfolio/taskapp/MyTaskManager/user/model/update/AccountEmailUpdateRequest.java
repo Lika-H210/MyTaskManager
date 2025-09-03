@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AccountEmailUpdateRequest {
 
-  @Schema(description = "メールアドレス　Unique")
+  @Schema(description = "メールアドレス（ユニーク）")
   @NotEmpty(message = "更新するメルアドレスを入力してください。")
   @Email(message = "正しいメールアドレス形式で入力してください")
   @Size(max = 100, message = "メールアドレスは100文字以下で入力してください")
