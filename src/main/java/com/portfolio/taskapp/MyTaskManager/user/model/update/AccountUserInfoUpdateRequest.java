@@ -4,12 +4,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Schema(description = "アカウントのユーザー情報（認証情報以外）の更新用DTO")
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AccountUserInfoUpdateRequest {
 
   @Schema(description = "ユーザー名")

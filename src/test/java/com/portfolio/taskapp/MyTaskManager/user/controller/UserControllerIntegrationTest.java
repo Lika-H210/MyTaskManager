@@ -1,11 +1,14 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +17,9 @@ import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountResponse;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountPasswordUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.service.UserService;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -68,6 +75,55 @@ class UserControllerIntegrationTest {
   }
 
   @Test
+  void ユーザー情報更新で適切なserviceが呼び出され200ステータスが返ること()
+      throws Exception {
+    AccountUserInfoUpdateRequest request = new AccountUserInfoUpdateRequest("newName");
+    String jsonRequest = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/users/me/info")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isOk());
+
+    verify(service).updateUserInfo(any(UserAccountDetails.class),
+        any(AccountUserInfoUpdateRequest.class));
+  }
+
+  @Test
+  void メールアドレス更新で適切なserviceが呼び出され200ステータスが返ること()
+      throws Exception {
+    AccountEmailUpdateRequest request = new AccountEmailUpdateRequest("new@email.com");
+    String jsonRequest = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/users/me/email")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isOk());
+
+    verify(service).updateEmail(any(UserAccountDetails.class),
+        any(AccountEmailUpdateRequest.class));
+  }
+
+  @Test
+  void パスワード更新で適切なserviceが呼び出され200ステータスが返ること()
+      throws Exception {
+    AccountPasswordUpdateRequest request = new AccountPasswordUpdateRequest("currentPassword",
+        "newPassword");
+    String jsonRequest = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/users/me/password")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isOk());
+
+    verify(service).updatePassword(any(UserAccountDetails.class),
+        any(AccountPasswordUpdateRequest.class));
+  }
+
+  @Test
   void アカウント削除で適切なserviceが実行と認証情報の削除が実行され204ステータスが返されること()
       throws Exception {
     mockMvc.perform(delete("/users/me")
@@ -87,4 +143,19 @@ class UserControllerIntegrationTest {
         .andExpect(status().isFound());
   }
 
+  // 異常系：400レスポンスの代表結合テスト
+  @Test
+  void パスワード更新でバリデーションに抵触する場合に400ステータスが返ること()
+      throws Exception {
+    AccountPasswordUpdateRequest request = new AccountPasswordUpdateRequest(null, null);
+    String jsonRequest = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/users/me/password")
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(jsonRequest))
+        .andExpect(status().isBadRequest());
+
+    verify(service, never()).updatePassword(any(), any());
+  }
 }

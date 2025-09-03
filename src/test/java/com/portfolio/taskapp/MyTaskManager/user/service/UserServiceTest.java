@@ -10,10 +10,14 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.mapper.UserAccountMapper;
 import com.portfolio.taskapp.MyTaskManager.user.model.AccountRegisterRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountEmailUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountPasswordUpdateRequest;
+import com.portfolio.taskapp.MyTaskManager.user.model.update.AccountUserInfoUpdateRequest;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,6 +105,129 @@ class UserServiceTest {
     assertThatThrownBy(() -> sut.registerUser(request))
         .isInstanceOf(NotUniqueException.class)
         .hasMessage("このメールアドレスは使用できません");
+
+    verify(passwordEncoder, never()).encode(any());
+  }
+
+  // ユーザー情報更新：正常系
+  @Test
+  void ユーザー情報の更新処理で適切にrepositoryとmapperが呼び出されていること() {
+    String newUserName = "New User Name";
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    AccountUserInfoUpdateRequest request = new AccountUserInfoUpdateRequest();
+    UserAccount updateAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .userName(newUserName)
+        .build();
+
+    when(mapper.updateUserInfoRequestToUserAccount(request, PUBLIC_ID)).thenReturn(updateAccount);
+
+    sut.updateUserInfo(details, request);
+
+    verify(mapper).updateUserInfoRequestToUserAccount(request, PUBLIC_ID);
+    verify(repository).updateAccount(updateAccount);
+    verify(mapper).toUserAccountResponse(updateAccount);
+  }
+
+  // メールアドレス更新：正常系
+  @Test
+  void メールアドレスの更新処理で適切にrepositoryとmapperと認証更新処理が呼び出されていること()
+      throws NotUniqueException {
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(EMAIL)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    AccountEmailUpdateRequest request = new AccountEmailUpdateRequest(NEW_EMAIL);
+    UserAccount updateAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(NEW_EMAIL)
+        .build();
+
+    when(mapper.updateEmailRequestToUserAccount(request, PUBLIC_ID)).thenReturn(updateAccount);
+    when(repository.existsByEmail(NEW_EMAIL)).thenReturn(false);
+
+    sut.updateEmail(details, request);
+
+    verify(repository).existsByEmail(NEW_EMAIL);
+    verify(mapper).updateEmailRequestToUserAccount(request, PUBLIC_ID);
+    verify(repository).updateAccount(updateAccount);
+    verify(mapper).toUserAccountResponse(updateAccount);
+
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+  }
+
+  // メールアドレス更新：正常系:早期リターン
+  @Test
+  void メールアドレスの更新処理で認証情報と更新情報のアドレスが同じの場合は早期リターンすること()
+      throws NotUniqueException {
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .email(EMAIL)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    AccountEmailUpdateRequest request = new AccountEmailUpdateRequest(EMAIL);
+
+    sut.updateEmail(details, request);
+
+    verify(mapper).toUserAccountResponse(authAccount);
+    verify(repository, never()).existsByEmail(any());
+  }
+
+  // パスワード更新：正常系
+  @Test
+  void パスワードの更新処理で適切にrepositoryとmapperとencoderと認証更新処理が呼び出されていること()
+      throws InvalidPasswordChangeException {
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    AccountPasswordUpdateRequest request = new AccountPasswordUpdateRequest(PASSWORD_RAW,
+        NEW_PASSWORD_RAW);
+    UserAccount updateAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(NEW_PASSWORD_HASHED)
+        .build();
+
+    when(passwordEncoder.matches(request.getCurrentPassword(), details.getPassword()))
+        .thenReturn(true);
+    when(passwordEncoder.encode(request.getNewPassword())).thenReturn(NEW_PASSWORD_HASHED);
+    when(mapper.updatePasswordRequestToUserAccount(NEW_PASSWORD_HASHED, PUBLIC_ID)).thenReturn(
+        updateAccount);
+
+    sut.updatePassword(details, request);
+
+    verify(passwordEncoder).matches(request.getCurrentPassword(), details.getPassword());
+    verify(passwordEncoder).encode(request.getNewPassword());
+    verify(mapper).updatePasswordRequestToUserAccount(NEW_PASSWORD_HASHED, PUBLIC_ID);
+    verify(repository).updateAccount(updateAccount);
+    verify(mapper).toUserAccountResponse(updateAccount);
+    verify(repository).updateAccount(updateAccount);
+    verify(mapper).toUserAccountResponse(updateAccount);
+
+    assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+  }
+
+  // パスワード更新：異常系400:現行パスワード不一致
+  @Test
+  void パスワードの更新処理で現在のパスワード検証で整合しない場合例外がThrowされること() {
+    UserAccount authAccount = UserAccount.builder()
+        .publicId(PUBLIC_ID)
+        .password(PASSWORD_HASHED)
+        .build();
+    UserAccountDetails details = new UserAccountDetails(authAccount);
+    AccountPasswordUpdateRequest request = new AccountPasswordUpdateRequest(PASSWORD_RAW,
+        NEW_PASSWORD_RAW);
+
+    when(passwordEncoder.matches(any(), any())).thenReturn(false);
+
+    assertThatThrownBy(() -> sut.updatePassword(details, request))
+        .isInstanceOf(InvalidPasswordChangeException.class)
+        .hasMessage("現在のパスワードをご確認ください");
 
     verify(passwordEncoder, never()).encode(any());
   }
