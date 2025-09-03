@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.user.model;
+package com.portfolio.taskapp.MyTaskManager.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
