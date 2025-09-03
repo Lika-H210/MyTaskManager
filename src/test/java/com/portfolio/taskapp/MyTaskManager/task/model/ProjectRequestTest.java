@@ -25,22 +25,22 @@ class ProjectRequestTest {
   void プロジェクトのリクエストで入力チェックに抵触しないこと() {
     ProjectRequest request = new ProjectRequest(VALID_CAPTION, VALID_DESCRIPTION, VALID_STATUS);
 
-    Set<ConstraintViolation<ProjectRequest>> validations = validator.validate(request);
+    Set<ConstraintViolation<ProjectRequest>> violations = validator.validate(request);
 
-    assertThat(validations).isEmpty();
+    assertThat(violations).isEmpty();
   }
 
   @ParameterizedTest
-  @MethodSource("invalidFieldCases")
+  @MethodSource("requestFieldInvalidPattern")
   void プロジェクトのリクエストで入力チェックに抵触し例外がスローされていること(
       ProjectRequest request, String message) {
-    Set<ConstraintViolation<ProjectRequest>> validations = validator.validate(request);
+    Set<ConstraintViolation<ProjectRequest>> violations = validator.validate(request);
 
-    assertThat(validations.size()).isGreaterThan(0);
-    assertThat(validations).extracting("message").contains(message);
+    assertThat(violations.size()).isGreaterThan(0);
+    assertThat(violations).extracting("message").contains(message);
   }
 
-  private static Stream<Arguments> invalidFieldCases() {
+  private static Stream<Arguments> requestFieldInvalidPattern() {
     return Stream.of(
         Arguments.of(withInvalidCaption(null),
             "プロジェクト名は必須です"),
