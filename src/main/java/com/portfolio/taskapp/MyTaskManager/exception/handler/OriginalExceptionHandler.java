@@ -40,7 +40,8 @@ public class OriginalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException ex) {
     // 開発者向けログ出力
-    log.warn("Request body validation error occurred");
+    log.warn("Request body validation error occurred: {} fields invalid",
+        ex.getBindingResult().getFieldErrors().size());
 
     // [field:エラーメッセージ]の一覧を作成
     Map<String, List<String>> errors = ex.getBindingResult()
@@ -110,7 +111,8 @@ public class OriginalExceptionHandler {
     log.warn("Password update failed: {}", ex.getMessage());
 
     //表示内容
-    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
+    Map<String, String> fieldError = Map.of(ex.getField(), ex.getMessage());
+    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), fieldError);
 
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }

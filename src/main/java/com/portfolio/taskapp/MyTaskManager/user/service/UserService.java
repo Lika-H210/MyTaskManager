@@ -87,7 +87,8 @@ public class UserService {
       AccountPasswordUpdateRequest request) throws InvalidPasswordChangeException {
 
     if (!passwordEncoder.matches(request.getCurrentPassword(), userDetails.getPassword())) {
-      throw new InvalidPasswordChangeException("現在のパスワードをご確認ください");
+      throw new InvalidPasswordChangeException("currentPassword",
+          "現在のパスワードをご確認ください");
     }
 
     String newHashedPassword = passwordEncoder.encode(request.getNewPassword());
