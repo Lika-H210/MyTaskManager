@@ -31,7 +31,7 @@ public class TaskRequest {
   private String description;
 
   @Schema(description = "期限日")
-  @NotNull(message = "期限日を設定してください")
+  @NotNull(message = "期限日は必須です")
   private LocalDate dueDate;
 
   @Schema(description = "見積もり時間（単位:min）")
