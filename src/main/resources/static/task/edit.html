@@ -17,47 +17,51 @@
       <label for="task-caption" class="form-label">
         タスク名<span class="required">必須</span>
       </label>
-      <input type="text" class="form-control full-width-input" id="task-caption" required>
+      <input type="text" class="form-control full-width-input" id="task-caption" name="taskCaption"
+             required maxlength="100" pattern=".*\S.*">
     </div>
 
     <div class="mb-3">
       <label for="description" class="form-label">詳細説明</label>
-      <textarea class="form-control full-width-input" id="description" rows="5"></textarea>
+      <textarea class="form-control full-width-input" id="description" name="description"
+                rows="3" maxlength="1000"></textarea>
     </div>
 
     <div class="mb-3">
       <label for="due-date" class="form-label">
         期限日<span class="required">必須</span>
       </label>
-      <input type="date" class="form-control short-input" id="due-date" required>
+      <input type="date" class="form-control short-input" id="due-date" name="dueDate" required>
     </div>
 
     <div class="mb-3">
       <label for="estimated-time" class="form-label">
         見積時間（分）<span class="required">必須</span>
       </label>
-      <input type="number" class="form-control short-input" id="estimated-time" required min="1">
+      <input type="number" class="form-control short-input" id="estimated-time" name="estimatedTime"
+             required min="1">
     </div>
 
     <div class="mb-3">
       <label for="actual-time" class="form-label">
         実績時間（分）<span class="required">必須</span>
       </label>
-      <input type="number" class="form-control short-input" id="actual-time" required min="0">
+      <input type="number" class="form-control short-input" id="actual-time" name="actualTime"
+             required min="0" value="0">
     </div>
 
     <div class="mb-3">
       <label for="progress" class="form-label">
         進捗率（%）<span class="required">必須</span>
       </label>
-      <input type="number" class="form-control short-input" id="progress" required min="0"
-             max="100">
+      <input type="number" class="form-control short-input" id="progress" name="progress" min="0"
+             required max="100" value="0">
     </div>
 
     <div class="mb-3">
-      <label for="priority" class="form-label">優先順位</label>
-      <select class="form-select short-input" id="priority">
-        <option value="LOW">LOW</option>
+      <label for="priority" class="form-label">優先度</label>
+      <select class="form-select short-input" id="priority" name="priority" required>
+        <option value="LOW" selected>LOW</option>
         <option value="MEDIUM">MEDIUM</option>
         <option value="HIGH">HIGH</option>
       </select>
@@ -120,17 +124,17 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     })
-    .then(res => {
-    if (res.ok) {
-      if (from === "child") {
-        window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
-      } else {
-        window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
-      }
-    } else {
-      return res.json().then(err => { throw err; });
-    }
-  })
+      .then(res => {
+        if (res.ok) {
+          if (from === "child") {
+            window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+          } else {
+            window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+          }
+        } else {
+          return res.json().then(err => { throw err; });
+        }
+    })
     .catch(err => {
       console.error(err);
       alert('更新に失敗しました');
@@ -144,12 +148,12 @@
 
   // 戻るボタン
   document.getElementById('back-button').addEventListener('click', () => {
-  if (from === "child") {
-    window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
-  } else {
-    window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
-  }
-});
+    if (from === "child") {
+      window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+    } else {
+      window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+    }
+  });
 </script>
 </body>
 </html>
