@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Task {
 
-  @Schema(description = "タスクID（自動採番）")
+  @Schema(description = "タスクID")
   @JsonIgnore
   private Integer id;
 

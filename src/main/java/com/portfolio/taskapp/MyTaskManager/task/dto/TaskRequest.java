@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 /**
  * タスクの登録・更新用リクエスト DTO。 タスクを登録・更新する API のリクエストボディとして使用します。
  */
-@Schema(description = "タスクの登録・更新用リクエスト項目")
+@Schema(description = "タスクの登録・更新用リクエストDTO")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,7 +28,7 @@ public class TaskRequest {
    */
   @Schema(description = "タスク名")
   @NotBlank(message = "タスク名は必須です。")
-  @Size(max = 100, message = "タスク名は100字以内で入力してください")
+  @Size(max = 100, message = "タスク名は100文字以下で入力してください")
   private String taskCaption;
 
   /**
@@ -36,7 +36,7 @@ public class TaskRequest {
    */
   @Schema(description = "タスクの詳細説明")
   @NotNull(message = "未入力は空にしてください。")
-  @Size(max = 1000, message = "タスクの詳細説明は1000字以内で入力してください")
+  @Size(max = 1000, message = "タスクの詳細説明は1000文字以下で入力してください")
   private String description;
 
   /**
@@ -58,7 +58,7 @@ public class TaskRequest {
    * 実績時間（分単位）。
    */
   @Schema(description = "実績時間（単位:min）※新規登録時は0を設定してください")
-  @PositiveOrZero(message = "入力値は分単位で正の整数値を入力してください")
+  @PositiveOrZero(message = "入力値は分単位で0以上の整数値を入力してください")
   private int actualTime;
 
   /**

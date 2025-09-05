@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 /**
  * プロジェクトの登録・更新用リクエスト DTO。 プロジェクトを登録・更新する API のリクエストボディとして使用します。
  */
-@Schema(description = "プロジェクトの登録・更新用リクエスト項目")
+@Schema(description = "プロジェクトの登録・更新用リクエストDTO")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,21 +23,21 @@ public class ProjectRequest {
    */
   @Schema(description = "プロジェクト名")
   @NotBlank(message = "プロジェクト名は必須です")
-  @Size(max = 100, message = "プロジェクト名は文字数を100字以内で入力してください")
+  @Size(max = 100, message = "プロジェクト名は文字数を100文字以下で入力してください")
   private String projectCaption;
 
   /**
    * プロジェクトの詳細説明。最大1000文字
    */
   @Schema(description = "プロジェクトの詳細説明")
-  @NotNull(message = "未入力は空にしてください。")
-  @Size(max = 1000, message = "プロジェクトの詳細説明は文字数を1000字以内で入力してください")
+  @NotNull(message = "未入力は空にしてください")
+  @Size(max = 1000, message = "プロジェクトの詳細説明は文字数を1000文字以下で入力してください")
   private String description;
 
   /**
    * プロジェクトステータス。登録時は ACTIVE 固定
    */
-  @Schema(description = "ステータス（ACTIVE/ARCHIVED）※登録時はACTIVE固定としてください。")
+  @Schema(description = "ステータス（ACTIVE/ARCHIVED）※登録時はACTIVE固定としてください")
   @NotNull(message = "ステータスは必須です")
   private ProjectStatus status;
 
