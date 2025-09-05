@@ -7,14 +7,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 親タスクとその子タスクの階層構造を表す DTO。 親子タスクをツリー構造で返す際に使用します。
+ */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskTree {
 
+  /**
+   * 親タスク
+   */
   @Schema(description = "親タスク")
   private Task parentTask;
 
+  /**
+   * 親タスクに紐づく子タスクのリスト
+   */
   @Schema(description = "親タスクに紐づく子タスクのリスト")
   private List<Task> subtaskList;
 

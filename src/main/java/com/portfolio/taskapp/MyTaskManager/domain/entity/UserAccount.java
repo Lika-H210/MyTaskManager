@@ -7,6 +7,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * ユーザーアカウントを定義するエンティティクラス。
+ * <p>
+ * DB の user_accounts テーブルに対応します。ユーザー情報は機密情報を扱うためレスポンスでの使用を想定していません。
+ */
 @Schema(description = "ユーザーを定義するエンティティクラス")
 @Getter
 @AllArgsConstructor
