@@ -51,9 +51,9 @@ class AccountPasswordUpdateRequestTest {
   private static Stream<Arguments> passwordUpdateInvalidPattern() {
     return Stream.of(
         Arguments.of(new AccountPasswordUpdateRequest("", VALID_NEW_PASSWORD),
-            "現在のパスワードを入力してください"),
+            "現在のパスワードは必須です"),
         Arguments.of(new AccountPasswordUpdateRequest(VALID_CURRENT_PASSWORD, ""),
-            "新しいパスワードを入力してください"),
+            "新しいパスワードは必須です"),
         Arguments.of(new AccountPasswordUpdateRequest(VALID_CURRENT_PASSWORD, "1234567"),
             "パスワードは8文字以上50文字以下で入力してください"),
         Arguments.of(new AccountPasswordUpdateRequest(VALID_CURRENT_PASSWORD, "ああああああああ"),

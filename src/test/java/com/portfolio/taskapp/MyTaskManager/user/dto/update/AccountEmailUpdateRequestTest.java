@@ -41,7 +41,7 @@ class AccountEmailUpdateRequestTest {
   private static Stream<Arguments> emailUpdateInvalidPattern() {
     return Stream.of(
         Arguments.of(new AccountEmailUpdateRequest(""),
-            "更新するメルアドレスを入力してください。"),
+            "メールアドレスは必須です"),
         Arguments.of(new AccountEmailUpdateRequest("new@"),
             "正しいメールアドレス形式で入力してください"),
         Arguments.of(new AccountEmailUpdateRequest("a".repeat(101)),

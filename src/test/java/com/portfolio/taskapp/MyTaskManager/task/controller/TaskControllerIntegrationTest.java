@@ -100,8 +100,7 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
         .andExpect(jsonPath("$.error").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
-        .andExpect(jsonPath("$.detail.projectCaption").isArray())
-        .andExpect(jsonPath("$.detail.projectCaption[0]").isNotEmpty());
+        .andExpect(jsonPath("$.detail.projectCaption").isNotEmpty());
 
     verify(service, never()).createProject(any(), any());
   }
@@ -128,8 +127,7 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
         .andExpect(jsonPath("$.error").value(HttpStatus.BAD_REQUEST.getReasonPhrase()))
-        .andExpect(jsonPath("$.detail.taskCaption").isArray())
-        .andExpect(jsonPath("$.detail.taskCaption[0]").isNotEmpty());
+        .andExpect(jsonPath("$.detail.taskCaption").isNotEmpty());
 
     verify(service, never()).createParentTask(any(), any());
   }
