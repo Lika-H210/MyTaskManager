@@ -8,17 +8,23 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "アカウントのユーザー情報（認証情報以外）の更新用DTO")
+/**
+ * アカウントのユーザー情報（認証情報以外）の更新用リクエスト DTO。
+ */
+@Schema(description = "アカウントのユーザー情報（認証情報以外）の更新用リクエストDTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountUserInfoUpdateRequest {
 
+  /**
+   * ユーザー名。 必須入力。50文字以下。 利用可能な文字は半角英数字、ひらがな、カタカナ、漢字、スペース、記号（_ -）。
+   */
   @Schema(description = "ユーザー名")
   @NotBlank(message = "ユーザー名は必須です")
-  @Size(max = 50, message = "ユーザー名は50字以内で入力してください")
+  @Size(max = 50, message = "ユーザー名は50文字以下で入力してください")
   @Pattern(regexp = "^[a-zA-Z0-9\\u3040-\\u309F\\u30A0-\\u30FF\\u4E00-\\u9FAF _\\-\\u3000]+$",
-      message = "ユーザー名には英数字・ひらがな・カタカナ・漢字、スペース、記号（_ -）のみ使用できます")
+      message = "ユーザー名には半角英数字・ひらがな・カタカナ・漢字、スペース、記号（_-）のみ使用できます")
 
   private String userName;
 

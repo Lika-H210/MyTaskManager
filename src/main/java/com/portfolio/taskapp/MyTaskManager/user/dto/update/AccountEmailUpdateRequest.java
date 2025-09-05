@@ -8,12 +8,18 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Schema(description = "アカウントのEmail情報更新用DTO")
+/**
+ * アカウントのメールアドレス更新用リクエスト DTO。
+ */
+@Schema(description = "アカウントのEmail更新用リクエストDTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountEmailUpdateRequest {
 
+  /**
+   * メールアドレス。 必須入力。形式チェックあり。100文字以下。認証に使用されるため、ユニーク制約がかかっています。
+   */
   @Schema(description = "メールアドレス（ユニーク）")
   @NotEmpty(message = "メールアドレスは必須です")
   @Email(message = "正しいメールアドレス形式で入力してください")

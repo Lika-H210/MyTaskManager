@@ -46,7 +46,7 @@ class AccountRegisterRequestTest {
         Arguments.of(withInvalidName(" "),
             "ユーザー名は必須です"),
         Arguments.of(withInvalidName("a".repeat(51)),
-            "ユーザー名は50字以内で入力してください"),
+            "ユーザー名は50文字以下で入力してください"),
         Arguments.of(withInvalidEmail(""),
             "メールアドレスは必須です"),
         Arguments.of(withInvalidEmail("aaa@"),
@@ -56,7 +56,7 @@ class AccountRegisterRequestTest {
         Arguments.of(withInvalidPassword("pass123"),
             "パスワードは8文字以上50文字以下で入力してください"),
         Arguments.of(withInvalidPassword("ひらがなカタカナ漢字不可"),
-            "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
+            "パスワードに使えない文字が含まれています。")
     );
   }
 

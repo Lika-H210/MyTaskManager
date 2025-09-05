@@ -57,7 +57,7 @@ class AccountPasswordUpdateRequestTest {
         Arguments.of(new AccountPasswordUpdateRequest(VALID_CURRENT_PASSWORD, "1234567"),
             "パスワードは8文字以上50文字以下で入力してください"),
         Arguments.of(new AccountPasswordUpdateRequest(VALID_CURRENT_PASSWORD, "ああああああああ"),
-            "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
+            "パスワードに使えない文字が含まれています。")
     );
   }
 }
