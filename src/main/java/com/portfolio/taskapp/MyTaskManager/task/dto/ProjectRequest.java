@@ -23,7 +23,7 @@ public class ProjectRequest {
    */
   @Schema(description = "プロジェクト名")
   @NotBlank(message = "プロジェクト名は必須です")
-  @Size(max = 100, message = "プロジェクト名は文字数を100文字以下で入力してください")
+  @Size(max = 100, message = "プロジェクト名は100文字以下で入力してください")
   private String projectCaption;
 
   /**
@@ -31,7 +31,7 @@ public class ProjectRequest {
    */
   @Schema(description = "プロジェクトの詳細説明")
   @NotNull(message = "未入力は空にしてください")
-  @Size(max = 1000, message = "プロジェクトの詳細説明は文字数を1000文字以下で入力してください")
+  @Size(max = 1000, message = "プロジェクトの詳細説明は1000文字以下で入力してください")
   private String description;
 
   /**

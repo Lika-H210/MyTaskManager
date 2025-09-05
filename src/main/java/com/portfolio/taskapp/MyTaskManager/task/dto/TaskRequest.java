@@ -58,6 +58,7 @@ public class TaskRequest {
    * 実績時間（分単位）。
    */
   @Schema(description = "実績時間（単位:min）※新規登録時は0を設定してください")
+  @NotNull(message = "実績時間は必須です")
   @PositiveOrZero(message = "入力値は分単位で0以上の整数値を入力してください")
   private int actualTime;
 
@@ -65,6 +66,7 @@ public class TaskRequest {
    * 進捗率（%）。0〜100
    */
   @Schema(description = "進捗率（%）※新規登録時は0を設定してください")
+  @NotNull(message = "進捗率は必須です")
   @Min(value = 0, message = "入力値は0以上の整数値を入力してください")
   @Max(value = 100, message = "入力値は100以下の整数値を入力してください")
   private int progress;
