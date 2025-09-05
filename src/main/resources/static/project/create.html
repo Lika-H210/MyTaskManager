@@ -17,12 +17,14 @@
       <label for="project-caption" class="form-label">
         プロジェクト名<span class="required">必須</span>
       </label>
-      <input type="text" class="form-control full-width-input" id="project-caption" required>
+      <input type="text" class="form-control full-width-input" id="project-caption"
+             name="projectCaption" required maxlength="100" pattern=".*\S.*">
     </div>
 
     <div class="mb-3">
       <label for="description" class="form-label">詳細説明</label>
-      <textarea class="form-control full-width-input" id="description" rows="10"></textarea>
+      <textarea class="form-control full-width-input" id="description" name="description"
+                rows="10" maxlength="1000"></textarea>
     </div>
 
     <button type="submit" class="btn btn-success">登録</button>
@@ -37,33 +39,34 @@
   document.getElementById('project-form').addEventListener('submit', (e) => {
     e.preventDefault();
 
-  const requestBody = {
-    projectCaption: document.getElementById('project-caption').value,
-    description: document.getElementById('description').value || "", // null → ""
-    status: "ACTIVE"
-  };
-  fetch(`/projects`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestBody)
-  })
-    .then(res => {
-      if (res.ok) {
-        // 登録成功 → プロジェクト一覧画面に戻る
-        window.location.href = '/project/list.html';
-      } else {
-        return res.json().then(err => { throw err; });
-      }
+    const requestBody = {
+      projectCaption: document.getElementById('project-caption').value,
+      description: document.getElementById('description').value || "", // null → ""
+      status: "ACTIVE"
+    };
+
+    fetch(`/projects`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
     })
-    .catch(err => {
-      alert('登録に失敗しました: ' + (err.message || JSON.stringify(err)));
-      console.error(err);
-    });
+      .then(res => {
+        if (res.ok) {
+          // 登録成功 → プロジェクト一覧画面に戻る
+          window.location.href = '/project/list.html';
+        } else {
+          return res.json().then(err => { throw err; });
+        }
+      })
+      .catch(err => {
+        alert('登録に失敗しました: ' + (err.message || JSON.stringify(err)));
+        console.error(err);
+      });
   });
 
   // 戻るボタン（プロジェクト一覧画面へ戻る）
   document.getElementById('back-button').addEventListener('click', () => {
-  window.location.href = `/project/list.html`;
+    window.location.href = `/project/list.html`;
   });
 </script>
 </body>

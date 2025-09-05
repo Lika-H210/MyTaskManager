@@ -17,15 +17,17 @@
       <label for="user-name" class="form-label">
         ユーザー名<span class="required">必須</span>
       </label>
-      <input type="text" class="form-control full-width-input" id="user-name">
-      <div id="user-name-error" class="text-danger small"></div>
+      <input type="text" class="form-control full-width-input" id="user-name"
+             required maxlength="50"
+             pattern="^[a-z A-Z 0-9 \u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF _\-　]+$">
     </div>
 
     <div class="mb-3">
       <label for="email" class="form-label">
         メールアドレス<span class="required">必須</span>
       </label>
-      <input type="email" class="form-control full-width-input" id="email">
+      <input type="email" class="form-control full-width-input" id="email"
+             required maxlength="100">
       <div id="email-error" class="text-danger small"></div>
     </div>
 
@@ -33,8 +35,9 @@
       <label for="password" class="form-label">
         パスワード<span class="required">必須</span>
       </label>
-      <input type="password" class="form-control full-width-input" id="password">
-      <div id="password-error" class="text-danger small"></div>
+      <input type="password" class="form-control full-width-input" id="password"
+             required minlength="8" maxlength="50"
+             pattern="^[a-zA-Z0-9!@#$%^&*()_+\-=]+$">
     </div>
 
     <button type="submit" class="btn btn-success">登録</button>

@@ -18,8 +18,9 @@
         ユーザー名<span class="required">必須</span>
       </label>
       <div class="col-sm-6">
-        <input type="text" class="form-control full-width-input" id="user-name">
-        <div id="user-name-error" class="text-danger small"></div>
+        <input type="text" class="form-control full-width-input" id="user-name"
+               required maxlength="50"
+               pattern="^[a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF _\-　]+$">
       </div>
     </div>
 

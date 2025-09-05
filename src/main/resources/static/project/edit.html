@@ -17,12 +17,14 @@
       <label for="project-caption" class="form-label">
         プロジェクト名<span class="required">必須</span>
       </label>
-      <input type="text" class="form-control full-width-input" id="project-caption" required>
+      <input type="text" class="form-control full-width-input" id="project-caption"
+             name="projectCaption" required maxlength="100" pattern=".*\S.*">
     </div>
 
     <div class="mb-3">
       <label for="description" class="form-label">詳細説明</label>
-      <textarea class="form-control full-width-input" id="description" rows="5"></textarea>
+      <textarea class="form-control full-width-input" id="description" name="description"
+                rows="5" maxlength="1000"></textarea>
     </div>
 
     <div class="mb-3">
@@ -78,18 +80,18 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
     })
-    .then(res => {
-      if (res.ok) {
+      .then(res => {
+        if (res.ok) {
+          window.location.href = `/project/list.html`;
+        } else {
+          return res.json().then(err => { throw err; });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('更新に失敗しました');
         window.location.href = `/project/list.html`;
-      } else {
-        return res.json().then(err => { throw err; });
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('更新に失敗しました');
-      window.location.href = `/project/list.html`;
-    });
+      });
   });
 
   // 戻るボタン
