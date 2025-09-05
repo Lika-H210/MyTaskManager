@@ -43,7 +43,7 @@ class AccountUserInfoUpdateRequestTest {
         Arguments.of(new AccountUserInfoUpdateRequest(" "),
             "ユーザー名は必須です"),
         Arguments.of(new AccountUserInfoUpdateRequest("a".repeat(51)),
-            "ユーザー名は50字以内で入力してください")
+            "ユーザー名は50文字以下で入力してください")
     );
   }
 }
