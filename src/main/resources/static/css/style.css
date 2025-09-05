@@ -30,3 +30,15 @@
   text-align: center;
   white-space: nowrap;
 }
+
+ /* PCブラウザ用 大きめフォント（幅768px以上） */
+    @media (min-width: 768px) {
+      body {
+        font-size: 18px; /* 標準 16px → 18px に拡大 */
+      }
+      h3 {
+        font-size: 1.6rem; /* 見出しもやや大きめに */
+      }
+      .form-label {
+        font-size: 1rem; /* ラベルを強調（16px相当） */
+      }
