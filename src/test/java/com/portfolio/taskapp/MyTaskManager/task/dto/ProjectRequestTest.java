@@ -49,7 +49,7 @@ class ProjectRequestTest {
         Arguments.of(withInvalidCaption("a".repeat(101)),
             "プロジェクト名は100文字以下で入力してください"),
         Arguments.of(new ProjectRequest(VALID_CAPTION, null, VALID_STATUS),
-            "プロジェクトの詳細説明はNullを許容しません。未入力は空文字にしてください。"),
+            "未入力は空にしてください"),
         Arguments.of(new ProjectRequest(VALID_CAPTION, VALID_DESCRIPTION, null),
             "ステータスは必須です")
     );
