@@ -21,7 +21,7 @@ public class ProjectRequest {
   private String projectCaption;
 
   @Schema(description = "プロジェクトの詳細説明")
-  @NotNull(message = "プロジェクトの詳細説明はNullを許容しません。未入力は空文字にしてください。")
+  @NotNull(message = "未入力は空にしてください。")
   @Size(max = 1000, message = "プロジェクトの詳細説明は文字数を1000字以内で入力してください")
   private String description;
 

@@ -5,10 +5,10 @@ import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -44,20 +44,30 @@ public class OriginalExceptionHandler {
         ex.getBindingResult().getFieldErrors().size());
 
     // [field:エラーメッセージ]の一覧を作成
-    Map<String, List<String>> errors = ex.getBindingResult()
-        .getFieldErrors()
-        .stream()
+    List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+
+    Map<String, String> errorsMap = new HashMap<>();
+
+    // "field" + "エラーメッセージのリスト" のマップに変換
+    Map<String, List<String>> errorsByField = fieldErrors.stream()
         .collect(Collectors.groupingBy(
             FieldError::getField,
             LinkedHashMap::new,
-            Collectors.mapping(
-                fieldError -> Optional.ofNullable(fieldError.getDefaultMessage()).orElse(""),
-                Collectors.toList()
-            )
+            Collectors.mapping(FieldError::getDefaultMessage, Collectors.toList())
         ));
 
+    // レスポンス用のエラーメッセージに変換（エラーメッセージのリストから表示するメッセージを一つ選別）
+    Map<String, String> finalErrors = new LinkedHashMap<>();
+    errorsByField.forEach((field, messages) -> {
+      String selectMassage = messages.stream()
+          .filter(msg -> msg.contains("必須"))
+          .findFirst()
+          .orElse(messages.getFirst());
+      finalErrors.put(field, selectMassage);
+    });
+
     HttpStatus status = HttpStatus.BAD_REQUEST;
-    Map<String, Object> responseBody = createErrorBody(status, errors);
+    Map<String, Object> responseBody = createErrorBody(status, finalErrors);
 
     return ResponseEntity.badRequest().body(responseBody);
   }
