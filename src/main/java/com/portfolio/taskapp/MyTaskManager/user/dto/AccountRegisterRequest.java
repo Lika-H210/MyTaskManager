@@ -12,7 +12,7 @@ import lombok.Getter;
 /**
  * アカウント登録時のリクエスト DTO。
  */
-@Schema(description = "アカウント登録のリクエスト内容")
+@Schema(description = "アカウント登録用リクエストDTO")
 @Getter
 @AllArgsConstructor
 public class AccountRegisterRequest {

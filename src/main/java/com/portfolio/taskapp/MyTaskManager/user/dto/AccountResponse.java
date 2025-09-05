@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * <p>
  * API 呼び出し時に利用者へ返されるアカウントの基本情報を保持し、パスワード及び内部Idは含みません。
  */
-@Schema(description = "アカウントに関するレスポンス内容")
+@Schema(description = "アカウントに関するレスポンスDTO")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,7 +32,7 @@ public class AccountResponse {
   /**
    * メールアドレス
    */
-  @Schema(description = "メールアドレス（ユニーク）")
+  @Schema(description = "メールアドレス")
   private String email;
 
   /**

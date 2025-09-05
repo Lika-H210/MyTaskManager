@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 /**
  * アカウントのパスワード更新用リクエスト DTO。
  */
-@Schema(description = "アカウントのPassword更新用DTO")
+@Schema(description = "アカウントのPassword更新用リクエストDTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,7 +34,7 @@ public class AccountPasswordUpdateRequest {
   @NotEmpty(message = "新しいパスワードは必須です")
   @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
   @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*()_+\\-=]+$",
-      message = "パスワードは英数字と記号(!@#$%^&*()_+-=)のみ使用可能です")
+      message = "パスワードに使えない文字が含まれています。")
   private String newPassword;
 
 }

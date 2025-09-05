@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 /**
  * アカウントのメールアドレス更新用リクエスト DTO。
  */
-@Schema(description = "アカウントのEmail情報更新用DTO")
+@Schema(description = "アカウントのEmail更新用リクエストDTO")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
