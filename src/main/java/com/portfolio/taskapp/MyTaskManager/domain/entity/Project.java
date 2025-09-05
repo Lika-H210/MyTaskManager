@@ -9,6 +9,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * プロジェクトを定義するエンティティクラス。
+ * <p>
+ * DB の projects テーブルに対応します。 スポンス時の使用を考慮し内部Idのfieldは@JsonIgnore指定しています。
+ */
 @Schema(description = "プロジェクトを定義するエンティティクラス")
 @Getter
 @AllArgsConstructor
@@ -16,29 +21,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Project {
 
-  // AUTO_INCREMENT PRIMARY KEY
-  @Schema(description = "プロジェクトID（自動採番）")
+  @Schema(description = "プロジェクトID")
   @JsonIgnore
   private Integer id;
 
-  // FOREIGN KEY (user_id) REFERENCES users(id)
   @Schema(description = "このプロジェクトの責任ユーザーのId")
   @JsonIgnore
   private Integer userId;
 
-  // CHAR(36) NOT NULL UNIQUE
   @Schema(description = "UUID形式の公開ID")
   private String publicId;
 
-  // VARCHAR(100) NOT NULL
   @Schema(description = "プロジェクト名")
   private String projectCaption;
 
-  // TEXT
   @Schema(description = "プロジェクトの詳細説明")
   private String description;
 
-  // ENUM('ACTIVE', 'ARCHIVED') DEFAULT 'ACTIVE'
   @Schema(description = "ステータス（ACTIVE/ARCHIVED）")
   private ProjectStatus status;
 
