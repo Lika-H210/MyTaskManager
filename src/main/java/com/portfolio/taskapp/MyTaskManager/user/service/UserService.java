@@ -21,12 +21,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * ユーザーアカウントに関するビジネスロジックを提供するサービスクラス。
+ * <p>
+ * アカウント情報に関するCRUD処理を行います。必要に応じて認証情報の更新も行います。 <br> DBアクセスは UserRepository を介して行い、 レスポンスDTOはすべて
+ * AccountResponse を利用します。
+ */
 @Service
 public class UserService {
 
-  private UserRepository repository;
-  private PasswordEncoder passwordEncoder;
-  private UserAccountMapper mapper;
+  private final UserRepository repository;
+  private final PasswordEncoder passwordEncoder;
+  private final UserAccountMapper mapper;
 
   @Autowired
   public UserService(UserRepository repository,
@@ -37,11 +43,23 @@ public class UserService {
     this.mapper = mapper;
   }
 
+  /**
+   * 公開IDからユーザーアカウント情報を取得します。
+   *
+   * @param publicId 公開ID
+   * @return アカウント情報
+   */
   public AccountResponse findAccount(String publicId) {
     UserAccount account = repository.findAccountByPublicId(publicId);
     return mapper.toUserAccountResponse(account);
   }
 
+  /**
+   * 新規ユーザーアカウントを登録します。登録処理のみを行い、レスポンスは返しません。
+   *
+   * @param request アカウント登録リクエスト
+   * @throws NotUniqueException 入力されたメールアドレスが既に使用されている場合
+   */
   @Transactional
   public void registerUser(AccountRegisterRequest request) throws NotUniqueException {
     validateEmailUniqueness(request.getEmail());
@@ -54,6 +72,13 @@ public class UserService {
     repository.registerUserAccount(registerAccount);
   }
 
+  /**
+   * ユーザーの基本情報を更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     ユーザー情報の更新内容
+   * @return 公開IDと更新後の基本情報を含むアカウント情報
+   */
   @Transactional
   public AccountResponse updateUserInfo(UserAccountDetails userDetails,
       AccountUserInfoUpdateRequest request) {
@@ -64,6 +89,16 @@ public class UserService {
     return mapper.toUserAccountResponse(account);
   }
 
+  /**
+   * ユーザーのメールアドレスを更新します。
+   * <p>
+   * メールアドレスが変更された場合はセキュリティコンテキストも更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     メールアドレス更新リクエスト
+   * @return 公開IDと更新後のメールアドレスを含むアカウント情報
+   * @throws NotUniqueException 更新メールアドレスが既に他ユーザーに使用されている場合
+   */
   @Transactional
   public AccountResponse updateEmail(UserAccountDetails userDetails,
       AccountEmailUpdateRequest request) throws NotUniqueException {
@@ -82,6 +117,16 @@ public class UserService {
     return mapper.toUserAccountResponse(account);
   }
 
+  /**
+   * ユーザーのパスワードを更新します。
+   * <p>
+   * 現在のパスワードが一致しない場合はエラーを返します。 更新後はセキュリティコンテキストを更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     パスワードの更新リクエスト
+   * @return 公開IDのみを含むアカウント情報。（セキュリティ上の理由により更新されたパスワード情報は含みません）
+   * @throws InvalidPasswordChangeException 現在のパスワードが一致しない場合
+   */
   @Transactional
   public AccountResponse updatePassword(UserAccountDetails userDetails,
       AccountPasswordUpdateRequest request) throws InvalidPasswordChangeException {
@@ -103,6 +148,12 @@ public class UserService {
     return mapper.toUserAccountResponse(account);
   }
 
+  /**
+   * ユーザーアカウントを削除します。
+   *
+   * @param publicId 公開ID
+   * @throws RecordNotFoundException 指定されたユーザーが存在しない場合
+   */
   @Transactional
   public void deleteAccount(String publicId) {
     if (repository.findAccountByPublicId(publicId) == null) {
@@ -113,6 +164,12 @@ public class UserService {
 
   // ──────────────── Private methods ────────────────
 
+  /**
+   * メールアドレスがユニークか検証します。登録された全メールアドレスを検証対象とします。
+   *
+   * @param requestEmail 検証対象のメールアドレス
+   * @throws NotUniqueException メールアドレスが既に使用されている場合
+   */
   private void validateEmailUniqueness(String requestEmail)
       throws NotUniqueException {
     if (repository.existsByEmail(requestEmail)) {
@@ -120,6 +177,12 @@ public class UserService {
     }
   }
 
+  /**
+   * 更新されたアカウント情報を基に、新しい AuthenticationToken を生成してセキュリティコンテキストに設定します
+   *
+   * @param userDetails   現在認証済みのユーザー情報
+   * @param updateAccount 更新後のアカウント情報
+   */
   void refreshSecurityContext(UserAccountDetails userDetails, UserAccount updateAccount) {
     UserAccount updateUserAccount = UserAccount.builder()
         .publicId(userDetails.getAccount().getPublicId())
