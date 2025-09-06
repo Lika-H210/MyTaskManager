@@ -16,12 +16,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * プロジェクトおよびタスクに関するビジネスロジックを提供するサービスクラス。
+ * <p>
+ * DBアクセスは TaskRepository を介して行い、<br> 表示用の構造変換には TaskConverter、エンティティとDTO間の変換には ProjectTaskMapper
+ * を利用します。<br>
+ */
 @Service
 public class TaskService {
 
-  private TaskRepository repository;
-  private TaskConverter converter;
-  private ProjectTaskMapper mapper;
+  private final TaskRepository repository;
+  private final TaskConverter converter;
+  private final ProjectTaskMapper mapper;
 
   @Autowired
   public TaskService(TaskRepository repository, TaskConverter converter, ProjectTaskMapper mapper) {
@@ -30,16 +36,37 @@ public class TaskService {
     this.mapper = mapper;
   }
 
+  /**
+   * ユーザーが持つプロジェクト一覧を取得します。
+   *
+   * @param userPublicId ユーザーの公開ID
+   * @return 該当ユーザーに紐づくプロジェクト一覧
+   * @throws RecordNotFoundException ユーザーが存在しない場合
+   */
   public List<Project> getUserProjects(String userPublicId) {
     Integer userId = requireUserIdByPublicId(userPublicId);
     return repository.findProjectsByUserId(userId);
   }
 
+  /**
+   * プロジェクトの公開IDからプロジェクトを取得します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @return プロジェクト情報
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   public Project getProjectByProjectPublicId(String projectPublicId) {
     return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
   }
 
+  /**
+   * プロジェクトに紐づくタスクを取得し、ツリー形式に変換して返します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @return 親子タスク一覧
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
     Integer projectId = requireProjectIdByPublicId(projectPublicId);
 
@@ -47,6 +74,14 @@ public class TaskService {
     return converter.convertToTaskTreeList(taskList);
   }
 
+  /**
+   * 公開IDから単一のタスクツリーを取得します。
+   *
+   * @param taskPublicId タスクの公開ID
+   * @return 該当親子タスク情報
+   * @throws RecordNotFoundException タスクが存在しない場合
+   * @throws IllegalStateException   該当するタスクツリーが1件に特定できない場合
+   */
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
     Integer taskId = Optional.ofNullable(repository.findTaskIdByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
@@ -61,11 +96,26 @@ public class TaskService {
     return taskTreeList.getFirst();
   }
 
+  /**
+   * 公開IDから単一のタスクを取得します。
+   *
+   * @param taskPublicId タスクの公開ID
+   * @return タスク情報
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   public Task getTaskByTaskPublicId(String taskPublicId) {
     return Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
   }
 
+  /**
+   * プロジェクトを新規作成します。
+   *
+   * @param request      プロジェクト作成リクエスト
+   * @param userPublicId ユーザーの公開ID
+   * @return 作成されたプロジェクト情報
+   * @throws RecordNotFoundException ユーザーが存在しない場合
+   */
   @Transactional
   public Project createProject(ProjectRequest request, String userPublicId) {
     Integer userId = requireUserIdByPublicId(userPublicId);
@@ -78,6 +128,14 @@ public class TaskService {
     return project;
   }
 
+  /**
+   * プロジェクト直下に親タスクを作成します。
+   *
+   * @param request         タスク作成リクエスト
+   * @param projectPublicId プロジェクトの公開ID
+   * @return 作成されたタスク情報
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId) {
     Integer projectId = requireProjectIdByPublicId(projectPublicId);
@@ -90,6 +148,14 @@ public class TaskService {
     return task;
   }
 
+  /**
+   * 指定したタスクの子タスクを作成します。
+   *
+   * @param request      タスク作成リクエスト
+   * @param taskPublicId 親タスクの公開ID
+   * @return 作成された子タスク情報
+   * @throws RecordNotFoundException 親タスクが存在しない場合
+   */
   @Transactional
   public Task createSubtask(TaskRequest request, String taskPublicId) {
     Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
@@ -103,6 +169,14 @@ public class TaskService {
     return task;
   }
 
+  /**
+   * プロジェクト情報を更新します。
+   *
+   * @param request         プロジェクト更新リクエスト
+   * @param projectPublicId プロジェクトの公開ID
+   * @return 更新後のプロジェクト情報
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Transactional
   public Project updateProject(ProjectRequest request, String projectPublicId) {
 
@@ -116,6 +190,14 @@ public class TaskService {
     return repository.findProjectByProjectPublicId(projectPublicId);
   }
 
+  /**
+   * タスク情報を更新します。
+   *
+   * @param request      タスク更新リクエスト
+   * @param taskPublicId タスクの公開ID
+   * @return 更新後のタスク情報
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId) {
 
@@ -129,29 +211,51 @@ public class TaskService {
     return repository.findTaskByTaskPublicId(taskPublicId);
   }
 
+  /**
+   * プロジェクトを削除します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Transactional
   public void deleteProject(String projectPublicId) {
-    // 削除対象のnullチェック
     if (repository.findProjectIdByProjectPublicId(projectPublicId) == null) {
       throw new RecordNotFoundException("project not found");
     }
     repository.deleteProject(projectPublicId);
   }
 
+  /**
+   * タスクを削除します。
+   *
+   * @param taskPublicId タスクの公開ID
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Transactional
   public void deleteTask(String taskPublicId) {
-    // 削除対象のnullチェック
     if (repository.findTaskIdByTaskPublicId(taskPublicId) == null) {
       throw new RecordNotFoundException("task not found");
     }
     repository.deleteTask(taskPublicId);
   }
 
+  /**
+   * 対象の公開IDユーザーの存在確認を行います。
+   *
+   * @return 該当ユーザーの内部ID
+   * @throws RecordNotFoundException ユーザーが存在しない場合
+   */
   private Integer requireUserIdByPublicId(String userPublicId) {
     return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
         .orElseThrow(() -> new RecordNotFoundException("user not found"));
   }
 
+  /**
+   * 対象の公開IDプロジェクトの存在確認を行います。
+   *
+   * @return 該当プロジェクトの内部ID
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   private Integer requireProjectIdByPublicId(String projectPublicId) {
     return Optional.ofNullable(repository.findProjectIdByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
