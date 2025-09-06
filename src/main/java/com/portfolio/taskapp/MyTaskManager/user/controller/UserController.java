@@ -45,7 +45,7 @@ public class UserController {
   @Operation(
       summary = "ユーザーアカウント情報の取得",
       description = "ユーザーアカウント情報を取得します。",
-      security = @SecurityRequirement(name = "basicAuth"),
+      security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -90,7 +90,7 @@ public class UserController {
   @Operation(
       summary = "ユーザー情報の更新",
       description = "認証情報以外のユーザー情報を更新します。",
-      security = @SecurityRequirement(name = "basicAuth"),
+      security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -118,7 +118,7 @@ public class UserController {
   @Operation(
       summary = "メルアドレスの更新",
       description = "アカウント情報（認証情報）のメルアドレスのみを更新します。",
-      security = @SecurityRequirement(name = "basicAuth"),
+      security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -146,7 +146,7 @@ public class UserController {
   @Operation(
       summary = "パスワードの更新",
       description = "アカウント情報（認証情報）のパスワードのみを更新します。",
-      security = @SecurityRequirement(name = "basicAuth"),
+      security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
@@ -175,7 +175,7 @@ public class UserController {
   @Operation(
       summary = "ユーザーアカウントの削除",
       description = "アカウント情報からユーザーアカウントを論理削除します",
-      security = @SecurityRequirement(name = "basicAuth"),
+      security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "204",
