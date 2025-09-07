@@ -4,21 +4,22 @@
 
 <mapper namespace="com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository">
 
-  <select id="findUserIdByUserPublicId"
-    parameterType="String"
-    resultType="Integer">
+  <select id="findUserIdByUserPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM user_accounts
-    WHERE public_id =#{userPublicId} AND is_deleted = false
+    WHERE public_id =#{userPublicId}
+    AND is_deleted = false
   </select>
 
   <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM projects
-    WHERE public_id =#{projectPublicId} AND is_deleted = false
+    WHERE public_id =#{projectPublicId}
+    AND is_deleted = false
   </select>
 
   <select id="findTaskIdByTaskPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM tasks
-    WHERE public_id =#{taskPublicId} AND is_deleted = false
+    WHERE public_id =#{taskPublicId}
+    AND is_deleted = false
   </select>
 
   <select id="findProjectsByUserId"
@@ -61,17 +62,17 @@
   <!--プロジェクト登録-->
   <insert id="createProject" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
-    INSERT INTO projects (user_id, public_id, project_caption, description, status)
-    VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status})
+    INSERT INTO projects (user_id, public_id, project_caption, description, status, is_deleted)
+    VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status}, false)
   </insert>
 
   <!--タスク登録-->
   <insert id="createTask" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     INSERT INTO tasks (project_id, public_id, parent_task_id, task_caption, description,
-    due_date, estimated_time, actual_time, progress, priority)
+    due_date, estimated_time, actual_time, progress, priority, is_deleted)
     VALUES (#{projectId}, #{publicId}, #{parentTaskId}, #{taskCaption}, #{description},
-    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority})
+    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority}, false)
   </insert>
 
   <!--更新処理-->
