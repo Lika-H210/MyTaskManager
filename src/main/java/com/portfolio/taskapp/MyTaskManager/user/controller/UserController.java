@@ -3,6 +3,7 @@ package com.portfolio.taskapp.MyTaskManager.user.controller;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.user.dto.AccountRegisterRequest;
 import com.portfolio.taskapp.MyTaskManager.user.dto.AccountResponse;
 import com.portfolio.taskapp.MyTaskManager.user.dto.update.AccountEmailUpdateRequest;
@@ -30,18 +31,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * ユーザーアカウントに関する REST API を提供するコントローラクラス。
+ * <p>
+ * アカウント情報に対するCRUD処理を行います。<br> 基本的にレスポンスには AccountResponse を利用します。
+ */
 @RestController
 @RequestMapping("/users")
 @Validated
 public class UserController {
 
-  private UserService service;
+  private final UserService service;
 
   @Autowired
   public UserController(UserService service) {
     this.service = service;
   }
 
+  /**
+   * ログイン中のユーザーアカウント情報を取得します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @return ログイン中ユーザーのアカウント情報
+   */
   @Operation(
       summary = "ユーザーアカウント情報の取得",
       description = "ユーザーアカウント情報を取得します。",
@@ -62,6 +74,13 @@ public class UserController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * 新規ユーザーアカウントを登録します。
+   *
+   * @param request アカウント登録リクエスト
+   * @return 登録成功メッセージ
+   * @throws NotUniqueException 入力されたメールアドレスが既に使用されている場合
+   */
   @Operation(
       summary = "ユーザーアカウントの登録",
       description = "新しいユーザーアカウントを登録します。登録後はログインが可能になります。",
@@ -87,6 +106,13 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.CREATED).body("登録に成功しました。");
   }
 
+  /**
+   * 認証情報以外のユーザー基本情報を更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     ユーザー情報の更新内容
+   * @return 公開IDと更新後の基本情報を含むアカウント情報
+   */
   @Operation(
       summary = "ユーザー情報の更新",
       description = "認証情報以外のユーザー情報を更新します。",
@@ -115,6 +141,14 @@ public class UserController {
     return ResponseEntity.ok(updateAccount);
   }
 
+  /**
+   * ユーザーのメールアドレスを更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     メールアドレス更新リクエスト
+   * @return 公開IDと更新後のメールアドレスを含むアカウント情報
+   * @throws NotUniqueException 更新メールアドレスが既に他ユーザーに使用されている場合
+   */
   @Operation(
       summary = "メルアドレスの更新",
       description = "アカウント情報（認証情報）のメルアドレスのみを更新します。",
@@ -143,6 +177,14 @@ public class UserController {
     return ResponseEntity.ok(updateAccount);
   }
 
+  /**
+   * ユーザーのパスワードを更新します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     パスワードの更新リクエスト
+   * @return 公開IDのみを含むアカウント情報。（更新されたパスワード情報は含みません）
+   * @throws InvalidPasswordChangeException 現在のパスワードが一致しない場合
+   */
   @Operation(
       summary = "パスワードの更新",
       description = "アカウント情報（認証情報）のパスワードのみを更新します。",
@@ -172,6 +214,15 @@ public class UserController {
     return ResponseEntity.ok(updateAccount);
   }
 
+  /**
+   * ユーザーアカウントを削除します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     HTTP サーブレットリクエスト（ログアウト処理に使用）
+   * @return 削除成功時はレスポンスボディなし
+   * @throws RecordNotFoundException 指定されたユーザーが存在しない場合
+   * @throws ServletException        ログアウト処理で例外が発生した場合
+   */
   @Operation(
       summary = "ユーザーアカウントの削除",
       description = "アカウント情報からユーザーアカウントを論理削除します",
