@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.task.mapper;
+package com.portfolio.taskapp.MyTaskManager.task.service.mapper;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;

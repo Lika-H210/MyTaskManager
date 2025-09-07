@@ -6,9 +6,9 @@ import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundExcept
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
-import com.portfolio.taskapp.MyTaskManager.task.mapper.ProjectTaskMapper;
 import com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository;
 import com.portfolio.taskapp.MyTaskManager.task.service.converter.TaskConverter;
+import com.portfolio.taskapp.MyTaskManager.task.service.mapper.ProjectTaskMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

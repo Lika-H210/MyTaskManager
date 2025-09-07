@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.user.mapper;
+package com.portfolio.taskapp.MyTaskManager.user.service.mapper;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.dto.AccountRegisterRequest;
