@@ -13,6 +13,7 @@
     WHERE email =#{email} AND is_deleted = false
   </select>
 
+  <!-- アカウント情報の取得（パスワードは含まない） -->
   <select id="findAccountByPublicId" parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
     SELECT public_id, user_name, email, created_at, updated_at
