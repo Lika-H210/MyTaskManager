@@ -4,23 +4,28 @@
 
 <mapper namespace="com.portfolio.taskapp.MyTaskManager.task.repository.TaskRepository">
 
-  <select id="findUserIdByUserPublicId"
-    parameterType="String"
-    resultType="Integer">
+  <!-- ユーザー公開IDに紐づくユーザー内部ID -->
+  <select id="findUserIdByUserPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM user_accounts
-    WHERE public_id =#{userPublicId} AND is_deleted = false
+    WHERE public_id =#{userPublicId}
+    AND is_deleted = false
   </select>
 
+  <!-- プロジェクト公開IDに紐づくプロジェクト内部ID -->
   <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM projects
-    WHERE public_id =#{projectPublicId} AND is_deleted = false
+    WHERE public_id =#{projectPublicId}
+    AND is_deleted = false
   </select>
 
+  <!-- タスク公開IDに紐づくタスク内部ID -->
   <select id="findTaskIdByTaskPublicId" parameterType="String" resultType="Integer">
     SELECT id FROM tasks
-    WHERE public_id =#{taskPublicId} AND is_deleted = false
+    WHERE public_id =#{taskPublicId}
+    AND is_deleted = false
   </select>
 
+  <!-- プロジェクト一覧取得 -->
   <select id="findProjectsByUserId"
     parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
@@ -29,6 +34,7 @@
     AND is_deleted = false
   </select>
 
+  <!-- タスク一覧取得 -->
   <select id="findTasksByProjectId" parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
@@ -36,6 +42,7 @@
     AND is_deleted = false
   </select>
 
+  <!-- 親タスクに紐づくタスク一覧取得(親と子両方) -->
   <select id="findTasksByTaskId" parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
@@ -43,6 +50,7 @@
     AND is_deleted = false
   </select>
 
+  <!-- 単独プロジェクト取得 -->
   <select id="findProjectByProjectPublicId" parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     SELECT * FROM projects
@@ -50,6 +58,7 @@
     AND is_deleted = false
   </select>
 
+  <!-- 単独タスク取得 -->
   <select id="findTaskByTaskPublicId" parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     SELECT * FROM tasks
@@ -57,25 +66,23 @@
     AND is_deleted = false
   </select>
 
-  <!--登録処理-->
-  <!--プロジェクト登録-->
+  <!-- プロジェクト登録 -->
   <insert id="createProject" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
-    INSERT INTO projects (user_id, public_id, project_caption, description, status)
-    VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status})
+    INSERT INTO projects (user_id, public_id, project_caption, description, status, is_deleted)
+    VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status}, false)
   </insert>
 
-  <!--タスク登録-->
+  <!-- タスク登録 -->
   <insert id="createTask" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     INSERT INTO tasks (project_id, public_id, parent_task_id, task_caption, description,
-    due_date, estimated_time, actual_time, progress, priority)
+    due_date, estimated_time, actual_time, progress, priority, is_deleted)
     VALUES (#{projectId}, #{publicId}, #{parentTaskId}, #{taskCaption}, #{description},
-    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority})
+    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority}, false)
   </insert>
 
-  <!--更新処理-->
-  <!--プロジェクト更新-->
+  <!-- プロジェクト更新 -->
   <update id="updateProject"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     UPDATE projects
@@ -87,7 +94,7 @@
     AND is_deleted = false
   </update>
 
-  <!--タスク更新-->
+  <!-- タスク更新 -->
   <update id="updateTask" parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
     UPDATE tasks
     SET
@@ -103,8 +110,7 @@
     AND is_deleted = false
   </update>
 
-  <!--論理削除-->
-  <!--プロジェクトの論理削除-->
+  <!-- プロジェクトの論理削除 -->
   <update id="deleteProject" parameterType="String">
     UPDATE projects
     SET is_deleted = true
@@ -112,7 +118,7 @@
     AND is_deleted = false
   </update>
 
-  <!--タスクの論理削除-->
+  <!-- タスクの論理削除 -->
   <update id="deleteTask" parameterType="String">
     UPDATE tasks
     SET is_deleted = true
