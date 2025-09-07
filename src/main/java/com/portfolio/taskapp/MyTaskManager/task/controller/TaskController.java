@@ -3,6 +3,7 @@ package com.portfolio.taskapp.MyTaskManager.task.controller;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
@@ -30,17 +31,28 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * プロジェクトおよびタスクに関する REST API を提供するコントローラクラス。
+ * <p>
+ * 認証済みユーザーのプロジェクト・タスクに対するCRUD処理を行います。
+ */
 @RestController
 @Validated
 public class TaskController {
 
-  private TaskService service;
+  private final TaskService service;
 
   @Autowired
   public TaskController(TaskService service) {
     this.service = service;
   }
 
+  /**
+   * 認証済みユーザーに紐づくプロジェクト一覧を取得します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @return ログイン中ユーザーに紐づくプロジェクトのリスト
+   */
   @Operation(
       summary = "ユーザープロジェクトの一覧取得",
       description = "認証されたユーザーに紐づくプロジェクト情報の一覧を取得します",
@@ -64,6 +76,13 @@ public class TaskController {
     return service.getUserProjects(userDetails.getAccount().getPublicId());
   }
 
+  /**
+   * 指定した公開IDに紐づくプロジェクトを取得します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @return プロジェクト情報
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Operation(
       summary = "プロジェクトの単体取得",
       description = "プロジェクトの公開Idに紐づくプロジェクト情報を取得します",
@@ -92,9 +111,16 @@ public class TaskController {
     return ResponseEntity.ok(project);
   }
 
+  /**
+   * 指定したプロジェクトに紐づくタスクを、親子関係の階層構造を単位とする一覧として取得します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @return 親子タスクのリスト
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Operation(
       summary = "プロジェクトの親子タスク一覧取得",
-      description = "プロジェクトのid情報に紐づく全親子タスク情報の一覧を取得します。",
+      description = "プロジェクトに紐づくタスクを、親子関係の階層構造を単位とする一覧として取得します。",
       security = @SecurityRequirement(name = "userAuth"),
       parameters = {
           @Parameter(
@@ -128,9 +154,16 @@ public class TaskController {
     return service.getTasksByProjectPublicId(projectPublicId);
   }
 
+  /**
+   * 指定した親タスクの公開IDに紐づくタスクを、親子関係の階層構造で取得します。
+   *
+   * @param taskPublicId 親タスクの公開ID（UUID形式）
+   * @return 親子タスク
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Operation(
       summary = "単独の親子タスク取得",
-      description = "親タスクと当該親タスクに紐づく全子タスク情報を取得します。",
+      description = "親タスクの公開IDに紐づくタスクを、親子関係の階層構造で取得します。",
       security = @SecurityRequirement(name = "userAuth"),
       parameters = {
           @Parameter(
@@ -164,6 +197,13 @@ public class TaskController {
     return service.getTaskTreeByTaskPublicId(taskPublicId);
   }
 
+  /**
+   * 指定した公開IDに紐づく単体タスクを取得します。
+   *
+   * @param taskPublicId タスクの公開ID（UUID形式）
+   * @return タスク情報
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Operation(
       summary = "タスクの単体取得",
       description = "タスクの公開Idに紐づくタスク情報を取得します",
@@ -192,6 +232,14 @@ public class TaskController {
     return ResponseEntity.ok(task);
   }
 
+  /**
+   * 認証済みユーザーの新規プロジェクトを登録します。
+   *
+   * @param userDetails 現在認証済みのユーザー情報
+   * @param request     プロジェクト登録リクエスト
+   * @return 作成されたプロジェクト情報
+   * @throws RecordNotFoundException ユーザーが存在しない場合
+   */
   @Operation(
       summary = "新規プロジェクト登録",
       description = "認証されたユーザーに紐づく新規のプロジェクトを登録します。",
@@ -223,6 +271,14 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.CREATED).body(project);
   }
 
+  /**
+   * 新規の親タスクを登録します。
+   *
+   * @param projectPublicId 親タスクと紐づくプロジェクトの公開ID
+   * @param request         親タスク登録リクエスト
+   * @return 作成された親タスク情報
+   * @throws RecordNotFoundException 親タスクと紐づくプロジェクトが存在しない場合
+   */
   @Operation(
       summary = "新規の親タスク登録",
       description = "新規の親タスクを登録します",
@@ -266,6 +322,14 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
+  /**
+   * 新規の子タスクを登録します。
+   *
+   * @param taskPublicId 親タスクの公開ID
+   * @param request      子タスク登録リクエスト
+   * @return 作成された子タスク情報
+   * @throws RecordNotFoundException 親タスクが存在しない場合
+   */
   @Operation(
       summary = "新規の子タスク登録",
       description = "新規の子タスクを登録します",
@@ -309,6 +373,14 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
+  /**
+   * 既存のプロジェクトを更新します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @param request         プロジェクトの更新用リクエスト
+   * @return 更新後のプロジェクト情報
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Operation(
       summary = "プロジェクト更新",
       description = "既存プロジェクトの内容を更新します。",
@@ -352,6 +424,14 @@ public class TaskController {
     return ResponseEntity.ok(project);
   }
 
+  /**
+   * 既存のタスクを更新します。
+   *
+   * @param taskPublicId タスクの公開ID
+   * @param request      タスクの更新用リクエスト
+   * @return 更新後のタスク情報
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Operation(
       summary = "タスク更新",
       description = "既存タスクの内容を更新します。",
@@ -395,6 +475,13 @@ public class TaskController {
     return ResponseEntity.ok(task);
   }
 
+  /**
+   * プロジェクトを論理削除します。
+   *
+   * @param projectPublicId プロジェクトの公開ID
+   * @return 空レスポンス（204 No Content）
+   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   */
   @Operation(
       summary = "プロジェクトの削除",
       description = "プロジェクトを論理削除します。",
@@ -429,6 +516,13 @@ public class TaskController {
     return ResponseEntity.noContent().build();
   }
 
+  /**
+   * タスクを論理削除します。
+   *
+   * @param taskPublicId タスクの公開ID（UUID形式）
+   * @return 空レスポンス（204 No Content）
+   * @throws RecordNotFoundException タスクが存在しない場合
+   */
   @Operation(
       summary = "タスクの削除",
       description = "タスクを論理削除します。",
