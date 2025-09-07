@@ -12,7 +12,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@SecurityScheme(name = "basicAuth", type = SecuritySchemeType.HTTP, scheme = "basic")
+@SecurityScheme(name = "userAuth", type = SecuritySchemeType.HTTP, scheme = "basic",
+    description = "Swagger UI上ではHTTP Basicとして表示されますが、実際には現在はセッション認証です。")
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
