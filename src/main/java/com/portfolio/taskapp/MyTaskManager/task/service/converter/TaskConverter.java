@@ -8,11 +8,19 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
+/**
+ * コントローラー層からフロントエンドへ返却するためのデータ構造になる様に変換を担うコンバータ。
+ */
 @Component
 public class TaskConverter {
 
+  /**
+   * タスクリストを、親子関係を示す構造(TaskTree)に変換しリスト化します。
+   *
+   * @param taskList タスクの一覧（null または空リストでも可）
+   * @return 親子タスク(TaskTree)の一覧、パラメータが null または空の場合は空リスト
+   */
   public List<TaskTree> convertToTaskTreeList(List<Task> taskList) {
-    //taskListが空の場合
     if (taskList == null || taskList.isEmpty()) {
       return Collections.emptyList();
     }
