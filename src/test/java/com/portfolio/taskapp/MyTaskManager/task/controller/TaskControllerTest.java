@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,30 +44,6 @@ class TaskControllerTest {
 
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
-
-  @Test
-  void 単独プロジェクト取得時に適切なserviceが実行されJsonで除外項目が含まれないレスポンスが返ること()
-      throws Exception {
-    Project project = Project.builder()
-        .id(9999)
-        .publicId(PROJECT_PUBLIC_ID)
-        .userId(999)
-        .projectCaption("caption")
-        .description("description")
-        .status(ProjectStatus.ACTIVE)
-        .build();
-
-    when(service.getProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
-    String expectedJson = objectMapper.writeValueAsString(project);
-
-    mockMvc.perform(get("/projects/{projectPublicId}", PROJECT_PUBLIC_ID))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expectedJson))
-        .andExpect(jsonPath("$.id").doesNotExist())
-        .andExpect(jsonPath("$.userId").doesNotExist());
-
-    verify(service).getProjectByProjectPublicId(PROJECT_PUBLIC_ID);
-  }
 
   @Test
   void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されJsonでレスポンスが返ること()

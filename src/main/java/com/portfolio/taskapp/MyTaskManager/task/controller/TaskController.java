@@ -79,6 +79,7 @@ public class TaskController {
   /**
    * 指定した公開IDに紐づくプロジェクトを取得します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return プロジェクト情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
@@ -103,11 +104,13 @@ public class TaskController {
   )
   @GetMapping("/projects/{projectPublicId}")
   public ResponseEntity<Project> getProject(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    Project project = service.getProjectByProjectPublicId(projectPublicId);
+    Project project = service.getProjectByProjectPublicId(projectPublicId,
+        userDetails.getAccount().getId());
     return ResponseEntity.ok(project);
   }
 
