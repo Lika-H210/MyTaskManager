@@ -51,10 +51,11 @@
   </select>
 
   <!-- 単独プロジェクト取得 -->
-  <select id="findProjectByProjectPublicId" parameterType="String"
+  <select id="findProjectByProjectPublicId"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     SELECT * FROM projects
     WHERE public_id = #{projectPublicId}
+    AND user_id = #{userId}
     AND is_deleted = false
   </select>
 

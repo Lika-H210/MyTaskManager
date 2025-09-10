@@ -40,6 +40,7 @@ class TaskServiceTest {
 
   private TaskService sut;
 
+  private static final Integer USER_ID = 999;
   private static final String USER_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
   private static final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-000000000001";
   private static final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-000000000002";
@@ -79,19 +80,19 @@ class TaskServiceTest {
   @Test
   void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
     Project project = new Project();
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID)).thenReturn(project);
 
-    sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
 
-    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
   }
 
   // 単独プロジェクト取得：異常系
   @Test
   void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("project not found");
   }
@@ -285,7 +286,6 @@ class TaskServiceTest {
 
     verify(mapper).toProject(request, null, PROJECT_PUBLIC_ID);
     verify(repository).updateProject(project);
-    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   // プロジェクト更新処理：異常系(404:更新対象のレコードがない場合)
@@ -300,8 +300,6 @@ class TaskServiceTest {
     assertThatThrownBy(() -> sut.updateProject(request, PROJECT_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("project not found");
-
-    verify(repository, never()).findProjectByProjectPublicId(any());
   }
 
   // タスク更新処理

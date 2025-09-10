@@ -55,8 +55,8 @@ public class TaskService {
    * @return プロジェクト情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
-  public Project getProjectByProjectPublicId(String projectPublicId) {
-    return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
+  public Project getProjectByProjectPublicId(String projectPublicId, Integer userId) {
+    return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId, userId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
   }
 
@@ -187,7 +187,7 @@ public class TaskService {
       throw new RecordNotFoundException("project not found");
     }
 
-    return repository.findProjectByProjectPublicId(projectPublicId);
+    return project;
   }
 
   /**

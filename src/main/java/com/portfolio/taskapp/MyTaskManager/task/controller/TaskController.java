@@ -103,11 +103,13 @@ public class TaskController {
   )
   @GetMapping("/projects/{projectPublicId}")
   public ResponseEntity<Project> getProject(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    Project project = service.getProjectByProjectPublicId(projectPublicId);
+    Project project = service.getProjectByProjectPublicId(projectPublicId,
+        userDetails.getAccount().getId());
     return ResponseEntity.ok(project);
   }
 

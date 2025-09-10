@@ -4,15 +4,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
@@ -45,9 +48,13 @@ class TaskControllerIntegrationTest {
 
   private UserAccountDetails userDetails;
 
+  private final Integer USER_ID = 999;
+  private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
+
   @BeforeEach
   void setUpAuthentication() {
     UserAccount mockAccount = UserAccount.builder()
+        .id(USER_ID)
         .publicId("00000000-0000-0000-0000-000000000000")
         .build();
     userDetails = new UserAccountDetails(mockAccount);
@@ -60,6 +67,31 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isOk());
 
     verify(service).getUserProjects(userDetails.getAccount().getPublicId());
+  }
+
+  @Test
+  void 単独プロジェクト取得時に適切なserviceが実行されJsonで除外項目が含まれないレスポンスが返ること()
+      throws Exception {
+    Project project = Project.builder()
+        .id(9999)
+        .publicId(PROJECT_PUBLIC_ID)
+        .userId(USER_ID)
+        .projectCaption("caption")
+        .description("description")
+        .status(ProjectStatus.ACTIVE)
+        .build();
+
+    when(service.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID)).thenReturn(project);
+    String expectedJson = objectMapper.writeValueAsString(project);
+
+    mockMvc.perform(get("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(expectedJson))
+        .andExpect(jsonPath("$.id").doesNotExist())
+        .andExpect(jsonPath("$.userId").doesNotExist());
+
+    verify(service).getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
   }
 
   @Test
