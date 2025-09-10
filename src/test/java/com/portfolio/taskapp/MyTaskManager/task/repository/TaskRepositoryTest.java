@@ -113,10 +113,9 @@ class TaskRepositoryTest {
 
   @Test
   void projectPublicIdに紐づくプロジェクトの情報が取得できること() {
-    Integer userId = 1;
     String projectPublicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
 
-    Project actual = sut.findProjectByProjectPublicId(projectPublicId, userId);
+    Project actual = sut.findProjectByProjectPublicId(projectPublicId);
 
     assertThat(actual).isNotNull();
     assertThat(actual.getPublicId()).isEqualTo(projectPublicId);
@@ -124,20 +123,9 @@ class TaskRepositoryTest {
 
   @Test
   void projectPublicIdに紐づくプロジェクトが論理削除済みの場合に情報が取得できないこと() {
-    Integer userId = 1;
     String projectPublicId = "a3333333-bbbb-cccc-dddd-eeeeeeeeeeee";
 
-    Project actual = sut.findProjectByProjectPublicId(projectPublicId, userId);
-
-    assertThat(actual).isNull();
-  }
-
-  @Test
-  void projectPublicIdに紐づくプロジェクト取得時にプロジェクトのuserIdとリクエストのuserIdが一致しない場合はプロジェクトを取得できないこと() {
-    Integer userId = 2;
-    String projectPublicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
-
-    Project actual = sut.findProjectByProjectPublicId(projectPublicId, userId);
+    Project actual = sut.findProjectByProjectPublicId(projectPublicId);
 
     assertThat(actual).isNull();
   }
@@ -163,10 +151,9 @@ class TaskRepositoryTest {
 
   @Test
   void プロジェクト登録処理で新規のプロジェクトが登録されDBでの内容も反映できていること() {
-    Integer userId = 1;
     String publicId = "00000000-0000-0000-0000-000000000000";
     Project project = Project.builder()
-        .userId(userId)
+        .userId(1)
         .publicId(publicId)
         .projectCaption("テストプロジェクト")
         .description("説明")
@@ -175,7 +162,7 @@ class TaskRepositoryTest {
 
     sut.createProject(project);
 
-    Project actual = sut.findProjectByProjectPublicId(publicId, userId);
+    Project actual = sut.findProjectByProjectPublicId(publicId);
 
     assertThat(actual)
         .usingRecursiveComparison()
@@ -215,7 +202,6 @@ class TaskRepositoryTest {
 
   @Test
   void プロジェクトの更新処理で必要な項目が更新されていること() {
-    Integer userId = 1;
     String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
     Project project = Project.builder()
         .publicId(publicId)
@@ -226,7 +212,7 @@ class TaskRepositoryTest {
 
     sut.updateProject(project);
 
-    Project actual = sut.findProjectByProjectPublicId(publicId, userId);
+    Project actual = sut.findProjectByProjectPublicId(publicId);
 
     assertThat(actual)
         .usingRecursiveComparison()
@@ -249,10 +235,10 @@ class TaskRepositoryTest {
 
   @Test
   void プロジェクトの更新対象でない項目は更新されないこと() {
-    Integer userId = 1;
     String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
     Project project = Project.builder()
         .id(999)
+        .userId(999)
         .publicId(publicId)
         .projectCaption("必須項目") // 必須制約のため入力（検証対象外）
         .createdAt(LocalDateTime
@@ -261,13 +247,13 @@ class TaskRepositoryTest {
         .build();
 
     // 更新前情報の取得
-    Project beforeProject = sut.findProjectByProjectPublicId(publicId, userId);
+    Project beforeProject = sut.findProjectByProjectPublicId(publicId);
 
     // 実行
     sut.updateProject(project);
 
     // 更新情報の取得
-    Project actual = sut.findProjectByProjectPublicId(publicId, userId);
+    Project actual = sut.findProjectByProjectPublicId(publicId);
 
     assertThat(actual)
         .usingRecursiveComparison()

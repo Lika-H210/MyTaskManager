@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -52,12 +53,21 @@ public class TaskService {
    * プロジェクトの公開IDからプロジェクトを取得します。
    *
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return プロジェクト情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   public Project getProjectByProjectPublicId(String projectPublicId, Integer userId) {
-    return Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId, userId))
+    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
+
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("project not found");
+    }
+
+    return project;
   }
 
   /**

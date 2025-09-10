@@ -79,6 +79,7 @@ public class TaskController {
   /**
    * 指定した公開IDに紐づくプロジェクトを取得します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return プロジェクト情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合

@@ -71,8 +71,7 @@ public interface TaskRepository {
    * @param projectPublicId プロジェクト公開ID
    * @return 該当プロジェクト、存在しない場合は null
    */
-  Project findProjectByProjectPublicId(@Param("projectPublicId") String projectPublicId,
-      @Param("userId") Integer userId);
+  Project findProjectByProjectPublicId(@Param("projectPublicId") String projectPublicId);
 
   /**
    * 指定されたタスク公開IDに紐づくタスクを取得します。

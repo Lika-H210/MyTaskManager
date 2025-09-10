@@ -80,17 +80,17 @@ class TaskServiceTest {
   @Test
   void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
     Project project = new Project();
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID)).thenReturn(project);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
     sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
 
-    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
   // 単独プロジェクト取得：異常系
   @Test
   void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID)).thenReturn(null);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
 
     assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
