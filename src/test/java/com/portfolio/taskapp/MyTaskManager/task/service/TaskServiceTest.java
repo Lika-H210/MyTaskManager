@@ -244,6 +244,7 @@ class TaskServiceTest {
     Integer taskId = 99999;
     Task parentTask = Task.builder()
         .id(taskId)
+        .userAccountId(USER_ID)
         .projectId(projectId)
         .build();
     TaskRequest request = new TaskRequest();
@@ -252,7 +253,7 @@ class TaskServiceTest {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID);
+    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
@@ -268,7 +269,7 @@ class TaskServiceTest {
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessageContaining("task not found");
 

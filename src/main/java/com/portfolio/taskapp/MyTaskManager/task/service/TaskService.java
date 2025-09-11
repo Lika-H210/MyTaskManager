@@ -164,13 +164,20 @@ public class TaskService {
    *
    * @param request      タスク作成リクエスト
    * @param taskPublicId 親タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return 作成された子タスク情報
    * @throws RecordNotFoundException 親タスクが存在しない場合
    */
   @Transactional
-  public Task createSubtask(TaskRequest request, String taskPublicId) {
+  public Task createSubtask(TaskRequest request, String taskPublicId, Integer userId) {
     Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("parent task not found"));
+
+    // 不正アクセスチェック
+    if (!parentTask.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on parent task");
+    }
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toSubtask(request, parentTask, publicId);

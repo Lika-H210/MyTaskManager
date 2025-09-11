@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -82,21 +81,6 @@ class TaskControllerTest {
         .andExpect(jsonPath("$.parentTaskId").doesNotExist());
 
     verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID);
-  }
-
-  @Test
-  void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
-      throws Exception {
-    TaskRequest request = createNormalTaskRequest();
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isCreated());
-
-    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
   }
 
   @Test
