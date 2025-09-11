@@ -26,7 +26,11 @@ public class Task {
   @JsonIgnore
   private Integer id;
 
-  @Schema(description = "所属プロジェクト")
+  @Schema(description = "タスクを保有するユーザーのID")
+  @JsonIgnore
+  private Integer userAccountId;
+
+  @Schema(description = "所属プロジェクトのID")
   @JsonIgnore
   private Integer projectId;
 

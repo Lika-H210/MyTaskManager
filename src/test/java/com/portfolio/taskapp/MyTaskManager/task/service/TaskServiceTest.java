@@ -219,17 +219,19 @@ class TaskServiceTest {
   // 親タスク登録処理：正常系
   @Test
   void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    Integer projectId = 9999;
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
-    when(mapper.toTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(mapper.toTask(eq(request), eq(project), any(String.class))).thenReturn(task);
 
-    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID);
+    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID, USER_ID);
 
-    verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
-    verify(mapper).toTask(eq(request), eq(projectId), any(String.class));
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(mapper).toTask(eq(request), eq(project), any(String.class));
     verify(repository).createTask(task);
 
     assertThat(actual).isEqualTo(task);

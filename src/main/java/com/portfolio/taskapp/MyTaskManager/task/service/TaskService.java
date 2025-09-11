@@ -64,7 +64,7 @@ public class TaskService {
     // 不正アクセスチェック
     if (!project.getUserId().equals(userId)) {
       // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("project not found");
+      throw new AccessDeniedException("no permission on project");
     }
 
     return project;
@@ -143,15 +143,16 @@ public class TaskService {
    *
    * @param request         タスク作成リクエスト
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 作成されたタスク情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
-  public Task createParentTask(TaskRequest request, String projectPublicId) {
-    Integer projectId = requireProjectIdByPublicId(projectPublicId);
+  public Task createParentTask(TaskRequest request, String projectPublicId, Integer userId) {
+    Project project = getProjectByProjectPublicId(projectPublicId, userId);
 
     String publicId = UUID.randomUUID().toString();
-    Task task = mapper.toTask(request, projectId, publicId);
+    Task task = mapper.toTask(request, project, publicId);
 
     repository.createTask(task);
 

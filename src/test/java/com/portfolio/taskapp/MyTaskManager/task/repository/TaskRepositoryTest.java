@@ -176,6 +176,7 @@ class TaskRepositoryTest {
   void タスクの登録処理で新規のタスクが登録されDB付与の内容も反映できていること() {
     String publicId = "00000000-0000-0000-0000-000000000000";
     Task task = Task.builder()
+        .userAccountId(1)
         .projectId(1)
         .publicId(publicId)
         .parentTaskId(1)
