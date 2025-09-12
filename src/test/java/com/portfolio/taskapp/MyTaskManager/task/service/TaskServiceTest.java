@@ -243,7 +243,7 @@ class TaskServiceTest {
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
     when(mapper.toTask(eq(request), eq(project), any(String.class))).thenReturn(task);
 
-    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID);
+    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID, USER_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toTask(eq(request), eq(project), any(String.class));

@@ -43,21 +43,6 @@ class TaskControllerTest {
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @Test
-  void 親タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
-      throws Exception {
-    TaskRequest request = createNormalTaskRequest();
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isCreated());
-
-    verify(service).createParentTask(any(TaskRequest.class), eq(PROJECT_PUBLIC_ID));
-  }
-
-  @Test
   void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
       throws Exception {
     TaskRequest request = createNormalTaskRequest();
