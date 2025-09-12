@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * プロジェクトおよびタスクに関するビジネスロジックを提供するサービスクラス。
  * <p>
- * DBアクセスは TaskRepository を介して行い、<br> 表示用の構造変換には TaskConverter、エンティティとDTO間の変換には ProjectTaskMapper
- * を利用します。<br>
+ * DBアクセスは TaskRepository を介して行い、表示用の構造変換には TaskConverter、エンティティとDTO間の変換には ProjectTaskMapper
+ * を利用します。
  */
 @Service
 public class TaskService {
@@ -51,6 +51,8 @@ public class TaskService {
 
   /**
    * プロジェクトの公開IDからプロジェクトを取得します。
+   * <p>
+   * プロジェクトが存在しない場合、または取得プロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
@@ -64,7 +66,7 @@ public class TaskService {
     // 不正アクセスチェック
     if (!project.getUserId().equals(userId)) {
       // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("project not found");
+      throw new AccessDeniedException("no permission on project");
     }
 
     return project;
@@ -72,15 +74,25 @@ public class TaskService {
 
   /**
    * プロジェクトに紐づくタスクを取得し、ツリー形式に変換して返します。
+   * <p>
+   * プロジェクトが存在しない場合、または取得プロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 親子タスク一覧
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
-  public List<TaskTree> getTasksByProjectPublicId(String projectPublicId) {
-    Integer projectId = requireProjectIdByPublicId(projectPublicId);
+  public List<TaskTree> getTasksByProjectPublicId(String projectPublicId, Integer userId) {
+    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
-    List<Task> taskList = repository.findTasksByProjectId(projectId);
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
+    }
+
+    List<Task> taskList = repository.findTasksByProjectId(project.getId());
     return converter.convertToTaskTreeList(taskList);
   }
 

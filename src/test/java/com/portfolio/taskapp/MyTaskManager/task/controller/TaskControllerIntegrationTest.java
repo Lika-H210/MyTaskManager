@@ -97,6 +97,16 @@ class TaskControllerIntegrationTest {
   }
 
   @Test
+  void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されること()
+      throws Exception {
+    mockMvc.perform(get("/projects/{projectPublicId}/task-trees", PROJECT_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isOk());
+
+    verify(service).getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
+  }
+
+  @Test
   void 単独タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
       throws Exception {
     Task task = Task.builder()

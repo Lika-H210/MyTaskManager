@@ -117,6 +117,7 @@ public class TaskController {
   /**
    * 指定したプロジェクトに紐づくタスクを、親子関係の階層構造を単位とする一覧として取得します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return 親子タスクのリスト
    * @throws RecordNotFoundException プロジェクトが存在しない場合
@@ -150,11 +151,12 @@ public class TaskController {
   )
   @GetMapping("/projects/{projectPublicId}/task-trees")
   public List<TaskTree> getTaskTreeList(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    return service.getTasksByProjectPublicId(projectPublicId);
+    return service.getTasksByProjectPublicId(projectPublicId, userDetails.getAccount().getId());
   }
 
   /**
