@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -42,15 +41,6 @@ class TaskControllerTest {
 
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
-
-  @Test
-  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること()
-      throws Exception {
-    mockMvc.perform(get("/task-trees/{taskPublicId}", TASK_PUBLIC_ID))
-        .andExpect(status().isOk());
-
-    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
-  }
 
   @Test
   void 親タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()

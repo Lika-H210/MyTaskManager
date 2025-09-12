@@ -107,6 +107,16 @@ class TaskControllerIntegrationTest {
   }
 
   @Test
+  void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること()
+      throws Exception {
+    mockMvc.perform(get("/task-trees/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isOk());
+
+    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
+  }
+
+  @Test
   void 単独タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
       throws Exception {
     Task task = Task.builder()

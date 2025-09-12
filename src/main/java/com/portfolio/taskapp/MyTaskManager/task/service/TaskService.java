@@ -99,16 +99,23 @@ public class TaskService {
   /**
    * 公開IDから単一のタスクツリーを取得します。
    *
-   * @param taskPublicId タスクの公開ID
+   * @param taskPublicId 親タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return 該当親子タスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    * @throws IllegalStateException   該当するタスクツリーが1件に特定できない場合
    */
-  public TaskTree getTaskTreeByTaskPublicId(String taskPublicId) {
-    Integer taskId = Optional.ofNullable(repository.findTaskIdByTaskPublicId(taskPublicId))
+  public TaskTree getTaskTreeByTaskPublicId(String taskPublicId, Integer userId) {
+    Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
-    List<Task> taskList = repository.findTasksByTaskId(taskId);
+    // 不正アクセスチェック
+    if (!parentTask.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on task");
+    }
+
+    List<Task> taskList = repository.findTasksByTaskId(parentTask.getId());
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
 
     if (taskTreeList.size() != 1) {
@@ -121,8 +128,8 @@ public class TaskService {
   /**
    * 公開IDから単一のタスクを取得します。
    *
-   * @param userId       リクエスト送信ユーザーの内部ID
    * @param taskPublicId タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return タスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    */
