@@ -79,7 +79,9 @@ class TaskServiceTest {
   // 単独プロジェクト取得：正常系
   @Test
   void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
-    Project project = new Project();
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
     sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
@@ -179,10 +181,12 @@ class TaskServiceTest {
   // 単独タスク取得：正常系
   @Test
   void 単独タスク取得で適切なrepositoryが呼び出せていること() {
-    Task task = new Task();
+    Task task = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
 
-    sut.getTaskByTaskPublicId(TASK_PUBLIC_ID);
+    sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
@@ -192,7 +196,7 @@ class TaskServiceTest {
   void 単独タスク取得でタスクが存在しない場合に例外がThrowされること() {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getTaskByTaskPublicId(TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("task not found");
   }

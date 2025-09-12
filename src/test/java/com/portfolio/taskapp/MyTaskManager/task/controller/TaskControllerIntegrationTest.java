@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.auth.config.SecurityConfig;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
+import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
@@ -93,6 +94,30 @@ class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.userId").doesNotExist());
 
     verify(service).getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
+  }
+
+  @Test
+  void 単独タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
+      throws Exception {
+    Task task = Task.builder()
+        .id(99999)
+        .publicId(TASK_PUBLIC_ID)
+        .userAccountId(USER_ID)
+        .projectId(9999)
+        .parentTaskId(90000)
+        .build();
+
+    when(service.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID)).thenReturn(task);
+
+    mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").doesNotExist())
+        .andExpect(jsonPath("$.userAccountId").doesNotExist())
+        .andExpect(jsonPath("$.projectId").doesNotExist())
+        .andExpect(jsonPath("$.parentTaskId").doesNotExist());
+
+    verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
   }
 
   @Test
