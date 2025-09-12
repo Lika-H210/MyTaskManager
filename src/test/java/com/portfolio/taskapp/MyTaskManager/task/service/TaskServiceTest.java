@@ -219,17 +219,19 @@ class TaskServiceTest {
   // 親タスク登録処理：正常系
   @Test
   void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
-    Integer projectId = 9999;
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
     TaskRequest request = new TaskRequest();
     Task task = new Task();
 
-    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
-    when(mapper.toTask(eq(request), eq(projectId), any(String.class))).thenReturn(task);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(mapper.toTask(eq(request), eq(project), any(String.class))).thenReturn(task);
 
     Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID);
 
-    verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
-    verify(mapper).toTask(eq(request), eq(projectId), any(String.class));
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(mapper).toTask(eq(request), eq(project), any(String.class));
     verify(repository).createTask(task);
 
     assertThat(actual).isEqualTo(task);
@@ -242,6 +244,7 @@ class TaskServiceTest {
     Integer taskId = 99999;
     Task parentTask = Task.builder()
         .id(taskId)
+        .userAccountId(USER_ID)
         .projectId(projectId)
         .build();
     TaskRequest request = new TaskRequest();
@@ -306,31 +309,32 @@ class TaskServiceTest {
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
     TaskRequest request = new TaskRequest();
+    Task currentTask = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
     Task task = new Task();
 
-    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
-    when(repository.updateTask(task)).thenReturn(1);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(currentTask);
+    when(mapper.toUpdateTask(request, currentTask)).thenReturn(task);
 
     sut.updateTask(request, TASK_PUBLIC_ID);
 
-    verify(mapper).toTask(request, null, TASK_PUBLIC_ID);
-    verify(repository).updateTask(task);
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    verify(mapper).toUpdateTask(request, currentTask);
+    verify(repository).updateTask(task);
   }
 
   @Test
   void タスク更新処理で更新対象のレコードがない場合に例外がthrowされること() {
     TaskRequest request = new TaskRequest();
-    Task task = new Task();
 
-    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
-    when(repository.updateTask(task)).thenReturn(0);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
     assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("task not found");
 
-    verify(repository, never()).findTaskByTaskPublicId(any());
+    verify(mapper, never()).toUpdateTask(any(), any());
   }
 
 }

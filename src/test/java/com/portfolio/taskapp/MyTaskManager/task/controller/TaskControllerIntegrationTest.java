@@ -50,6 +50,7 @@ class TaskControllerIntegrationTest {
 
   private final Integer USER_ID = 999;
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
+  private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @BeforeEach
   void setUpAuthentication() {

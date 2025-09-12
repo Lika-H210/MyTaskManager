@@ -176,6 +176,7 @@ class TaskRepositoryTest {
   void タスクの登録処理で新規のタスクが登録されDB付与の内容も反映できていること() {
     String publicId = "00000000-0000-0000-0000-000000000000";
     Task task = Task.builder()
+        .userAccountId(1)
         .projectId(1)
         .publicId(publicId)
         .parentTaskId(1)
@@ -307,6 +308,7 @@ class TaskRepositoryTest {
     String publicId = "11111111-aaaa-bbbb-cccc-1234567890ab";
     Task task = Task.builder()
         .id(999)
+        .userAccountId(999)
         .projectId(999)
         .publicId(publicId)
         .parentTaskId(999)
@@ -324,7 +326,8 @@ class TaskRepositoryTest {
 
     assertThat(actual)
         .usingRecursiveComparison()
-        .comparingOnlyFields("id", "projectId", "parentTaskId", "createdAt", "isDeleted")
+        .comparingOnlyFields("id", "userAccountId", "projectId", "parentTaskId", "createdAt",
+            "isDeleted")
         .isEqualTo(beforeTask);
   }
 

@@ -143,15 +143,17 @@ public class TaskService {
    *
    * @param request         タスク作成リクエスト
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 作成されたタスク情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId) {
-    Integer projectId = requireProjectIdByPublicId(projectPublicId);
+    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
     String publicId = UUID.randomUUID().toString();
-    Task task = mapper.toTask(request, projectId, publicId);
+    Task task = mapper.toTask(request, project, publicId);
 
     repository.createTask(task);
 
@@ -189,7 +191,6 @@ public class TaskService {
    */
   @Transactional
   public Project updateProject(ProjectRequest request, String projectPublicId) {
-
     Project project = mapper.toProject(request, null, projectPublicId);
     int updateRows = repository.updateProject(project);
 
@@ -210,15 +211,13 @@ public class TaskService {
    */
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId) {
+    Task currentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
-    Task task = mapper.toTask(request, null, taskPublicId);
-    int updateRows = repository.updateTask(task);
+    Task updateTask = mapper.toUpdateTask(request, currentTask);
+    repository.updateTask(updateTask);
 
-    if (updateRows == 0) {
-      throw new RecordNotFoundException("task not found");
-    }
-
-    return repository.findTaskByTaskPublicId(taskPublicId);
+    return updateTask;
   }
 
   /**
