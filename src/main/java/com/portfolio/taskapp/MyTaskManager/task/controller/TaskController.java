@@ -283,6 +283,7 @@ public class TaskController {
   /**
    * 新規の親タスクを登録します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId 親タスクと紐づくプロジェクトの公開ID
    * @param request         親タスク登録リクエスト
    * @return 作成された親タスク情報
@@ -322,12 +323,14 @@ public class TaskController {
   )
   @PostMapping("/projects/{projectPublicId}/tasks")
   public ResponseEntity<Task> createParentTask(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId,
       @Valid @RequestBody TaskRequest request) {
-    Task task = service.createParentTask(request, projectPublicId);
+    Task task = service.createParentTask(request, projectPublicId,
+        userDetails.getAccount().getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 

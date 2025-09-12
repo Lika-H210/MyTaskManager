@@ -129,6 +129,8 @@ public class TaskService {
 
   /**
    * 公開IDから単一のタスクを取得します。
+   * <p>
+   * タスクが存在しない場合、または取得タスクがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param taskPublicId タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
@@ -170,16 +172,25 @@ public class TaskService {
 
   /**
    * プロジェクト直下に親タスクを作成します。
+   * <p>
+   * 紐づけるプロジェクトが存在しない場合、または取得プロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param request         タスク作成リクエスト
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 作成されたタスク情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
-  public Task createParentTask(TaskRequest request, String projectPublicId) {
+  public Task createParentTask(TaskRequest request, String projectPublicId, Integer userId) {
     Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
+
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
+    }
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toTask(request, project, publicId);
