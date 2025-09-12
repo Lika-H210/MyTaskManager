@@ -41,6 +41,7 @@ class TaskServiceTest {
   private TaskService sut;
 
   private static final Integer USER_ID = 999;
+  private static final Integer PROJECT_ID = 9999;
   private static final String USER_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
   private static final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-000000000001";
   private static final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-000000000002";
@@ -102,25 +103,28 @@ class TaskServiceTest {
   // 親子タスク一覧取得：正常系
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {
-    Integer projectId = 9999;
+    Project project = Project.builder()
+        .id(PROJECT_ID)
+        .userId(USER_ID)
+        .build();
     List<Task> taskList = List.of();
 
-    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(projectId);
-    when(repository.findTasksByProjectId(projectId)).thenReturn(taskList);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findTasksByProjectId(PROJECT_ID)).thenReturn(taskList);
 
-    sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
+    sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
 
-    verify(repository).findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID);
-    verify(repository).findTasksByProjectId(projectId);
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(repository).findTasksByProjectId(PROJECT_ID);
     verify(converter).convertToTaskTreeList(taskList);
   }
 
   // 親子タスク一覧取得：異常系(404：プロジェクトId取得メソッドの例外ルート確認)
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に紐づけるタスク情報が取得できなかった場合例外をthrowすること() {
-    when(repository.findProjectIdByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessageContaining("project not found");
 

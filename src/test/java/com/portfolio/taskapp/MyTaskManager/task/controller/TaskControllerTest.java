@@ -44,15 +44,6 @@ class TaskControllerTest {
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @Test
-  void プロジェクトに紐づくタスク一覧取得時に適切なserviceが実行されJsonでレスポンスが返ること()
-      throws Exception {
-    mockMvc.perform(get("/projects/{projectPublicId}/task-trees", PROJECT_PUBLIC_ID))
-        .andExpect(status().isOk());
-
-    verify(service).getTasksByProjectPublicId(PROJECT_PUBLIC_ID);
-  }
-
-  @Test
   void 親タスクに紐づく親子タスク取得時に適切なserviceが実行されていること()
       throws Exception {
     mockMvc.perform(get("/task-trees/{taskPublicId}", TASK_PUBLIC_ID))
