@@ -68,6 +68,7 @@ public class ProjectTaskMapper {
    */
   public Task toSubtask(TaskRequest request, Task parentTask, String publicId) {
     return Task.builder()
+        .userAccountId(parentTask.getUserAccountId())
         .projectId(parentTask.getProjectId())
         .publicId(publicId)
         .parentTaskId(parentTask.getId())

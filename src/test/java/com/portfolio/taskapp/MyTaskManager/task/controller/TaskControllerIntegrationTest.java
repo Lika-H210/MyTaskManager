@@ -50,6 +50,7 @@ class TaskControllerIntegrationTest {
 
   private final Integer USER_ID = 999;
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
+  private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @BeforeEach
   void setUpAuthentication() {
@@ -124,6 +125,22 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isCreated());
 
     verify(service).createParentTask(any(TaskRequest.class), eq(PROJECT_PUBLIC_ID), eq(USER_ID));
+  }
+
+  @Test
+  void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
+      throws Exception {
+    TaskRequest request = createNormalTaskRequest();
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isCreated());
+
+    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
   }
 
   // 異常系：未認証での実行時挙動確認
