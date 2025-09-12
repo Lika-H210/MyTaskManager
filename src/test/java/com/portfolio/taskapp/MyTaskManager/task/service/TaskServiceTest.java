@@ -228,7 +228,7 @@ class TaskServiceTest {
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
     when(mapper.toTask(eq(request), eq(project), any(String.class))).thenReturn(task);
 
-    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID, USER_ID);
+    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toTask(eq(request), eq(project), any(String.class));
@@ -253,7 +253,7 @@ class TaskServiceTest {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID);
+    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
@@ -269,7 +269,7 @@ class TaskServiceTest {
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessageContaining("task not found");
 
