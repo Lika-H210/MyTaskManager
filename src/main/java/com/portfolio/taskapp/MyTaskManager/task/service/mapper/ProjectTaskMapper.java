@@ -35,14 +35,15 @@ public class ProjectTaskMapper {
    * <p>
    * このタスクは親タスクであり、parentTaskId は null になります。
    *
-   * @param request   タスク登録・更新用のリクエスト
-   * @param projectId 登録タスクと紐づくプロジェクトの内部ID
-   * @param publicId  タスクの公開ID
+   * @param request  タスク登録・更新用のリクエスト
+   * @param project  登録タスクと紐づくプロジェクト
+   * @param publicId タスクの公開ID
    * @return Task タスクのエンティティ
    */
-  public Task toTask(TaskRequest request, Integer projectId, String publicId) {
+  public Task toTask(TaskRequest request, Project project, String publicId) {
     return Task.builder()
-        .projectId(projectId)
+        .userAccountId(project.getUserId())
+        .projectId(project.getId())
         .publicId(publicId)
         .parentTaskId(null)
         .taskCaption(request.getTaskCaption())
@@ -80,4 +81,20 @@ public class ProjectTaskMapper {
         .build();
   }
 
+  public Task toUpdateTask(TaskRequest request, Task currentTask) {
+    return Task.builder()
+        .id(currentTask.getId())
+        .userAccountId(currentTask.getUserAccountId())
+        .projectId(currentTask.getProjectId())
+        .publicId(currentTask.getPublicId())
+        .parentTaskId(currentTask.getParentTaskId())
+        .taskCaption(request.getTaskCaption())
+        .description(request.getDescription())
+        .dueDate(request.getDueDate())
+        .estimatedTime(request.getEstimatedTime())
+        .actualTime(request.getActualTime())
+        .progress(request.getProgress())
+        .priority(request.getPriority())
+        .build();
+  }
 }

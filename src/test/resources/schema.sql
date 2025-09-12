@@ -18,7 +18,7 @@ CREATE TABLE projects (
   public_id CHAR(36) NOT NULL,
   project_caption VARCHAR(100) NOT NULL,
   description TEXT,
-  status ENUM('ACTIVE','ARCHIVED') DEFAULT 'ACTIVE',
+  status VARCHAR(20) DEFAULT 'ACTIVE',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted boolean DEFAULT FALSE,
@@ -28,6 +28,7 @@ CREATE TABLE projects (
 
 CREATE TABLE tasks (
   id INT PRIMARY KEY AUTO_INCREMENT,
+  user_account_id INT NOT NULL,
   project_id INT NOT NULL,
   public_id CHAR(36) NOT NULL,
   parent_task_id INT DEFAULT NULL,
@@ -37,11 +38,12 @@ CREATE TABLE tasks (
   estimated_time INT NOT NULL,
   actual_time INT NOT NULL DEFAULT 0,
   progress INT NOT NULL DEFAULT 0,
-  priority ENUM('HIGH','MEDIUM','LOW') DEFAULT 'LOW',
+  priority VARCHAR(20) DEFAULT 'LOW',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted boolean DEFAULT FALSE,
   FOREIGN KEY (project_id) REFERENCES projects (id),
   FOREIGN KEY (parent_task_id) REFERENCES tasks (id),
+  FOREIGN KEY (user_account_id) REFERENCES user_accounts (id),
   UNIQUE (public_id)
 );

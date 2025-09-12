@@ -76,10 +76,10 @@
   <!-- タスク登録 -->
   <insert id="createTask" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Task">
-    INSERT INTO tasks (project_id, public_id, parent_task_id, task_caption, description,
-    due_date, estimated_time, actual_time, progress, priority, is_deleted)
-    VALUES (#{projectId}, #{publicId}, #{parentTaskId}, #{taskCaption}, #{description},
-    #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority}, false)
+    INSERT INTO tasks (user_account_id, project_id, public_id, parent_task_id, task_caption,
+    description, due_date, estimated_time, actual_time, progress, priority, is_deleted)
+    VALUES (#{userAccountId}, #{projectId}, #{publicId}, #{parentTaskId}, #{taskCaption},
+    #{description}, #{dueDate}, #{estimatedTime}, #{actualTime}, #{progress}, #{priority}, false)
   </insert>
 
   <!-- プロジェクト更新 -->
