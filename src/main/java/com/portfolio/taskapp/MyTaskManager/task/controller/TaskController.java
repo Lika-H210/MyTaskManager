@@ -203,6 +203,7 @@ public class TaskController {
   /**
    * 指定した公開IDに紐づく単体タスクを取得します。
    *
+   * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId タスクの公開ID（UUID形式）
    * @return タスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
@@ -227,11 +228,12 @@ public class TaskController {
   )
   @GetMapping("/tasks/{taskPublicId}")
   public ResponseEntity<Task> getTask(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    Task task = service.getTaskByTaskPublicId(taskPublicId);
+    Task task = service.getTaskByTaskPublicId(taskPublicId, userDetails.getAccount().getId());
     return ResponseEntity.ok(task);
   }
 

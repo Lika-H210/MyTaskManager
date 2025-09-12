@@ -109,13 +109,22 @@ public class TaskService {
   /**
    * 公開IDから単一のタスクを取得します。
    *
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @param taskPublicId タスクの公開ID
    * @return タスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    */
-  public Task getTaskByTaskPublicId(String taskPublicId) {
-    return Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+  public Task getTaskByTaskPublicId(String taskPublicId, Integer userId) {
+    Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
+
+    // 不正アクセスチェック
+    if (!task.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on task");
+    }
+
+    return task;
   }
 
   /**
@@ -143,7 +152,6 @@ public class TaskService {
    *
    * @param request         タスク作成リクエスト
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 作成されたタスク情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */

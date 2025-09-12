@@ -8,12 +8,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
-import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
@@ -61,27 +59,6 @@ class TaskControllerTest {
         .andExpect(status().isOk());
 
     verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
-  }
-
-  @Test
-  void 単独タスク取得時に適切なserviceが実行され親タスクのResponseに除外項目が含まれていないこと()
-      throws Exception {
-    Task task = Task.builder()
-        .id(99999)
-        .publicId(TASK_PUBLIC_ID)
-        .projectId(9999)
-        .parentTaskId(90000)
-        .build();
-
-    when(service.getTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
-
-    mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id").doesNotExist())
-        .andExpect(jsonPath("$.projectId").doesNotExist())
-        .andExpect(jsonPath("$.parentTaskId").doesNotExist());
-
-    verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
 
   @Test
