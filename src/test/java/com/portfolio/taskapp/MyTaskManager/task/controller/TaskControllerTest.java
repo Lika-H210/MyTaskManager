@@ -106,20 +106,6 @@ class TaskControllerTest {
   }
 
   @Test
-  void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
-    TaskRequest request = createNormalTaskRequest();
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isOk());
-
-    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
-  }
-
-  @Test
   void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
     mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID))

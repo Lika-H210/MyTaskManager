@@ -435,6 +435,7 @@ public class TaskController {
   /**
    * 既存のタスクを更新します。
    *
+   * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId タスクの公開ID
    * @param request      タスクの更新用リクエスト
    * @return 更新後のタスク情報
@@ -474,12 +475,13 @@ public class TaskController {
   )
   @PutMapping("/tasks/{taskPublicId}")
   public ResponseEntity<Task> updateTask(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId,
       @Valid @RequestBody TaskRequest request) {
-    Task task = service.updateTask(request, taskPublicId);
+    Task task = service.updateTask(request, taskPublicId, userDetails.getAccount().getId());
     return ResponseEntity.ok(task);
   }
 

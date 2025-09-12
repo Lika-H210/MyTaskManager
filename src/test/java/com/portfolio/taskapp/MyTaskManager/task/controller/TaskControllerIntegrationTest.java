@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -141,6 +142,21 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isCreated());
 
     verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+  }
+
+  @Test
+  void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+    TaskRequest request = createNormalTaskRequest();
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
   }
 
   // 異常系：未認証での実行時挙動確認

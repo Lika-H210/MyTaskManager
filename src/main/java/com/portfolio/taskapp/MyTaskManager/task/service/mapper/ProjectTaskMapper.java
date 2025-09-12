@@ -82,4 +82,20 @@ public class ProjectTaskMapper {
         .build();
   }
 
+  public Task toUpdateTask(TaskRequest request, Task currentTask) {
+    return Task.builder()
+        .id(currentTask.getId())
+        .userAccountId(currentTask.getUserAccountId())
+        .projectId(currentTask.getProjectId())
+        .publicId(currentTask.getPublicId())
+        .parentTaskId(currentTask.getParentTaskId())
+        .taskCaption(request.getTaskCaption())
+        .description(request.getDescription())
+        .dueDate(request.getDueDate())
+        .estimatedTime(request.getEstimatedTime())
+        .actualTime(request.getActualTime())
+        .progress(request.getProgress())
+        .priority(request.getPriority())
+        .build();
+  }
 }

@@ -213,20 +213,25 @@ public class TaskService {
    *
    * @param request      タスク更新リクエスト
    * @param taskPublicId タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return 更新後のタスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Transactional
-  public Task updateTask(TaskRequest request, String taskPublicId) {
+  public Task updateTask(TaskRequest request, String taskPublicId, Integer userId) {
+    Task currentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
-    Task task = mapper.toTask(request, null, taskPublicId);
-    int updateRows = repository.updateTask(task);
-
-    if (updateRows == 0) {
-      throw new RecordNotFoundException("task not found");
+    // 不正アクセスチェック
+    if (!currentTask.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on task");
     }
 
-    return repository.findTaskByTaskPublicId(taskPublicId);
+    Task updateTask = mapper.toUpdateTask(request, currentTask);
+    repository.updateTask(updateTask);
+
+    return updateTask;
   }
 
   /**

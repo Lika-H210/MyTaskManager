@@ -309,31 +309,32 @@ class TaskServiceTest {
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
     TaskRequest request = new TaskRequest();
-    Task task = new Task();
+    Task currentTask = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
+    Task updateTask = new Task();
 
-    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
-    when(repository.updateTask(task)).thenReturn(1);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(currentTask);
+    when(mapper.toUpdateTask(request, currentTask)).thenReturn(updateTask);
 
-    sut.updateTask(request, TASK_PUBLIC_ID);
+    sut.updateTask(request, TASK_PUBLIC_ID, USER_ID);
 
-    verify(mapper).toTask(request, null, TASK_PUBLIC_ID);
-    verify(repository).updateTask(task);
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    verify(mapper).toUpdateTask(request, currentTask);
+    verify(repository).updateTask(updateTask);
   }
 
   @Test
   void タスク更新処理で更新対象のレコードがない場合に例外がthrowされること() {
     TaskRequest request = new TaskRequest();
-    Task task = new Task();
 
-    when(mapper.toTask(request, null, TASK_PUBLIC_ID)).thenReturn(task);
-    when(repository.updateTask(task)).thenReturn(0);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("task not found");
 
-    verify(repository, never()).findTaskByTaskPublicId(any());
+    verify(mapper, never()).toUpdateTask(any(), any());
   }
 
 }
