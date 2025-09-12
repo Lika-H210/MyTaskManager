@@ -79,7 +79,9 @@ class TaskServiceTest {
   // 単独プロジェクト取得：正常系
   @Test
   void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
-    Project project = new Project();
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
     sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
