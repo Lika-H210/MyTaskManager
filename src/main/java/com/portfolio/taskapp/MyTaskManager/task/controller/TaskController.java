@@ -162,6 +162,7 @@ public class TaskController {
   /**
    * 指定した親タスクの公開IDに紐づくタスクを、親子関係の階層構造で取得します。
    *
+   * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId 親タスクの公開ID（UUID形式）
    * @return 親子タスク
    * @throws RecordNotFoundException タスクが存在しない場合
@@ -195,11 +196,12 @@ public class TaskController {
   )
   @GetMapping("/task-trees/{taskPublicId}")
   public TaskTree getTaskTree(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    return service.getTaskTreeByTaskPublicId(taskPublicId);
+    return service.getTaskTreeByTaskPublicId(taskPublicId, userDetails.getAccount().getId());
   }
 
   /**

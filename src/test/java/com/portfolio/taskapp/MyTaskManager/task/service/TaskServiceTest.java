@@ -42,6 +42,7 @@ class TaskServiceTest {
 
   private static final Integer USER_ID = 999;
   private static final Integer PROJECT_ID = 9999;
+  private static final Integer TASK_ID = 99999;
   private static final String USER_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
   private static final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-000000000001";
   private static final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-000000000002";
@@ -135,21 +136,24 @@ class TaskServiceTest {
   @Test
   void 単独の親子タスク取得する際に必要なrepositoryとconverterが呼び出され単独親子タスクが返されていること() {
     // 事前準備
-    Integer taskId = 99999;
+    Task parentTask = Task.builder()
+        .id(TASK_ID)
+        .userAccountId(USER_ID)
+        .build();
     List<Task> taskList = List.of();
     TaskTree taskTree = new TaskTree();
     List<TaskTree> taskTreesList = List.of(taskTree);
 
-    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskId);
-    when(repository.findTasksByTaskId(taskId)).thenReturn(taskList);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
+    when(repository.findTasksByTaskId(TASK_ID)).thenReturn(taskList);
     when(converter.convertToTaskTreeList(taskList)).thenReturn(taskTreesList);
 
     // 実行
-    TaskTree actual = sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID);
+    TaskTree actual = sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
 
     // 検証
-    verify(repository).findTaskIdByTaskPublicId(TASK_PUBLIC_ID);
-    verify(repository).findTasksByTaskId(taskId);
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    verify(repository).findTasksByTaskId(TASK_ID);
     verify(converter).convertToTaskTreeList(taskList);
 
     assertThat(actual).isEqualTo(taskTree);
@@ -157,10 +161,10 @@ class TaskServiceTest {
 
   // 単独親子タスク取得：異常系(404)
   @Test
-  void 単独の親子タスク取得で取得対象タスクの内部Idを取得できない場合に適切な例外がThrowされること() {
-    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+  void 単独の親子タスク取得で対象IDのタスクが取得できない場合に適切な例外がThrowされること() {
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessageContaining("task not found");
 
@@ -171,13 +175,16 @@ class TaskServiceTest {
   @Test
   void 単独の親子タスク取得する際にconvert処理で複数要素のリストが返った場合に適切な例外がThrowされること() {
     // 事前準備
-    Integer taskId = 99999;
+    Task parentTask = Task.builder()
+        .id(TASK_ID)
+        .userAccountId(USER_ID)
+        .build();
     List<TaskTree> taskTreesList = List.of(new TaskTree(), new TaskTree());
 
-    when(repository.findTaskIdByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(taskId);
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(converter.convertToTaskTreeList(anyList())).thenReturn(taskTreesList);
 
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("TaskTree count mismatch");
   }
