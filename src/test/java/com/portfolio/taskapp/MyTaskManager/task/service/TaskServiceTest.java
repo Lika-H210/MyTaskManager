@@ -355,4 +355,18 @@ class TaskServiceTest {
     verify(mapper, never()).toUpdateTask(any(), any());
   }
 
+  @Test
+  void プロジェクト削除処理で適切なrepositoryが呼び出されていること() {
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
+
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    sut.deleteProject(PROJECT_PUBLIC_ID, USER_ID);
+
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(repository).deleteProject(PROJECT_PUBLIC_ID);
+  }
+
 }

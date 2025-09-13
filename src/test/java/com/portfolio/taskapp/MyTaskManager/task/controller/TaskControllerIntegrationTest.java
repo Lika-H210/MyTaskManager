@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -219,6 +220,16 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isOk());
 
     verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+  }
+
+  @Test
+  void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
+      throws Exception {
+    mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isNoContent());
+
+    verify(service).deleteProject(PROJECT_PUBLIC_ID, USER_ID);
   }
 
   // 異常系：未認証での実行時挙動確認

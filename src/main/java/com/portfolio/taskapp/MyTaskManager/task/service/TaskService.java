@@ -293,10 +293,17 @@ public class TaskService {
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
-  public void deleteProject(String projectPublicId) {
-    if (repository.findProjectIdByProjectPublicId(projectPublicId) == null) {
-      throw new RecordNotFoundException("project not found");
+  public void deleteProject(String projectPublicId, Integer userId) {
+    Project project = Optional.ofNullable(
+            repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
+
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
     }
+
     repository.deleteProject(projectPublicId);
   }
 
