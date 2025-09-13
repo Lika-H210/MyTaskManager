@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,6 +51,7 @@ class TaskControllerIntegrationTest {
   private UserAccountDetails userDetails;
 
   private final Integer USER_ID = 999;
+  private final Integer PROJECT_ID = 9999;
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
@@ -186,6 +188,22 @@ class TaskControllerIntegrationTest {
         .andExpect(status().isCreated());
 
     verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+  }
+
+  @Test
+  void プロジェクト更新処理で200ステータスになり適切なserviceが実行されていること()
+      throws Exception {
+    ProjectRequest request = new ProjectRequest("caption", "description", ProjectStatus.ACTIVE);
+
+    String requestJson = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson))
+        .andExpect(status().isOk());
+
+    verify(service).updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID), eq(USER_ID));
   }
 
   // 異常系：未認証での実行時挙動確認

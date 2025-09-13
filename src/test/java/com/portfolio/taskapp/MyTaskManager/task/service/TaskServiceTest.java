@@ -294,28 +294,31 @@ class TaskServiceTest {
   // プロジェクト更新処理：正常系
   @Test
   void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
+    Project currentProject = Project.builder()
+        .userId(USER_ID)
+        .publicId(PROJECT_PUBLIC_ID)
+        .build();
     ProjectRequest request = new ProjectRequest();
-    Project project = new Project();
+    Project updateProject = new Project();
 
-    when(mapper.toProject(request, null, PROJECT_PUBLIC_ID)).thenReturn(project);
-    when(repository.updateProject(project)).thenReturn(1);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(currentProject);
+    when(mapper.toProject(request, USER_ID, PROJECT_PUBLIC_ID)).thenReturn(updateProject);
 
-    sut.updateProject(request, PROJECT_PUBLIC_ID);
+    sut.updateProject(request, PROJECT_PUBLIC_ID, USER_ID);
 
-    verify(mapper).toProject(request, null, PROJECT_PUBLIC_ID);
-    verify(repository).updateProject(project);
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(mapper).toProject(request, USER_ID, PROJECT_PUBLIC_ID);
+    verify(repository).updateProject(updateProject);
   }
 
   // プロジェクト更新処理：異常系(404:更新対象のレコードがない場合)
   @Test
   void プロジェクト更新で更新対象のレコードがない場合に例外がthrowされること() {
     ProjectRequest request = new ProjectRequest();
-    Project project = new Project();
 
-    when(mapper.toProject(request, null, PROJECT_PUBLIC_ID)).thenReturn(project);
-    when(repository.updateProject(project)).thenReturn(0);
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.updateProject(request, PROJECT_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.updateProject(request, PROJECT_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("project not found");
   }

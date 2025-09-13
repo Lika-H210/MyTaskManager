@@ -232,22 +232,31 @@ public class TaskService {
 
   /**
    * プロジェクト情報を更新します。
+   * <p>
+   * 更新対象のプロジェクトが存在しない場合、またはプロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param request         プロジェクト更新リクエスト
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @return 更新後のプロジェクト情報
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
-  public Project updateProject(ProjectRequest request, String projectPublicId) {
-    Project project = mapper.toProject(request, null, projectPublicId);
-    int updateRows = repository.updateProject(project);
+  public Project updateProject(ProjectRequest request, String projectPublicId, Integer userId) {
+    Project currentProject = Optional.ofNullable(
+            repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
-    if (updateRows == 0) {
-      throw new RecordNotFoundException("project not found");
+    // 不正アクセスチェック
+    if (!currentProject.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
     }
 
-    return project;
+    Project updateProject = mapper.toProject(request, currentProject.getUserId(), projectPublicId);
+    repository.updateProject(updateProject);
+
+    return updateProject;
   }
 
   /**

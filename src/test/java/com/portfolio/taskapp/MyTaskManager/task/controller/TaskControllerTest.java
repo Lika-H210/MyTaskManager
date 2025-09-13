@@ -3,16 +3,12 @@ package com.portfolio.taskapp.MyTaskManager.task.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
-import com.portfolio.taskapp.MyTaskManager.domain.enums.ProjectStatus;
 import com.portfolio.taskapp.MyTaskManager.domain.enums.TaskPriority;
-import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.service.TaskService;
 import java.time.LocalDate;
@@ -40,28 +36,6 @@ class TaskControllerTest {
 
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
-
-  @Test
-  void プロジェクト更新処理で200ステータスになり適切なserviceが実行されていること()
-      throws Exception {
-    ProjectRequest request = new ProjectRequest("caption", "description", ProjectStatus.ACTIVE);
-    Project response = Project.builder()
-        .id(9999)
-        .userId(999)
-        .build();
-
-    String requestJson = objectMapper.writeValueAsString(request);
-
-    when(service.updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID)))
-        .thenReturn(response);
-
-    mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestJson))
-        .andExpect(status().isOk());
-
-    verify(service).updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID));
-  }
 
   @Test
   void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
