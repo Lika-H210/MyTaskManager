@@ -390,6 +390,7 @@ public class TaskController {
   /**
    * 既存のプロジェクトを更新します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @param request         プロジェクトの更新用リクエスト
    * @return 更新後のプロジェクト情報
@@ -429,12 +430,14 @@ public class TaskController {
   )
   @PutMapping("/projects/{projectPublicId}")
   public ResponseEntity<Project> updateProject(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId,
       @Valid @RequestBody ProjectRequest request) {
-    Project project = service.updateProject(request, projectPublicId);
+    Project project = service.updateProject(request, projectPublicId,
+        userDetails.getAccount().getId());
     return ResponseEntity.ok(project);
   }
 
