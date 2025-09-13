@@ -540,6 +540,7 @@ public class TaskController {
   /**
    * タスクを論理削除します。
    *
+   * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId タスクの公開ID（UUID形式）
    * @return 空レスポンス（204 No Content）
    * @throws RecordNotFoundException タスクが存在しない場合
@@ -570,11 +571,12 @@ public class TaskController {
   )
   @DeleteMapping("/tasks/{taskPublicId}")
   public ResponseEntity<Void> deleteTask(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    service.deleteTask(taskPublicId);
+    service.deleteTask(taskPublicId, userDetails.getAccount().getId());
     return ResponseEntity.noContent().build();
   }
 

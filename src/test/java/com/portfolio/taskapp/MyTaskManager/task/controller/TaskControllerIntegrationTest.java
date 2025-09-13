@@ -286,6 +286,16 @@ class TaskControllerIntegrationTest {
     verify(service, never()).createParentTask(any(), any(), any());
   }
 
+  @Test
+  void タスク削除処理で204ステータスになり適切なserviceが実行されること()
+      throws Exception {
+    mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails)))
+        .andExpect(status().isNoContent());
+
+    verify(service).deleteTask(TASK_PUBLIC_ID, USER_ID);
+  }
+
   // TaskRequest生成(正常系)
   private TaskRequest createNormalTaskRequest() {
     return new TaskRequest(
