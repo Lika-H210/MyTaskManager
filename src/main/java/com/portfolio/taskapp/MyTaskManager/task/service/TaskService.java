@@ -266,6 +266,7 @@ public class TaskService {
    *
    * @param request      タスク更新リクエスト
    * @param taskPublicId タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return 更新後のタスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    */
@@ -288,8 +289,11 @@ public class TaskService {
 
   /**
    * プロジェクトを削除します。
+   * <p>
+   * 削除対象のプロジェクトが存在しない場合、またはプロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
