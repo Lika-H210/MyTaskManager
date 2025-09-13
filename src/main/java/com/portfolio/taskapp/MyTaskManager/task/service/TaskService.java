@@ -261,6 +261,8 @@ public class TaskService {
 
   /**
    * タスク情報を更新します。
+   * <p>
+   * 更新対象のタスクが存在しない場合、またはタスクがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param request      タスク更新リクエスト
    * @param taskPublicId タスクの公開ID
@@ -268,9 +270,15 @@ public class TaskService {
    * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Transactional
-  public Task updateTask(TaskRequest request, String taskPublicId) {
+  public Task updateTask(TaskRequest request, String taskPublicId, Integer userId) {
     Task currentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
+
+    // 不正アクセスチェック
+    if (!currentTask.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on task");
+    }
 
     Task updateTask = mapper.toUpdateTask(request, currentTask);
     repository.updateTask(updateTask);

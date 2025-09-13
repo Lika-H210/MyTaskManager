@@ -335,7 +335,7 @@ class TaskServiceTest {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(currentTask);
     when(mapper.toUpdateTask(request, currentTask)).thenReturn(task);
 
-    sut.updateTask(request, TASK_PUBLIC_ID);
+    sut.updateTask(request, TASK_PUBLIC_ID, USER_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toUpdateTask(request, currentTask);
@@ -348,7 +348,7 @@ class TaskServiceTest {
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("task not found");
 

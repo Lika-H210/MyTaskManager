@@ -206,6 +206,21 @@ class TaskControllerIntegrationTest {
     verify(service).updateProject(any(ProjectRequest.class), eq(PROJECT_PUBLIC_ID), eq(USER_ID));
   }
 
+  @Test
+  void タスク更新処理で200ステータスになり適切なServiceが実行されること() throws Exception {
+    TaskRequest request = createNormalTaskRequest();
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isOk());
+
+    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+  }
+
   // 異常系：未認証での実行時挙動確認
   @Test
   void ユーザープロジェクトの一覧取得で認証情報がない場合302ステータスとなること()
