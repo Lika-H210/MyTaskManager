@@ -369,4 +369,17 @@ class TaskServiceTest {
     verify(repository).deleteProject(PROJECT_PUBLIC_ID);
   }
 
+  @Test
+  void タスク削除処理で適切なrepositoryが呼び出されていること() {
+    Task task = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
+
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    sut.deleteTask(TASK_PUBLIC_ID, USER_ID);
+
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    verify(repository).deleteTask(TASK_PUBLIC_ID);
+  }
 }
