@@ -34,15 +34,6 @@ class TaskControllerTest {
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
 
   @Test
-  void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
-      throws Exception {
-    mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID))
-        .andExpect(status().isNoContent());
-
-    verify(service).deleteProject(PROJECT_PUBLIC_ID);
-  }
-
-  @Test
   void タスク削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
     mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID))

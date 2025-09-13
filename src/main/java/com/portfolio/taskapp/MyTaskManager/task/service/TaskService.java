@@ -266,6 +266,7 @@ public class TaskService {
    *
    * @param request      タスク更新リクエスト
    * @param taskPublicId タスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
    * @return 更新後のタスク情報
    * @throws RecordNotFoundException タスクが存在しない場合
    */
@@ -288,15 +289,25 @@ public class TaskService {
 
   /**
    * プロジェクトを削除します。
+   * <p>
+   * 削除対象のプロジェクトが存在しない場合、またはプロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Transactional
-  public void deleteProject(String projectPublicId) {
-    if (repository.findProjectIdByProjectPublicId(projectPublicId) == null) {
-      throw new RecordNotFoundException("project not found");
+  public void deleteProject(String projectPublicId, Integer userId) {
+    Project project = Optional.ofNullable(
+            repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
+
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
     }
+
     repository.deleteProject(projectPublicId);
   }
 

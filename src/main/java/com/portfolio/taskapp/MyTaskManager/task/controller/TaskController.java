@@ -497,6 +497,7 @@ public class TaskController {
   /**
    * プロジェクトを論理削除します。
    *
+   * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return 空レスポンス（204 No Content）
    * @throws RecordNotFoundException プロジェクトが存在しない場合
@@ -527,11 +528,12 @@ public class TaskController {
   )
   @DeleteMapping("/projects/{projectPublicId}")
   public ResponseEntity<Void> deleteProject(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    service.deleteProject(projectPublicId);
+    service.deleteProject(projectPublicId, userDetails.getAccount().getId());
     return ResponseEntity.noContent().build();
   }
 
