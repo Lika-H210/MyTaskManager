@@ -268,7 +268,7 @@ class TaskServiceTest {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID);
+    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
@@ -279,12 +279,12 @@ class TaskServiceTest {
 
   // 子タスク登録処理：異常系(404)
   @Test
-  void 子タスク登録処理でタスク公開Idに紐づくタスク情報を取得できなかった場合に適切な例外がThrowされること() {
+  void 子タスク登録処理でタスク公開Idに紐づく親タスク情報を取得できなかった場合に適切な例外がThrowされること() {
     TaskRequest request = new TaskRequest();
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID))
+    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessageContaining("task not found");
 

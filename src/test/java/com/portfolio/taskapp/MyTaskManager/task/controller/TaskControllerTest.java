@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,21 +40,6 @@ class TaskControllerTest {
 
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
-
-  @Test
-  void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
-      throws Exception {
-    TaskRequest request = createNormalTaskRequest();
-
-    String json = objectMapper.writeValueAsString(request);
-
-    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(json))
-        .andExpect(status().isCreated());
-
-    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID));
-  }
 
   @Test
   void プロジェクト更新処理で200ステータスになり適切なserviceが実行されていること()

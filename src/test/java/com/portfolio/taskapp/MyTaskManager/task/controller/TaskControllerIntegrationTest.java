@@ -172,6 +172,22 @@ class TaskControllerIntegrationTest {
     verify(service).createParentTask(any(TaskRequest.class), eq(PROJECT_PUBLIC_ID), eq(USER_ID));
   }
 
+  @Test
+  void 子タスク登録時に201ステータスとなり適切なServiceメソッドが呼び出されていること()
+      throws Exception {
+    TaskRequest request = createNormalTaskRequest();
+
+    String json = objectMapper.writeValueAsString(request);
+
+    mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
+            .with(user(userDetails))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(json))
+        .andExpect(status().isCreated());
+
+    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+  }
+
   // 異常系：未認証での実行時挙動確認
   @Test
   void ユーザープロジェクトの一覧取得で認証情報がない場合302ステータスとなること()

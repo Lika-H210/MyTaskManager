@@ -337,6 +337,7 @@ public class TaskController {
   /**
    * 新規の子タスクを登録します。
    *
+   * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId 親タスクの公開ID
    * @param request      子タスク登録リクエスト
    * @return 作成された子タスク情報
@@ -376,12 +377,13 @@ public class TaskController {
   )
   @PostMapping("/tasks/{taskPublicId}/subtasks")
   public ResponseEntity<Task> createSubtask(
+      @AuthenticationPrincipal UserAccountDetails userDetails,
       @PathVariable
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId,
       @Valid @RequestBody TaskRequest request) {
-    Task task = service.createSubtask(request, taskPublicId);
+    Task task = service.createSubtask(request, taskPublicId, userDetails.getAccount().getId());
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
