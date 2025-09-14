@@ -291,8 +291,7 @@ public class TaskService {
 
     // 不正アクセスチェック
     if (!project.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
+      throw new InvalidOwnerAccessException(TargetResource.PROJECT);
     }
     return project;
   }
@@ -303,8 +302,7 @@ public class TaskService {
 
     // 不正アクセスチェック
     if (!task.getUserAccountId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on task");
+      throw new InvalidOwnerAccessException(TargetResource.TASK);
     }
     return task;
   }
