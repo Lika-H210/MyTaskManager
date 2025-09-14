@@ -58,7 +58,8 @@ public class TaskService {
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
    * @return プロジェクト情報
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   public Project getProjectByProjectPublicId(String projectPublicId, Integer userId) {
     return getAuthorizedProject(projectPublicId, userId);
@@ -72,7 +73,8 @@ public class TaskService {
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
    * @return 親子タスク一覧
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId, Integer userId) {
     Project project = getAuthorizedProject(projectPublicId, userId);
@@ -89,8 +91,9 @@ public class TaskService {
    * @param taskPublicId 親タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
    * @return 該当親子タスク情報
-   * @throws RecordNotFoundException タスクが存在しない場合
-   * @throws IllegalStateException   該当するタスクツリーが1件に特定できない場合
+   * @throws RecordNotFoundException     親タスクが存在しない場合
+   * @throws IllegalStateException       該当するタスクツリーが1件に特定できない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定された親タスクの所有者でない場合
    */
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId, Integer userId) {
     Task parentTask = getAuthorizedTask(taskPublicId, userId);
@@ -113,7 +116,8 @@ public class TaskService {
    * @param taskPublicId タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
    * @return タスク情報
-   * @throws RecordNotFoundException タスクが存在しない場合
+   * @throws RecordNotFoundException     タスクが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
   public Task getTaskByTaskPublicId(String taskPublicId, Integer userId) {
     return getAuthorizedTask(taskPublicId, userId);
@@ -148,7 +152,8 @@ public class TaskService {
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
    * @return 作成されたタスク情報
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId, Integer userId) {
@@ -171,7 +176,8 @@ public class TaskService {
    * @param taskPublicId 親タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
    * @return 作成された子タスク情報
-   * @throws RecordNotFoundException 親タスクが存在しない場合
+   * @throws RecordNotFoundException     親タスクが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定された親タスクの所有者でない場合
    */
   @Transactional
   public Task createSubtask(TaskRequest request, String taskPublicId, Integer userId) {
@@ -194,7 +200,8 @@ public class TaskService {
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
    * @return 更新後のプロジェクト情報
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
   public Project updateProject(ProjectRequest request, String projectPublicId, Integer userId) {
@@ -215,7 +222,8 @@ public class TaskService {
    * @param taskPublicId タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
    * @return 更新後のタスク情報
-   * @throws RecordNotFoundException タスクが存在しない場合
+   * @throws RecordNotFoundException     タスクが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId, Integer userId) {
@@ -234,7 +242,8 @@ public class TaskService {
    *
    * @param projectPublicId プロジェクトの公開ID
    * @param userId          リクエスト送信ユーザーの内部ID
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
   public void deleteProject(String projectPublicId, Integer userId) {
@@ -250,7 +259,8 @@ public class TaskService {
    *
    * @param taskPublicId タスクの公開ID
    * @param userId       リクエスト送信ユーザーの内部ID
-   * @throws RecordNotFoundException タスクが存在しない場合
+   * @throws RecordNotFoundException     タスクが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
   @Transactional
   public void deleteTask(String taskPublicId, Integer userId) {
