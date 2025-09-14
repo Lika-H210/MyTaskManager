@@ -61,15 +61,7 @@ public class TaskService {
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   public Project getProjectByProjectPublicId(String projectPublicId, Integer userId) {
-    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("project not found"));
-
-    // 不正アクセスチェック
-    if (!project.getUserId().equals(userId)) {
-      throw new InvalidOwnerAccessException(TargetResource.PROJECT);
-    }
-
-    return project;
+    return getAuthorizedProject(projectPublicId, userId);
   }
 
   /**
