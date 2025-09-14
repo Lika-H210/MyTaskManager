@@ -2,7 +2,9 @@ package com.portfolio.taskapp.MyTaskManager.task.service;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidOwnerAccessException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.enums.TargetResource;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
@@ -65,8 +67,7 @@ public class TaskService {
 
     // 不正アクセスチェック
     if (!project.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
+      throw new InvalidOwnerAccessException(TargetResource.PROJECT);
     }
 
     return project;
