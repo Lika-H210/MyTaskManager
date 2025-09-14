@@ -1,5 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.exception.handler;
 
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidOwnerAccessException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class OriginalExceptionHandler {
+
+  // --- 400 Bad Request 系 ---
 
   @ExceptionHandler(NotUniqueException.class)
   public ResponseEntity<Map<String, Object>> handleNotUniqueException(NotUniqueException ex) {
@@ -102,18 +105,6 @@ public class OriginalExceptionHandler {
     return ResponseEntity.status(status).body(responseBody);
   }
 
-  @ExceptionHandler(RecordNotFoundException.class)
-  public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
-      RecordNotFoundException ex) {
-    // 開発者向けログ出力
-    log.info("Record not found: {}", ex.getMessage());
-
-    //表示内容
-    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
-
-    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
-  }
-
   @ExceptionHandler(InvalidPasswordChangeException.class)
   public ResponseEntity<Map<String, Object>> handleInvalidPasswordChangeException(
       InvalidPasswordChangeException ex) {
@@ -126,6 +117,34 @@ public class OriginalExceptionHandler {
 
     return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
   }
+
+  // --- 403 Not Found 系 ---
+
+  @ExceptionHandler(InvalidOwnerAccessException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidOwnerAccessException(
+      InvalidOwnerAccessException ex) {
+    log.warn("Forbidden access: {}", ex.getMessage());
+
+    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
+
+    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
+  }
+
+  // --- 404 Not Found 系 ---
+
+  @ExceptionHandler(RecordNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleResourceNotFoundException(
+      RecordNotFoundException ex) {
+    // 開発者向けログ出力
+    log.info("Record not found: {}", ex.getMessage());
+
+    //表示内容
+    Map<String, Object> responseBody = createErrorBody(ex.getHttpStatus(), ex.getMessage());
+
+    return ResponseEntity.status(ex.getHttpStatus()).body(responseBody);
+  }
+
+  // --- 500 Internal Server Error 系 ---
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
