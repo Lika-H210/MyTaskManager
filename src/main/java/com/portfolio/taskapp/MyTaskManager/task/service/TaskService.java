@@ -84,14 +84,7 @@ public class TaskService {
    * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   public List<TaskTree> getTasksByProjectPublicId(String projectPublicId, Integer userId) {
-    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("project not found"));
-
-    // 不正アクセスチェック
-    if (!project.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
-    }
+    Project project = getAuthorizedProject(projectPublicId, userId);
 
     List<Task> taskList = repository.findTasksByProjectId(project.getId());
     return converter.convertToTaskTreeList(taskList);
@@ -109,14 +102,7 @@ public class TaskService {
    * @throws IllegalStateException   該当するタスクツリーが1件に特定できない場合
    */
   public TaskTree getTaskTreeByTaskPublicId(String taskPublicId, Integer userId) {
-    Task parentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("task not found"));
-
-    // 不正アクセスチェック
-    if (!parentTask.getUserAccountId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on task");
-    }
+    Task parentTask = getAuthorizedTask(taskPublicId, userId);
 
     List<Task> taskList = repository.findTasksByTaskId(parentTask.getId());
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
@@ -139,16 +125,7 @@ public class TaskService {
    * @throws RecordNotFoundException タスクが存在しない場合
    */
   public Task getTaskByTaskPublicId(String taskPublicId, Integer userId) {
-    Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("task not found"));
-
-    // 不正アクセスチェック
-    if (!task.getUserAccountId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on task");
-    }
-
-    return task;
+    return getAuthorizedTask(taskPublicId, userId);
   }
 
   /**
@@ -184,14 +161,7 @@ public class TaskService {
    */
   @Transactional
   public Task createParentTask(TaskRequest request, String projectPublicId, Integer userId) {
-    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("project not found"));
-
-    // 不正アクセスチェック
-    if (!project.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
-    }
+    Project project = getAuthorizedProject(projectPublicId, userId);
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toTask(request, project, publicId);
@@ -244,15 +214,7 @@ public class TaskService {
    */
   @Transactional
   public Project updateProject(ProjectRequest request, String projectPublicId, Integer userId) {
-    Project currentProject = Optional.ofNullable(
-            repository.findProjectByProjectPublicId(projectPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("project not found"));
-
-    // 不正アクセスチェック
-    if (!currentProject.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
-    }
+    Project currentProject = getAuthorizedProject(projectPublicId, userId);
 
     Project updateProject = mapper.toProject(request, currentProject.getUserId(), projectPublicId);
     repository.updateProject(updateProject);
@@ -273,14 +235,7 @@ public class TaskService {
    */
   @Transactional
   public Task updateTask(TaskRequest request, String taskPublicId, Integer userId) {
-    Task currentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("task not found"));
-
-    // 不正アクセスチェック
-    if (!currentTask.getUserAccountId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on task");
-    }
+    Task currentTask = getAuthorizedTask(taskPublicId, userId);
 
     Task updateTask = mapper.toUpdateTask(request, currentTask);
     repository.updateTask(updateTask);
@@ -299,15 +254,7 @@ public class TaskService {
    */
   @Transactional
   public void deleteProject(String projectPublicId, Integer userId) {
-    Project project = Optional.ofNullable(
-            repository.findProjectByProjectPublicId(projectPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("project not found"));
-
-    // 不正アクセスチェック
-    if (!project.getUserId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on project");
-    }
+    getAuthorizedProject(projectPublicId, userId);
 
     repository.deleteProject(projectPublicId);
   }
@@ -323,14 +270,7 @@ public class TaskService {
    */
   @Transactional
   public void deleteTask(String taskPublicId, Integer userId) {
-    Task currentTask = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
-        .orElseThrow(() -> new RecordNotFoundException("task not found"));
-
-    // 不正アクセスチェック
-    if (!currentTask.getUserAccountId().equals(userId)) {
-      // Todo:別途カスタム例外作成し差し替え
-      throw new AccessDeniedException("no permission on task");
-    }
+    getAuthorizedTask(taskPublicId, userId);
     repository.deleteTask(taskPublicId);
   }
 
@@ -344,4 +284,29 @@ public class TaskService {
     return Optional.ofNullable(repository.findUserIdByUserPublicId(userPublicId))
         .orElseThrow(() -> new RecordNotFoundException("user not found"));
   }
+
+  private Project getAuthorizedProject(String projectPublicId, Integer userId) {
+    Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("project not found"));
+
+    // 不正アクセスチェック
+    if (!project.getUserId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on project");
+    }
+    return project;
+  }
+
+  private Task getAuthorizedTask(String taskPublicId, Integer userId) {
+    Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
+        .orElseThrow(() -> new RecordNotFoundException("task not found"));
+
+    // 不正アクセスチェック
+    if (!task.getUserAccountId().equals(userId)) {
+      // Todo:別途カスタム例外作成し差し替え
+      throw new AccessDeniedException("no permission on task");
+    }
+    return task;
+  }
+
 }
