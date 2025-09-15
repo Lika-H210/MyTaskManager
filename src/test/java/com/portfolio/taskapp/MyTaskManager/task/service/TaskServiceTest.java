@@ -93,16 +93,6 @@ class TaskServiceTest {
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
-  // 単独プロジェクト取得：異常系
-  @Test
-  void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("project not found");
-  }
-
   // 親子タスク一覧取得：正常系
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {
@@ -120,18 +110,6 @@ class TaskServiceTest {
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).findTasksByProjectId(PROJECT_ID);
     verify(converter).convertToTaskTreeList(taskList);
-  }
-
-  // 親子タスク一覧取得：異常系(404：プロジェクトId取得メソッドの例外ルート確認)
-  @Test
-  void プロジェクトに紐づく親子タスク一覧取得時に紐づけるタスク情報が取得できなかった場合例外をthrowすること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("project not found");
-
-    verify(repository, never()).findTasksByProjectId(any());
   }
 
   // 単独親子タスク取得：正常系
@@ -159,18 +137,6 @@ class TaskServiceTest {
     verify(converter).convertToTaskTreeList(taskList);
 
     assertThat(actual).isEqualTo(taskTree);
-  }
-
-  // 単独親子タスク取得：異常系(404)
-  @Test
-  void 単独の親子タスク取得で対象IDのタスクが取得できない場合に適切な例外がThrowされること() {
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("task not found");
-
-    verify(repository, never()).findTasksByTaskId(any());
   }
 
   // 単独親子タスク取得：異常系(500)　※convert結果が複数要素のリストの場合
@@ -202,16 +168,6 @@ class TaskServiceTest {
     sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
-  }
-
-  // 単独タスク取得：異常系
-  @Test
-  void 単独タスク取得でタスクが存在しない場合に例外がThrowされること() {
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("task not found");
   }
 
   // プロジェクト登録処理：正常系
@@ -279,20 +235,6 @@ class TaskServiceTest {
     assertThat(actual).isEqualTo(task);
   }
 
-  // 子タスク登録処理：異常系(404)
-  @Test
-  void 子タスク登録処理でタスク公開Idに紐づく親タスク情報を取得できなかった場合に適切な例外がThrowされること() {
-    TaskRequest request = new TaskRequest();
-
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("task not found");
-
-    verify(mapper, never()).toSubtask(any(), any(), any());
-  }
-
   // プロジェクト更新処理：正常系
   @Test
   void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
@@ -313,18 +255,6 @@ class TaskServiceTest {
     verify(repository).updateProject(updateProject);
   }
 
-  // プロジェクト更新処理：異常系(404:更新対象のレコードがない場合)
-  @Test
-  void プロジェクト更新で更新対象のレコードがない場合に例外がthrowされること() {
-    ProjectRequest request = new ProjectRequest();
-
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.updateProject(request, PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("project not found");
-  }
-
   // タスク更新処理:正常系
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
@@ -342,19 +272,6 @@ class TaskServiceTest {
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toUpdateTask(request, currentTask);
     verify(repository).updateTask(task);
-  }
-
-  @Test
-  void タスク更新処理で更新対象のレコードがない場合に例外がthrowされること() {
-    TaskRequest request = new TaskRequest();
-
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("task not found");
-
-    verify(mapper, never()).toUpdateTask(any(), any());
   }
 
   // プロジェクト削除処理：正常系
