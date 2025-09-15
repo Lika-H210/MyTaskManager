@@ -12,7 +12,9 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidOwnerAccessException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.enums.TargetResource;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
@@ -91,16 +93,6 @@ class TaskServiceTest {
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
 
-  // 単独プロジェクト取得：異常系
-  @Test
-  void 単独プロジェクト取得でプロジェクトが存在しない場合に例外がThrowされること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("project not found");
-  }
-
   // 親子タスク一覧取得：正常系
   @Test
   void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {
@@ -118,18 +110,6 @@ class TaskServiceTest {
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).findTasksByProjectId(PROJECT_ID);
     verify(converter).convertToTaskTreeList(taskList);
-  }
-
-  // 親子タスク一覧取得：異常系(404：プロジェクトId取得メソッドの例外ルート確認)
-  @Test
-  void プロジェクトに紐づく親子タスク一覧取得時に紐づけるタスク情報が取得できなかった場合例外をthrowすること() {
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("project not found");
-
-    verify(repository, never()).findTasksByProjectId(any());
   }
 
   // 単独親子タスク取得：正常系
@@ -157,18 +137,6 @@ class TaskServiceTest {
     verify(converter).convertToTaskTreeList(taskList);
 
     assertThat(actual).isEqualTo(taskTree);
-  }
-
-  // 単独親子タスク取得：異常系(404)
-  @Test
-  void 単独の親子タスク取得で対象IDのタスクが取得できない場合に適切な例外がThrowされること() {
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("task not found");
-
-    verify(repository, never()).findTasksByTaskId(any());
   }
 
   // 単独親子タスク取得：異常系(500)　※convert結果が複数要素のリストの場合
@@ -202,17 +170,7 @@ class TaskServiceTest {
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
 
-  // 単独タスク取得：異常系
-  @Test
-  void 単独タスク取得でタスクが存在しない場合に例外がThrowされること() {
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("task not found");
-  }
-
-  // プロジェクト登録処理
+  // プロジェクト登録処理：正常系
   @Test
   void プロジェクト登録処理で適切なrepositoryとmapperが呼び出されていること() {
     Integer userId = 999;
@@ -277,20 +235,6 @@ class TaskServiceTest {
     assertThat(actual).isEqualTo(task);
   }
 
-  // 子タスク登録処理：異常系(404)
-  @Test
-  void 子タスク登録処理でタスク公開Idに紐づく親タスク情報を取得できなかった場合に適切な例外がThrowされること() {
-    TaskRequest request = new TaskRequest();
-
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessageContaining("task not found");
-
-    verify(mapper, never()).toSubtask(any(), any(), any());
-  }
-
   // プロジェクト更新処理：正常系
   @Test
   void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
@@ -311,19 +255,7 @@ class TaskServiceTest {
     verify(repository).updateProject(updateProject);
   }
 
-  // プロジェクト更新処理：異常系(404:更新対象のレコードがない場合)
-  @Test
-  void プロジェクト更新で更新対象のレコードがない場合に例外がthrowされること() {
-    ProjectRequest request = new ProjectRequest();
-
-    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.updateProject(request, PROJECT_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("project not found");
-  }
-
-  // タスク更新処理
+  // タスク更新処理:正常系
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
     TaskRequest request = new TaskRequest();
@@ -342,19 +274,7 @@ class TaskServiceTest {
     verify(repository).updateTask(task);
   }
 
-  @Test
-  void タスク更新処理で更新対象のレコードがない場合に例外がthrowされること() {
-    TaskRequest request = new TaskRequest();
-
-    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
-
-    assertThatThrownBy(() -> sut.updateTask(request, TASK_PUBLIC_ID, USER_ID))
-        .isInstanceOf(RecordNotFoundException.class)
-        .hasMessage("task not found");
-
-    verify(mapper, never()).toUpdateTask(any(), any());
-  }
-
+  // プロジェクト削除処理：正常系
   @Test
   void プロジェクト削除処理で適切なrepositoryが呼び出されていること() {
     Project project = Project.builder()
@@ -369,6 +289,7 @@ class TaskServiceTest {
     verify(repository).deleteProject(PROJECT_PUBLIC_ID);
   }
 
+  // タスク削除処理：正常系
   @Test
   void タスク削除処理で適切なrepositoryが呼び出されていること() {
     Task task = Task.builder()
@@ -381,5 +302,85 @@ class TaskServiceTest {
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(repository).deleteTask(TASK_PUBLIC_ID);
+  }
+
+  // プロジェクト存在確認＆所有検証：正常系
+  @Test
+  void プロジェクト存在確認において適切なrepositoryを呼び出しプロジェクトを返していること() {
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    Project actual = sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID);
+
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    assertThat(actual).isEqualTo(project);
+  }
+
+  // プロジェクト存在確認＆所有検証：異常系：404
+  @Test
+  void プロジェクト存在確認においてnullであった場合に適切な例外がThrowされること() {
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("project not found");
+  }
+
+  // プロジェクト存在確認＆所有検証：異常系：403
+  @Test
+  void プロジェクト所有検証において所有者が異なる場合に適切な例外がThrowされること() {
+    Project project = Project.builder()
+        .userId(1000)
+        .build();
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+        .isInstanceOf(InvalidOwnerAccessException.class)
+        .satisfies(ex -> {
+          InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;
+          assertThat(e.getTargetResource()).isEqualTo(TargetResource.PROJECT);
+        });
+  }
+
+  // タスク存在確認＆所有検証：正常系
+  @Test
+  void タスク存在確認において適切なrepositoryを呼び出しタスクを返していること() {
+    Task task = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    Task actual = sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID);
+
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    assertThat(actual).isEqualTo(task);
+  }
+
+  // タスク存在確認＆所有検証：異常系：404
+  @Test
+  void タスク存在確認においてnullであった場合に適切な例外がThrowされること() {
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("task not found");
+  }
+
+  // タスク存在確認＆所有検証：異常系：403
+  @Test
+  void タスク所有検証において所有者が異なる場合に適切な例外がThrowされること() {
+    Task task = Task.builder()
+        .userAccountId(1000)
+        .build();
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+        .isInstanceOf(InvalidOwnerAccessException.class)
+        .satisfies(ex -> {
+          InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;
+          assertThat(e.getTargetResource()).isEqualTo(TargetResource.TASK);
+        });
   }
 }

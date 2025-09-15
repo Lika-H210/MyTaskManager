@@ -279,7 +279,7 @@ public class TaskService {
         .orElseThrow(() -> new RecordNotFoundException("user not found"));
   }
 
-  private Project getAuthorizedProject(String projectPublicId, Integer userId) {
+  Project getAuthorizedProject(String projectPublicId, Integer userId) {
     Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
@@ -290,7 +290,7 @@ public class TaskService {
     return project;
   }
 
-  private Task getAuthorizedTask(String taskPublicId, Integer userId) {
+  Task getAuthorizedTask(String taskPublicId, Integer userId) {
     Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
