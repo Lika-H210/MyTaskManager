@@ -12,7 +12,9 @@ import static org.mockito.Mockito.when;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidOwnerAccessException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
+import com.portfolio.taskapp.MyTaskManager.exception.custom.enums.TargetResource;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
@@ -212,7 +214,7 @@ class TaskServiceTest {
         .hasMessage("task not found");
   }
 
-  // プロジェクト登録処理
+  // プロジェクト登録処理：正常系
   @Test
   void プロジェクト登録処理で適切なrepositoryとmapperが呼び出されていること() {
     Integer userId = 999;
@@ -323,7 +325,7 @@ class TaskServiceTest {
         .hasMessage("project not found");
   }
 
-  // タスク更新処理
+  // タスク更新処理:正常系
   @Test
   void タスク更新処理で適切なrepositoryとmapperが呼び出されていること() {
     TaskRequest request = new TaskRequest();
@@ -355,6 +357,7 @@ class TaskServiceTest {
     verify(mapper, never()).toUpdateTask(any(), any());
   }
 
+  // プロジェクト削除処理：正常系
   @Test
   void プロジェクト削除処理で適切なrepositoryが呼び出されていること() {
     Project project = Project.builder()
@@ -369,6 +372,7 @@ class TaskServiceTest {
     verify(repository).deleteProject(PROJECT_PUBLIC_ID);
   }
 
+  // タスク削除処理：正常系
   @Test
   void タスク削除処理で適切なrepositoryが呼び出されていること() {
     Task task = Task.builder()
@@ -381,5 +385,85 @@ class TaskServiceTest {
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(repository).deleteTask(TASK_PUBLIC_ID);
+  }
+
+  // プロジェクト存在確認＆所有検証：正常系
+  @Test
+  void プロジェクト存在確認において適切なrepositoryを呼び出しプロジェクトを返していること() {
+    Project project = Project.builder()
+        .userId(USER_ID)
+        .build();
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    Project actual = sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID);
+
+    verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    assertThat(actual).isEqualTo(project);
+  }
+
+  // プロジェクト存在確認＆所有検証：異常系：404
+  @Test
+  void プロジェクト存在確認においてnullであった場合に適切な例外がThrowされること() {
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("project not found");
+  }
+
+  // プロジェクト存在確認＆所有検証：異常系：403
+  @Test
+  void プロジェクト所有検証において所有者が異なる場合に適切な例外がThrowされること() {
+    Project project = Project.builder()
+        .userId(1000)
+        .build();
+    when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+        .isInstanceOf(InvalidOwnerAccessException.class)
+        .satisfies(ex -> {
+          InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;
+          assertThat(e.getTargetResource()).isEqualTo(TargetResource.PROJECT);
+        });
+  }
+
+  // タスク存在確認＆所有検証：正常系
+  @Test
+  void タスク存在確認において適切なrepositoryを呼び出しタスクを返していること() {
+    Task task = Task.builder()
+        .userAccountId(USER_ID)
+        .build();
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    Task actual = sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID);
+
+    verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    assertThat(actual).isEqualTo(task);
+  }
+
+  // タスク存在確認＆所有検証：異常系：404
+  @Test
+  void タスク存在確認においてnullであった場合に適切な例外がThrowされること() {
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
+
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+        .isInstanceOf(RecordNotFoundException.class)
+        .hasMessage("task not found");
+  }
+
+  // タスク存在確認＆所有検証：異常系：403
+  @Test
+  void タスク所有検証において所有者が異なる場合に適切な例外がThrowされること() {
+    Task task = Task.builder()
+        .userAccountId(1000)
+        .build();
+    when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+        .isInstanceOf(InvalidOwnerAccessException.class)
+        .satisfies(ex -> {
+          InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;
+          assertThat(e.getTargetResource()).isEqualTo(TargetResource.TASK);
+        });
   }
 }
