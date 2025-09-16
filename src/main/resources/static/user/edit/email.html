@@ -1,90 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>メールアドレス更新</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-  <link href="/css/style.css" rel="stylesheet">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>メールアドレス更新</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="/css/style.css" rel="stylesheet" />
+  </head>
 
-<body class="container my-4">
-<div class="form-wrapper">
-  <h3 class="mb-3">メール更新</h3>
-  <form id="email-form">
+  <body class="container my-4">
+    <div class="form-wrapper">
+      <h3 class="mb-3">メール更新</h3>
+      <form id="email-form">
+        <div class="mb-3 row align-items-center">
+          <label for="email" class="col-sm-4 col-form-label">
+            メールアドレス<span class="required">必須</span>
+          </label>
+          <div class="col-sm-6">
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              required
+              maxlength="100"
+            />
+            <div id="email-error" class="text-danger small"></div>
+          </div>
+        </div>
 
-    <div class="mb-3 row align-items-center">
-      <label for="email" class="col-sm-4 col-form-label">
-        メールアドレス<span class="required">必須</span>
-      </label>
-      <div class="col-sm-6">
-        <input type="email" id="email" class="form-control" required maxlength="100">
-        <div id="email-error" class="text-danger small"></div>
-      </div>
+        <button type="submit" class="btn btn-success">更新</button>
+        <button type="button" class="btn btn-secondary" id="back-button">
+          戻る
+        </button>
+      </form>
     </div>
 
-    <button type="submit" class="btn btn-success">更新</button>
-    <button type="button" class="btn btn-secondary" id="back-button">戻る</button>
+    <script>
+      // 初期表示情報
+      fetch("/users/me")
+        .then((res) => res.json())
+        .then((account) => {
+          document.getElementById("email").value = account.email;
+        })
+        .catch((err) => console.error(err));
 
-  </form>
-</div>
+      // 更新処理
+      document
+        .getElementById("email-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-<script>
-  // 初期表示情報
-  fetch('/users/me')
-    .then(res => res.json())
-    .then(account => {
-      document.getElementById('email').value = account.email;
-    })
-    .catch(err => console.error(err));
+          // 既存エラーをクリア
+          ["email"].forEach((id) => {
+            const el = document.getElementById(id + "-error");
+            if (el) el.innerText = "";
+          });
 
-  // 更新処理
-  document.getElementById('email-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+          const requestBody = { email: document.getElementById("email").value };
 
-    // 既存エラーをクリア
-    ['email'].forEach(id => {
-      const el = document.getElementById(id + '-error');
-      if (el) el.innerText = '';
-    });
+          try {
+            const res = await fetch("/users/me/email", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(requestBody),
+            });
 
-    const requestBody = { email: document.getElementById('email').value };
+            let data;
+            try {
+              data = await res.json();
+            } catch (e) {
+              data = {}; // JSONパースできなければ空オブジェクト
+            }
 
-    try {
-      const res = await fetch('/users/me/email', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        data = {}; // JSONパースできなければ空オブジェクト
-      }
-
-      if (res.ok) {
-        window.location.href = '/user/account.html';
-      } else if (res.status === 400 && data.detail) {
-        // バリデーションエラーをHTMLに反映
-        Object.entries(data.detail).forEach(([field, messages]) => {
-          const el = document.getElementById(field + '-error');
-          if (el) el.innerText = messages;
+            if (res.ok) {
+              window.location.href = "/user/account.html";
+            } else if (res.status === 400 && data.detail) {
+              // バリデーションエラーをHTMLに反映
+              Object.entries(data.detail).forEach(([field, messages]) => {
+                const el = document.getElementById(field + "-error");
+                if (el) el.innerText = messages;
+              });
+            } else {
+              alert(data.message || "更新に失敗しました");
+            }
+          } catch (err) {
+            console.error(err);
+            alert("通信エラーが発生しました");
+          }
         });
-      } else {
-        alert(data.message || '更新に失敗しました');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('通信エラーが発生しました');
-    }
-  });
 
-  // 戻るボタン
-  document.getElementById('back-button').addEventListener('click', () => {
-    window.location.href = '/user/account.html';
-  });
-</script>
-</body>
+      // 戻るボタン
+      document.getElementById("back-button").addEventListener("click", () => {
+        window.location.href = "/user/account.html";
+      });
+    </script>
+  </body>
 </html>
