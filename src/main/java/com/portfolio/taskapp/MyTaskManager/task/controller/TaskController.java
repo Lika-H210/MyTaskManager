@@ -3,7 +3,6 @@ package com.portfolio.taskapp.MyTaskManager.task.controller;
 import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
-import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskRequest;
 import com.portfolio.taskapp.MyTaskManager.task.dto.TaskTree;
@@ -82,7 +81,6 @@ public class TaskController {
    * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return プロジェクト情報
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Operation(
       summary = "プロジェクトの単体取得",
@@ -94,6 +92,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Project.class))
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したプロジェクトの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -120,7 +123,6 @@ public class TaskController {
    * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return 親子タスクのリスト
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Operation(
       summary = "プロジェクトの親子タスク一覧取得",
@@ -141,6 +143,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   array = @ArraySchema(schema = @Schema(implementation = TaskTree.class)))
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したプロジェクトの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -165,7 +172,6 @@ public class TaskController {
    * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId 親タスクの公開ID（UUID形式）
    * @return 親子タスク
-   * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Operation(
       summary = "単独の親子タスク取得",
@@ -186,6 +192,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = TaskTree.class))
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -210,7 +221,6 @@ public class TaskController {
    * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId タスクの公開ID（UUID形式）
    * @return タスク情報
-   * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Operation(
       summary = "タスクの単体取得",
@@ -222,6 +232,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -247,7 +262,6 @@ public class TaskController {
    * @param userDetails 現在認証済みのユーザー情報
    * @param request     プロジェクト登録リクエスト
    * @return 作成されたプロジェクト情報
-   * @throws RecordNotFoundException ユーザーが存在しない場合
    */
   @Operation(
       summary = "新規プロジェクト登録",
@@ -287,7 +301,6 @@ public class TaskController {
    * @param projectPublicId 親タスクと紐づくプロジェクトの公開ID
    * @param request         親タスク登録リクエスト
    * @return 作成された親タスク情報
-   * @throws RecordNotFoundException 親タスクと紐づくプロジェクトが存在しない場合
    */
   @Operation(
       summary = "新規の親タスク登録",
@@ -312,6 +325,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "400",
               description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したプロジェクトの所有者でない場合",
               content = @Content()
           ),
           @ApiResponse(
@@ -341,7 +359,6 @@ public class TaskController {
    * @param taskPublicId 親タスクの公開ID
    * @param request      子タスク登録リクエスト
    * @return 作成された子タスク情報
-   * @throws RecordNotFoundException 親タスクが存在しない場合
    */
   @Operation(
       summary = "新規の子タスク登録",
@@ -366,6 +383,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "400",
               description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
               content = @Content()
           ),
           @ApiResponse(
@@ -394,7 +416,6 @@ public class TaskController {
    * @param projectPublicId プロジェクトの公開ID
    * @param request         プロジェクトの更新用リクエスト
    * @return 更新後のプロジェクト情報
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Operation(
       summary = "プロジェクト更新",
@@ -419,6 +440,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "400",
               description = "リクエストの内容が不正（入力値がバリデーション条件違反）だった場合",
+              content = @Content()
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したプロジェクトの所有者でない場合",
               content = @Content()
           ),
           @ApiResponse(
@@ -448,7 +474,6 @@ public class TaskController {
    * @param taskPublicId タスクの公開ID
    * @param request      タスクの更新用リクエスト
    * @return 更新後のタスク情報
-   * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Operation(
       summary = "タスク更新",
@@ -476,6 +501,11 @@ public class TaskController {
               content = @Content()
           ),
           @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
+          ),
+          @ApiResponse(
               responseCode = "404",
               description = "指定した公開IDのタスクが存在しないか、削除されている場合",
               content = @Content()
@@ -500,7 +530,6 @@ public class TaskController {
    * @param userDetails     現在認証済みのユーザー情報
    * @param projectPublicId プロジェクトの公開ID
    * @return 空レスポンス（204 No Content）
-   * @throws RecordNotFoundException プロジェクトが存在しない場合
    */
   @Operation(
       summary = "プロジェクトの削除",
@@ -519,6 +548,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功した場合（レスポンスボディはありません）"
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したプロジェクトの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -543,7 +577,6 @@ public class TaskController {
    * @param userDetails  現在認証済みのユーザー情報
    * @param taskPublicId タスクの公開ID（UUID形式）
    * @return 空レスポンス（204 No Content）
-   * @throws RecordNotFoundException タスクが存在しない場合
    */
   @Operation(
       summary = "タスクの削除",
@@ -562,6 +595,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功し、レスポンスボディはありません"
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
