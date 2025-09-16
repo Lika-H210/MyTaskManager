@@ -198,6 +198,11 @@ public class TaskController {
                   schema = @Schema(implementation = TaskTree.class))
           ),
           @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
+          ),
+          @ApiResponse(
               responseCode = "404",
               description = "指定した公開IDのタスクが存在しないか、削除されている場合",
               content = @Content()
@@ -232,6 +237,11 @@ public class TaskController {
               description = "リクエストが正常に処理された場合",
               content = @Content(mediaType = "application/json",
                   schema = @Schema(implementation = Task.class))
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
@@ -384,6 +394,11 @@ public class TaskController {
               content = @Content()
           ),
           @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
+          ),
+          @ApiResponse(
               responseCode = "404",
               description = "指定した公開IDの親タスクが存在しないか、削除されている場合",
               content = @Content()
@@ -496,6 +511,11 @@ public class TaskController {
               content = @Content()
           ),
           @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
+          ),
+          @ApiResponse(
               responseCode = "404",
               description = "指定した公開IDのタスクが存在しないか、削除されている場合",
               content = @Content()
@@ -587,6 +607,11 @@ public class TaskController {
           @ApiResponse(
               responseCode = "204",
               description = "削除が成功し、レスポンスボディはありません"
+          ),
+          @ApiResponse(
+              responseCode = "403",
+              description = "ログインユーザーが指定したタスクの所有者でない場合",
+              content = @Content()
           ),
           @ApiResponse(
               responseCode = "404",
