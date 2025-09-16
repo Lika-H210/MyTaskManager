@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * プロジェクトおよびタスクに関するビジネスロジックを提供するサービスクラス。
  * <p>
- * DBアクセスは TaskRepository を介して行い、表示用の構造変換には TaskConverter、エンティティとDTO間の変換には ProjectTaskMapper
- * を利用します。
+ * DBアクセスは TaskRepository を介して行い、表示用の構造変換には TaskConverter、エンティティとDTO間の変換には ProjectTaskMapperを利用します。
  */
 @Service
 public class TaskService {
@@ -279,22 +278,38 @@ public class TaskService {
         .orElseThrow(() -> new RecordNotFoundException("user not found"));
   }
 
+  /**
+   * 対象の公開IDのプロジェクトの存在確認及び所有者検証を行います。
+   *
+   * @param projectPublicId 確認対象のプロジェクトの公開ID
+   * @param userId          リクエスト送信ユーザーの内部ID
+   * @return 対象のプロジェクト情報
+   * @throws RecordNotFoundException     プロジェクトが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
+   */
   Project getAuthorizedProject(String projectPublicId, Integer userId) {
     Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
-    // 不正アクセスチェック
     if (!project.getUserId().equals(userId)) {
       throw new InvalidOwnerAccessException(TargetResource.PROJECT);
     }
     return project;
   }
 
+  /**
+   * 対象の公開IDのタスクの存在確認及び所有者検証を行います。
+   *
+   * @param taskPublicId 確認対象のタスクの公開ID
+   * @param userId       リクエスト送信ユーザーの内部ID
+   * @return 対象のタスク情報
+   * @throws RecordNotFoundException     タスクが存在しない場合
+   * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
+   */
   Task getAuthorizedTask(String taskPublicId, Integer userId) {
     Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
-    // 不正アクセスチェック
     if (!task.getUserAccountId().equals(userId)) {
       throw new InvalidOwnerAccessException(TargetResource.TASK);
     }
