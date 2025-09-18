@@ -47,12 +47,38 @@
       const projectPublicId = params.get("projectPublicId");
       const parentTaskPublicId = params.get("parentTaskPublicId");
 
-      fetch(`/task-trees/${parentTaskPublicId}`)
-        .then((res) => res.json())
-        .then((taskTree) => {
+      // tokenの取得
+      let csrfToken = null;
+
+      async function getCsrfToken() {
+        if (csrfToken) return csrfToken; // 既に取得済みなら再利用
+
+        try {
+          const res = await fetch("/csrf-token", { credentials: "include" });
+          if (!res.ok) throw new Error("CSRFトークンの取得に失敗しました");
+
+          const data = await res.json();
+          if (!data.token)
+            throw new Error("CSRFトークンがレスポンスに存在しません");
+
+          csrfToken = data.token;
+          return csrfToken;
+        } catch (err) {
+          console.error("CSRF取得エラー:", err);
+          alert("通信エラーが発生しました。操作をやり直してください。");
+          throw err; // 呼び出し元でも try/catch で処理可能
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const res = await fetch(`/task-trees/${parentTaskPublicId}`);
+          if (!res.ok) throw new Error("タスクツリーの取得に失敗しました");
+
+          const taskTree = await res.json();
           const parent = taskTree.parentTask;
 
-          // 親タスク情報を上部に文字列表示
+          // 親タスク情報を上部に表示
           document.getElementById("parent-task-caption").textContent =
             "親タスク名: " + parent.taskCaption;
           document.getElementById("parent-task-due-date").textContent =
@@ -62,44 +88,57 @@
 
           // 子タスクをテーブルに描画
           const subtaskBody = document.getElementById("subtask-body");
-          taskTree.subtaskList
-            ?.filter((c) => !c.isDeleted)
-            .forEach((c) => {
-              const due = c.dueDate ? c.dueDate.slice(5, 10) : ""; // "MM-DD"
-              const row = document.createElement("tr");
-              row.innerHTML = `
-          <td>${c.taskCaption}</td>
-          <td>${due}</td>
-          <td>${c.progress}%</td>
-          <td>${c.priority}</td>
-          <td>
-            <a href="/task/edit.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}&taskPublicId=${c.publicId}&from=child"
-               title="プロジェクト詳細">
-              📝
-            </a>
-          </td>
-          <td>
-            <button class="btn btn-link p-0 btn-delete" title="削除" style="color:red;">
-              ❌
-            </button>
-          </td>
-        `;
-              subtaskBody.appendChild(row);
+          taskTree.subtaskList?.forEach((c) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td>${c.taskCaption}</td>
+              <td>${c.dueDate?.slice(5, 10) || ""}</td>
+              <td>${c.progress}%</td>
+              <td>${c.priority}</td>
+              <td>
+                <a href="/task/edit.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}&taskPublicId=${
+              c.publicId
+            }&from=child"
+                  title="プロジェクト詳細">
+                  📝
+                </a>
+              </td>
+              <td>
+                <button class="btn btn-link p-0 btn-delete" title="削除" style="color:red;">❌</button>
+              </td>
+            `;
+            subtaskBody.appendChild(row);
 
-              // 削除ボタン
-              row.querySelector(".btn-delete").addEventListener("click", () => {
-                if (confirm("このタスクを削除しますか？")) {
-                  fetch(`/tasks/${c.publicId}`, { method: "DELETE" })
-                    .then((res) => {
-                      if (!res.ok) throw new Error("削除に失敗しました");
-                      row.remove();
-                    })
-                    .catch((err) => alert(err.message));
+            // 削除ボタン
+            row
+              .querySelector(".btn-delete")
+              .addEventListener("click", async () => {
+                if (!confirm("このタスクを削除しますか？")) return;
+
+                try {
+                  const token = await getCsrfToken();
+                  const res = await fetch(`/tasks/${c.publicId}`, {
+                    method: "DELETE",
+                    headers: { "X-XSRF-TOKEN": token },
+                    credentials: "include",
+                  });
+
+                  if (res.ok) {
+                    row.remove();
+                  } else {
+                    alert("削除に失敗しました");
+                  }
+                } catch (err) {
+                  console.error(err);
+                  alert("通信エラーが発生しました");
                 }
               });
-            });
-        })
-        .catch((err) => console.error("Error loading taskTree:", err));
+          });
+        } catch (err) {
+          console.error(err);
+          alert("タスクツリーの取得に失敗しました");
+        }
+      });
 
       // 子タスク登録ボタン
       document

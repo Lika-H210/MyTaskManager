@@ -84,34 +84,47 @@
       // 更新ボタン
       document
         .getElementById("project-form")
-        .addEventListener("submit", (e) => {
+        .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const requestBody = {
-            projectCaption: document.getElementById("project-caption").value,
-            description: document.getElementById("description").value,
-            status: document.getElementById("status").value,
-          };
+          // トークン取得
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", { credentials: "include" });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
 
-          fetch(`/projects/${projectPublicId}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-          })
-            .then((res) => {
-              if (res.ok) {
-                window.location.href = `/project/list.html`;
-              } else {
-                return res.json().then((err) => {
-                  throw err;
-                });
-              }
-            })
-            .catch((err) => {
-              console.error(err);
-              alert("更新に失敗しました");
-              window.location.href = `/project/list.html`;
+          try {
+            const token = await getCsrfToken();
+
+            const requestBody = {
+              projectCaption: document.getElementById("project-caption").value,
+              description: document.getElementById("description").value,
+              status: document.getElementById("status").value,
+            };
+
+            const res = await fetch(`/projects/${projectPublicId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
+              body: JSON.stringify(requestBody),
+              credentials: "include",
             });
+
+            if (!res.ok) {
+              const err = await res.json();
+              throw err;
+            }
+
+            window.location.href = `/project/list.html`;
+          } catch (err) {
+            console.error(err);
+            alert("更新に失敗しました");
+          }
         });
 
       // 戻るボタン

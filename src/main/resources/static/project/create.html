@@ -52,36 +52,52 @@
 
       document
         .getElementById("project-form")
-        .addEventListener("submit", (e) => {
+        .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const requestBody = {
-            projectCaption: document.getElementById("project-caption").value,
-            description: document.getElementById("description").value || "", // null → ""
-            status: "ACTIVE",
-          };
-
-          fetch(`/projects`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-          })
-            .then((res) => {
-              if (res.ok) {
-                // 登録成功 → プロジェクト一覧画面に戻る
-                window.location.href = "/project/list.html";
-              } else {
-                return res.json().then((err) => {
-                  throw err;
-                });
-              }
-            })
-            .catch((err) => {
-              alert(
-                "登録に失敗しました: " + (err.message || JSON.stringify(err))
-              );
-              console.error(err);
+          // トークン取得処理
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", {
+              credentials: "include",
             });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
+
+          try {
+            const token = await getCsrfToken();
+
+            const requestBody = {
+              projectCaption: document.getElementById("project-caption").value,
+              description: document.getElementById("description").value || "",
+              status: "ACTIVE",
+            };
+
+            const res = await fetch(`/projects`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
+              body: JSON.stringify(requestBody),
+              credentials: "include",
+            });
+
+            if (!res.ok) {
+              const err = await res.json();
+              throw err;
+            }
+
+            // 登録成功 → プロジェクト一覧画面に戻る
+            window.location.href = "/project/list.html";
+          } catch (err) {
+            console.error(err);
+            alert(
+              "登録に失敗しました: " + (err.message || JSON.stringify(err))
+            );
+          }
         });
 
       // 戻るボタン（プロジェクト一覧画面へ戻る）

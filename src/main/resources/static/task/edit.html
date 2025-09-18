@@ -153,47 +153,72 @@
         .catch((err) => console.error(err));
 
       // 更新ボタン
-      document.getElementById("task-form").addEventListener("submit", (e) => {
-        e.preventDefault();
+      document
+        .getElementById("task-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-        const requestBody = {
-          taskCaption: document.getElementById("task-caption").value,
-          description: document.getElementById("description").value,
-          dueDate: document.getElementById("due-date").value,
-          estimatedTime: document.getElementById("estimated-time").value,
-          actualTime: document.getElementById("actual-time").value,
-          progress: document.getElementById("progress").value,
-          priority: document.getElementById("priority").value,
-        };
+          // トークン取得
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", { credentials: "include" });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
 
-        fetch(`/tasks/${taskPublicId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        })
-          .then((res) => {
+          try {
+            const token = await getCsrfToken();
+
+            const requestBody = {
+              taskCaption: document.getElementById("task-caption").value,
+              description: document.getElementById("description").value,
+              dueDate: document.getElementById("due-date").value,
+              estimatedTime: document.getElementById("estimated-time").value,
+              actualTime: document.getElementById("actual-time").value,
+              progress: document.getElementById("progress").value,
+              priority: document.getElementById("priority").value,
+            };
+
+            const res = await fetch(`/tasks/${taskPublicId}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
+              body: JSON.stringify(requestBody),
+              credentials: "include",
+            });
+
             if (res.ok) {
               if (from === "child") {
                 window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
               } else {
                 window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
               }
-            } else {
-              return res.json().then((err) => {
-                throw err;
-              });
+              return; // ここで処理終了
             }
-          })
-          .catch((err) => {
+
+            // エラーレスポンスの処理
+            let errData = {};
+            try {
+              errData = await res.json();
+            } catch (_) {
+              // JSONでない場合はそのまま
+            }
+            throw new Error(errData.message || "更新に失敗しました");
+          } catch (err) {
             console.error(err);
-            alert("更新に失敗しました");
+            alert(err.message || "通信エラーが発生しました");
+
+            // エラー時のリダイレクト
             if (from === "child") {
               window.location.href = `/task/task-tree.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
             } else {
               window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
             }
-          });
-      });
+          }
+        });
 
       // 戻るボタン
       document.getElementById("back-button").addEventListener("click", () => {

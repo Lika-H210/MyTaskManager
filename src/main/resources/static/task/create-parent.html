@@ -94,43 +94,59 @@
 
       document
         .getElementById("parent-task-form")
-        .addEventListener("submit", (e) => {
+        .addEventListener("submit", async (e) => {
           e.preventDefault();
 
-          const requestBody = {
-            taskCaption: document.getElementById("task-caption").value,
-            description: document.getElementById("description").value || "", // null → ""
-            dueDate: document.getElementById("due-date").value,
-            estimatedTime: parseInt(
-              document.getElementById("estimated-time").value,
-              10
-            ),
-            actualTime: 0, // デフォルト
-            progress: 0, // デフォルト
-            priority: document.getElementById("priority").value || "LOW", // 未選択はLOW
-          };
-
-          fetch(`/projects/${projectPublicId}/tasks`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-          })
-            .then((res) => {
-              if (res.ok) {
-                // 登録成功 → 親子タスク一覧画面に戻る
-                window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
-              } else {
-                return res.json().then((err) => {
-                  throw err;
-                });
-              }
-            })
-            .catch((err) => {
-              alert(
-                "登録に失敗しました: " + (err.message || JSON.stringify(err))
-              );
-              console.error(err);
+          // トークン取得処理
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", {
+              credentials: "include",
             });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
+
+          try {
+            const token = await getCsrfToken();
+
+            const requestBody = {
+              taskCaption: document.getElementById("task-caption").value,
+              description: document.getElementById("description").value || "",
+              dueDate: document.getElementById("due-date").value,
+              estimatedTime: parseInt(
+                document.getElementById("estimated-time").value,
+                10
+              ),
+              actualTime: 0,
+              progress: 0,
+              priority: document.getElementById("priority").value || "LOW",
+            };
+
+            const res = await fetch(`/projects/${projectPublicId}/tasks`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
+              body: JSON.stringify(requestBody),
+              credentials: "include",
+            });
+
+            if (!res.ok) {
+              const err = await res.json();
+              throw err;
+            }
+
+            // 登録成功 → 親子タスク一覧画面に戻る
+            window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+          } catch (err) {
+            console.error(err);
+            alert(
+              "登録に失敗しました: " + (err.message || JSON.stringify(err))
+            );
+          }
         });
 
       // 戻るボタン（親子タスク一覧画面へ戻る）

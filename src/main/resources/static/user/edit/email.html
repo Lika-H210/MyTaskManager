@@ -58,13 +58,30 @@
             if (el) el.innerText = "";
           });
 
-          const requestBody = { email: document.getElementById("email").value };
+          // トークン取得
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", { credentials: "include" });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
 
           try {
+            const token = await getCsrfToken();
+
+            const requestBody = {
+              email: document.getElementById("email").value,
+            };
+
             const res = await fetch("/users/me/email", {
               method: "PUT",
-              headers: { "Content-Type": "application/json" },
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
               body: JSON.stringify(requestBody),
+              credentials: "include",
             });
 
             let data;
