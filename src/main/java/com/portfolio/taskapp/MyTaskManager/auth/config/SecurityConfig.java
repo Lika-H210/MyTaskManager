@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @SecurityScheme(name = "userAuth", type = SecuritySchemeType.HTTP, scheme = "basic",
     description = "Swagger UI上ではHTTP Basicとして表示されますが、実際には現在はセッション認証です。")
@@ -26,11 +26,14 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        .csrf(AbstractHttpConfigurer::disable)
+        .csrf(csrf -> csrf
+            .ignoringRequestMatchers("/login", "/users/register")
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+        )
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login.html", "/user/register.html", "/css/**", "/js/**").permitAll()
+            .requestMatchers("/login", "/login.html", "/user/register.html", "/css/**", "/js/**")
+            .permitAll()
             .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
-            // Todo:本番環境では削除
             .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
             .anyRequest().authenticated()
         )
@@ -41,8 +44,8 @@ public class SecurityConfig {
             .permitAll())
         .logout(logout -> logout
             .logoutUrl("/logout")
-            .logoutSuccessUrl("/login?logout")
-            .deleteCookies("JSESSIONID")
+            .logoutSuccessUrl("/login.html")
+            .deleteCookies("JSESSIONID", "XSRF-TOKEN")
             .invalidateHttpSession(true)
         );
 

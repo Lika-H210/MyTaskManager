@@ -1,73 +1,109 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>プロジェクト登録</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-  <link href="../css/style.css" rel="stylesheet">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>プロジェクト登録</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link href="../css/style.css" rel="stylesheet" />
+  </head>
 
-<body class="container my-4">
-<div class="form-wrapper">
-  <h3 class="mb-3">プロジェクト登録</h3>
-  <form id="project-form">
+  <body class="container my-4">
+    <div class="form-wrapper">
+      <h3 class="mb-3">プロジェクト登録</h3>
+      <form id="project-form">
+        <div class="mb-3">
+          <label for="project-caption" class="form-label">
+            プロジェクト名<span class="required">必須</span>
+          </label>
+          <input
+            type="text"
+            class="form-control full-width-input"
+            id="project-caption"
+            name="projectCaption"
+            required
+            maxlength="100"
+            pattern=".*\S.*"
+          />
+        </div>
 
-    <div class="mb-3">
-      <label for="project-caption" class="form-label">
-        プロジェクト名<span class="required">必須</span>
-      </label>
-      <input type="text" class="form-control full-width-input" id="project-caption"
-             name="projectCaption" required maxlength="100" pattern=".*\S.*">
+        <div class="mb-3">
+          <label for="description" class="form-label">詳細説明</label>
+          <textarea
+            class="form-control full-width-input"
+            id="description"
+            name="description"
+            rows="10"
+            maxlength="1000"
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">登録</button>
+        <button type="button" class="btn btn-secondary" id="back-button">
+          戻る
+        </button>
+      </form>
     </div>
 
-    <div class="mb-3">
-      <label for="description" class="form-label">詳細説明</label>
-      <textarea class="form-control full-width-input" id="description" name="description"
-                rows="10" maxlength="1000"></textarea>
-    </div>
+    <script>
+      const params = new URLSearchParams(window.location.search);
 
-    <button type="submit" class="btn btn-success">登録</button>
-    <button type="button" class="btn btn-secondary" id="back-button">戻る</button>
+      document
+        .getElementById("project-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
 
-  </form>
-</div>
+          // トークン取得処理
+          async function getCsrfToken() {
+            if (window.csrfToken) return window.csrfToken;
+            const res = await fetch("/csrf-token", {
+              credentials: "include",
+            });
+            const data = await res.json();
+            window.csrfToken = data.token;
+            return window.csrfToken;
+          }
 
-<script>
-  const params = new URLSearchParams(window.location.search);
+          try {
+            const token = await getCsrfToken();
 
-  document.getElementById('project-form').addEventListener('submit', (e) => {
-    e.preventDefault();
+            const requestBody = {
+              projectCaption: document.getElementById("project-caption").value,
+              description: document.getElementById("description").value || "",
+              status: "ACTIVE",
+            };
 
-    const requestBody = {
-      projectCaption: document.getElementById('project-caption').value,
-      description: document.getElementById('description').value || "", // null → ""
-      status: "ACTIVE"
-    };
+            const res = await fetch(`/projects`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": token,
+              },
+              body: JSON.stringify(requestBody),
+              credentials: "include",
+            });
 
-    fetch(`/projects`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
-    })
-      .then(res => {
-        if (res.ok) {
-          // 登録成功 → プロジェクト一覧画面に戻る
-          window.location.href = '/project/list.html';
-        } else {
-          return res.json().then(err => { throw err; });
-        }
-      })
-      .catch(err => {
-        alert('登録に失敗しました: ' + (err.message || JSON.stringify(err)));
-        console.error(err);
+            if (!res.ok) {
+              const err = await res.json();
+              throw err;
+            }
+
+            // 登録成功 → プロジェクト一覧画面に戻る
+            window.location.href = "/project/list.html";
+          } catch (err) {
+            console.error(err);
+            alert(
+              "登録に失敗しました: " + (err.message || JSON.stringify(err))
+            );
+          }
+        });
+
+      // 戻るボタン（プロジェクト一覧画面へ戻る）
+      document.getElementById("back-button").addEventListener("click", () => {
+        window.location.href = `/project/list.html`;
       });
-  });
-
-  // 戻るボタン（プロジェクト一覧画面へ戻る）
-  document.getElementById('back-button').addEventListener('click', () => {
-    window.location.href = `/project/list.html`;
-  });
-</script>
-</body>
+    </script>
+  </body>
 </html>
