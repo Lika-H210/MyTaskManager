@@ -258,7 +258,7 @@ class TaskRepositoryTest {
 
     assertThat(actual)
         .usingRecursiveComparison()
-        .comparingOnlyFields("id", "userId", "createdAt", "isDeleted")
+        .comparingOnlyFields("id", "userAccountId", "createdAt", "isDeleted")
         .isEqualTo(beforeProject);
   }
 

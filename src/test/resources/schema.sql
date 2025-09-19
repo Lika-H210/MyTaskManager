@@ -14,7 +14,7 @@ CREATE TABLE user_accounts (
 
 CREATE TABLE projects (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  user_id INT NOT NULL,
+  user_account_id INT NOT NULL,
   public_id CHAR(36) NOT NULL,
   project_caption VARCHAR(100) NOT NULL,
   description TEXT,
@@ -22,7 +22,7 @@ CREATE TABLE projects (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted boolean DEFAULT FALSE,
-  FOREIGN KEY (user_id) REFERENCES user_accounts (id),
+  FOREIGN KEY (user_account_id) REFERENCES user_accounts (id),
   UNIQUE (public_id)
 );
 

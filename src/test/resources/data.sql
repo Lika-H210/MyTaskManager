@@ -6,7 +6,7 @@ VALUES
   ('12345678-90ab-cdef-1234-abcdef123456', '削除太郎', 'sakujo@example.com', 'hashed_pw_deleted', true);
 
 -- プロジェクト
-INSERT INTO projects (user_id, public_id, project_caption, description, status, is_deleted)
+INSERT INTO projects (user_account_id, public_id, project_caption, description, status, is_deleted)
 VALUES
   (1, 'a1111111-bbbb-cccc-dddd-eeeeeeeeeeee', '勤怠管理システム', '社内用の勤怠管理ツール', 'ACTIVE', false),
   (1, 'a2222222-bbbb-cccc-dddd-eeeeeeeeeeee', '顧客管理アプリ', '顧客情報を一元管理するCRMシステム', 'ARCHIVED', false),
