@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -82,6 +83,7 @@ class UserControllerIntegrationTest {
 
     mockMvc.perform(put("/users/me/info")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isOk());
@@ -98,6 +100,7 @@ class UserControllerIntegrationTest {
 
     mockMvc.perform(put("/users/me/email")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isOk());
@@ -115,6 +118,7 @@ class UserControllerIntegrationTest {
 
     mockMvc.perform(put("/users/me/password")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isOk());
@@ -127,7 +131,8 @@ class UserControllerIntegrationTest {
   void アカウント削除で適切なserviceが実行と認証情報の削除が実行され204ステータスが返されること()
       throws Exception {
     mockMvc.perform(delete("/users/me")
-            .with(user(userDetails)))
+            .with(user(userDetails))
+            .with(csrf()))
         .andExpect(status().isNoContent())
         // 認証情報がクリアされることを確認
         .andExpect(unauthenticated());
@@ -152,6 +157,7 @@ class UserControllerIntegrationTest {
 
     mockMvc.perform(put("/users/me/password")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
         .andExpect(status().isBadRequest());

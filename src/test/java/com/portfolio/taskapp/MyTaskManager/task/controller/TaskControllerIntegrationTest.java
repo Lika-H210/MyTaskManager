@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -151,6 +152,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(post("/projects")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
@@ -168,6 +170,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(post("/projects/{projectPublicId}/tasks", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
@@ -184,6 +187,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(post("/tasks/{taskPublicId}/subtasks", TASK_PUBLIC_ID)
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isCreated());
@@ -200,6 +204,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(put("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestJson))
         .andExpect(status().isOk());
@@ -215,6 +220,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(put("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isOk());
@@ -226,7 +232,8 @@ class TaskControllerIntegrationTest {
   void プロジェクト削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
     mockMvc.perform(delete("/projects/{projectPublicId}", PROJECT_PUBLIC_ID)
-            .with(user(userDetails)))
+            .with(user(userDetails))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
     verify(service).deleteProject(PROJECT_PUBLIC_ID, USER_ID);
@@ -249,6 +256,7 @@ class TaskControllerIntegrationTest {
 
     mockMvc.perform(post("/projects")
             .with(user(userDetails))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(json))
         .andExpect(status().isBadRequest())
@@ -276,6 +284,7 @@ class TaskControllerIntegrationTest {
     mockMvc.perform(
             post("/projects/{projectPublicId}/tasks", "00000000-0000-0000-0000-111111111111")
                 .with(user(userDetails))
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
         .andExpect(status().isBadRequest())
@@ -290,7 +299,8 @@ class TaskControllerIntegrationTest {
   void タスク削除処理で204ステータスになり適切なserviceが実行されること()
       throws Exception {
     mockMvc.perform(delete("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
-            .with(user(userDetails)))
+            .with(user(userDetails))
+            .with(csrf()))
         .andExpect(status().isNoContent());
 
     verify(service).deleteTask(TASK_PUBLIC_ID, USER_ID);
