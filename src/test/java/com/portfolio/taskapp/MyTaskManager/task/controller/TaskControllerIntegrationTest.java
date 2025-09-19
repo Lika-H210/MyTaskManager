@@ -81,7 +81,7 @@ class TaskControllerIntegrationTest {
     Project project = Project.builder()
         .id(9999)
         .publicId(PROJECT_PUBLIC_ID)
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .projectCaption("caption")
         .description("description")
         .status(ProjectStatus.ACTIVE)

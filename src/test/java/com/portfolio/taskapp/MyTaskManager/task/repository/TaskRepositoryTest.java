@@ -71,7 +71,7 @@ class TaskRepositoryTest {
     assertThat(actual.size()).isEqualTo(2);
     assertThat(actual)
         .allSatisfy(project -> {
-          assertThat(project.getUserId()).isEqualTo(userId);
+          assertThat(project.getUserAccountId()).isEqualTo(userId);
           assertThat(project.isDeleted()).isFalse();
         });
   }
@@ -153,7 +153,7 @@ class TaskRepositoryTest {
   void プロジェクト登録処理で新規のプロジェクトが登録されDBでの内容も反映できていること() {
     String publicId = "00000000-0000-0000-0000-000000000000";
     Project project = Project.builder()
-        .userId(1)
+        .userAccountId(1)
         .publicId(publicId)
         .projectCaption("テストプロジェクト")
         .description("説明")
@@ -239,7 +239,7 @@ class TaskRepositoryTest {
     String publicId = "a1111111-bbbb-cccc-dddd-eeeeeeeeeeee";
     Project project = Project.builder()
         .id(999)
-        .userId(999)
+        .userAccountId(999)
         .publicId(publicId)
         .projectCaption("必須項目") // 必須制約のため入力（検証対象外）
         .createdAt(LocalDateTime
