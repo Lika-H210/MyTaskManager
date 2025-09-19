@@ -84,7 +84,7 @@ class TaskServiceTest {
   @Test
   void 単独プロジェクト取得で適切なrepositoryが呼び出せていること() {
     Project project = Project.builder()
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
@@ -98,7 +98,7 @@ class TaskServiceTest {
   void プロジェクトに紐づく親子タスク一覧取得時に適切なrepositoryとconverterが呼び出せていること() {
     Project project = Project.builder()
         .id(PROJECT_ID)
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .build();
     List<Task> taskList = List.of();
 
@@ -193,7 +193,7 @@ class TaskServiceTest {
   @Test
   void 親タスク登録処理で適切なrepositoryとmapperが呼び出されていること() {
     Project project = Project.builder()
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .build();
     TaskRequest request = new TaskRequest();
     Task task = new Task();
@@ -239,7 +239,7 @@ class TaskServiceTest {
   @Test
   void プロジェクト更新処理で適切なrepositoryとmapperが呼び出されていること() {
     Project currentProject = Project.builder()
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .publicId(PROJECT_PUBLIC_ID)
         .build();
     ProjectRequest request = new ProjectRequest();
@@ -278,7 +278,7 @@ class TaskServiceTest {
   @Test
   void プロジェクト削除処理で適切なrepositoryが呼び出されていること() {
     Project project = Project.builder()
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .build();
 
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
@@ -308,7 +308,7 @@ class TaskServiceTest {
   @Test
   void プロジェクト存在確認において適切なrepositoryを呼び出しプロジェクトを返していること() {
     Project project = Project.builder()
-        .userId(USER_ID)
+        .userAccountId(USER_ID)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 
@@ -332,7 +332,7 @@ class TaskServiceTest {
   @Test
   void プロジェクト所有検証において所有者が異なる場合に適切な例外がThrowされること() {
     Project project = Project.builder()
-        .userId(1000)
+        .userAccountId(1000)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
 

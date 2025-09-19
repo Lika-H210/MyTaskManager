@@ -27,7 +27,7 @@ public class Project {
 
   @Schema(description = "このプロジェクトの責任ユーザーのId")
   @JsonIgnore
-  private Integer userId;
+  private Integer userAccountId;
 
   @Schema(description = "UUID形式の公開ID")
   private String publicId;

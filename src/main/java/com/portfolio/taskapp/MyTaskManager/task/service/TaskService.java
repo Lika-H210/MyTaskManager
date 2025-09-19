@@ -206,7 +206,8 @@ public class TaskService {
   public Project updateProject(ProjectRequest request, String projectPublicId, Integer userId) {
     Project currentProject = getAuthorizedProject(projectPublicId, userId);
 
-    Project updateProject = mapper.toProject(request, currentProject.getUserId(), projectPublicId);
+    Project updateProject = mapper.toProject(request, currentProject.getUserAccountId(),
+        projectPublicId);
     repository.updateProject(updateProject);
 
     return updateProject;
@@ -291,7 +292,7 @@ public class TaskService {
     Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
-    if (!project.getUserId().equals(userId)) {
+    if (!project.getUserAccountId().equals(userId)) {
       throw new InvalidOwnerAccessException(TargetResource.PROJECT);
     }
     return project;

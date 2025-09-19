@@ -22,7 +22,7 @@ public class ProjectTaskMapper {
    */
   public Project toProject(ProjectRequest request, Integer userId, String publicId) {
     return Project.builder()
-        .userId(userId)
+        .userAccountId(userId)
         .publicId(publicId)
         .projectCaption(request.getProjectCaption())
         .description(request.getDescription())
@@ -42,7 +42,7 @@ public class ProjectTaskMapper {
    */
   public Task toTask(TaskRequest request, Project project, String publicId) {
     return Task.builder()
-        .userAccountId(project.getUserId())
+        .userAccountId(project.getUserAccountId())
         .projectId(project.getId())
         .publicId(publicId)
         .parentTaskId(null)

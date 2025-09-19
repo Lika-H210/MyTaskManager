@@ -30,7 +30,7 @@
     parameterType="Integer"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
     SELECT * FROM projects
-    WHERE user_id = #{userId}
+    WHERE user_account_id = #{userAccountId}
     AND is_deleted = false
   </select>
 
@@ -69,8 +69,9 @@
   <!-- プロジェクト登録 -->
   <insert id="createProject" keyProperty="id" useGeneratedKeys="true"
     parameterType="com.portfolio.taskapp.MyTaskManager.domain.entity.Project">
-    INSERT INTO projects (user_id, public_id, project_caption, description, status, is_deleted)
-    VALUES (#{userId}, #{publicId}, #{projectCaption}, #{description}, #{status}, false)
+    INSERT INTO projects (user_account_id, public_id, project_caption, description, status,
+    is_deleted)
+    VALUES (#{userAccountId}, #{publicId}, #{projectCaption}, #{description}, #{status}, false)
   </insert>
 
   <!-- タスク登録 -->

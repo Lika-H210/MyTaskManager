@@ -44,10 +44,10 @@ public interface TaskRepository {
   /**
    * 指定ユーザーIDに紐づくプロジェクト一覧を取得します。
    *
-   * @param userId 内部ユーザーID
+   * @param userAccountId 内部ユーザーID
    * @return プロジェクトのリスト、存在しない場合は空リスト
    */
-  List<Project> findProjectsByUserId(@Param("userId") Integer userId);
+  List<Project> findProjectsByUserId(@Param("userAccountId") Integer userAccountId);
 
   /**
    * 指定プロジェクトIDに紐づくタスク一覧を取得します。
