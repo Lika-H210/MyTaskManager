@@ -1,4 +1,4 @@
-package com.portfolio.taskapp.MyTaskManager.auth.model;
+package com.portfolio.taskapp.MyTaskManager.auth.details;
 
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import java.util.Collection;

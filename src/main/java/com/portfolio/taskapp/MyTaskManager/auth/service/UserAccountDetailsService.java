@@ -1,6 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.auth.service;
 
-import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.auth.details.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount;
 import com.portfolio.taskapp.MyTaskManager.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
