@@ -1,6 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.user.controller;
 
-import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.auth.details.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.InvalidPasswordChangeException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.NotUniqueException;
 import com.portfolio.taskapp.MyTaskManager.exception.custom.RecordNotFoundException;

@@ -1,6 +1,6 @@
 package com.portfolio.taskapp.MyTaskManager.task.controller;
 
-import com.portfolio.taskapp.MyTaskManager.auth.model.UserAccountDetails;
+import com.portfolio.taskapp.MyTaskManager.auth.details.UserAccountDetails;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Project;
 import com.portfolio.taskapp.MyTaskManager.domain.entity.Task;
 import com.portfolio.taskapp.MyTaskManager.task.dto.ProjectRequest;
