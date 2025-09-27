@@ -26,22 +26,6 @@ public interface TaskRepository {
   Integer findUserIdByUserPublicId(@Param("userPublicId") String userPublicId);
 
   /**
-   * 指定されたプロジェクト公開IDに紐づく内部プロジェクトIDを取得します。
-   *
-   * @param projectPublicId プロジェクト公開ID
-   * @return 該当するプロジェクト内部ID、存在しない場合は null
-   */
-  Integer findProjectIdByProjectPublicId(@Param("projectPublicId") String projectPublicId);
-
-  /**
-   * 指定されたタスク公開IDに紐づく内部タスクIDを取得します。
-   *
-   * @param taskPublicId タスク公開ID
-   * @return 該当するタスク内部ID、存在しない場合は null
-   */
-  Integer findTaskIdByTaskPublicId(@Param("taskPublicId") String taskPublicId);
-
-  /**
    * 指定ユーザーIDに紐づくプロジェクト一覧を取得します。
    *
    * @param userAccountId 内部ユーザーID
