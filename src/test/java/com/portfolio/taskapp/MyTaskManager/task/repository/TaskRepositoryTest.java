@@ -36,34 +36,6 @@ class TaskRepositoryTest {
   }
 
   @Test
-  void プロジェクトのpublicIdと紐づくid情報が返されること() {
-    Integer actual = sut.findProjectIdByProjectPublicId("a1111111-bbbb-cccc-dddd-eeeeeeeeeeee");
-
-    assertThat(actual).isEqualTo(1);
-  }
-
-  @Test
-  void 削除済みプロジェクトのpublicIdに紐づくid情報は返されないこと() {
-    Integer actual = sut.findProjectIdByProjectPublicId("a3333333-bbbb-cccc-dddd-eeeeeeeeeeee");
-
-    assertThat(actual).isNull();
-  }
-
-  @Test
-  void タスクのpublicIdと紐づくid情報が返されること() {
-    Integer actual = sut.findTaskIdByTaskPublicId("11111111-aaaa-bbbb-cccc-1234567890ab");
-
-    assertThat(actual).isEqualTo(1);
-  }
-
-  @Test
-  void 削除済みタスクのpublicIdに紐づくid情報は返されないこと() {
-    Integer actual = sut.findTaskIdByTaskPublicId("55555555-eeee-ffff-0000-1234567890ab");
-
-    assertThat(actual).isNull();
-  }
-
-  @Test
   void ユーザーのIdに紐づくプロジェクトのうち論理削除されていないプロジェクトのみ取得できていること() {
     Integer userId = 1;
     List<Project> actual = sut.findProjectsByUserId(userId);
@@ -338,7 +310,7 @@ class TaskRepositoryTest {
     sut.deleteProject(publicId);
 
     // 論理削除後は有効レコードが存在しないためactualにはnullが返る
-    Integer actual = sut.findProjectIdByProjectPublicId(publicId);
+    Project actual = sut.findProjectByProjectPublicId(publicId);
 
     assertThat(actual).isNull();
   }
@@ -350,7 +322,7 @@ class TaskRepositoryTest {
     sut.deleteTask(publicId);
 
     // 論理削除後は有効レコードが存在しないためactualにはnullが返る
-    Integer actual = sut.findTaskIdByTaskPublicId(publicId);
+    Task actual = sut.findTaskByTaskPublicId(publicId);
 
     assertThat(actual).isNull();
   }

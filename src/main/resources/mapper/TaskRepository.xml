@@ -11,20 +11,6 @@
     AND is_deleted = false
   </select>
 
-  <!-- プロジェクト公開IDに紐づくプロジェクト内部ID -->
-  <select id="findProjectIdByProjectPublicId" parameterType="String" resultType="Integer">
-    SELECT id FROM projects
-    WHERE public_id =#{projectPublicId}
-    AND is_deleted = false
-  </select>
-
-  <!-- タスク公開IDに紐づくタスク内部ID -->
-  <select id="findTaskIdByTaskPublicId" parameterType="String" resultType="Integer">
-    SELECT id FROM tasks
-    WHERE public_id =#{taskPublicId}
-    AND is_deleted = false
-  </select>
-
   <!-- プロジェクト一覧取得 -->
   <select id="findProjectsByUserId"
     parameterType="Integer"
