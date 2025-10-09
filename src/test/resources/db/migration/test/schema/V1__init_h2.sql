@@ -1,20 +1,20 @@
-
 CREATE TABLE user_accounts (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id INT NOT NULL AUTO_INCREMENT,
   public_id CHAR(36) NOT NULL,
   user_name VARCHAR(50) NOT NULL,
   email VARCHAR(255) NOT NULL,
   password VARCHAR(255) NOT NULL,
-  is_deleted boolean DEFAULT FALSE,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE (public_id),
-  UNIQUE (email)
+  is_deleted boolean DEFAULT FALSE,
+  PRIMARY KEY (id),
+  UNIQUE (email),
+  UNIQUE (public_id)
 );
 
 CREATE TABLE projects (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_account_id INT NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
+  user_id INT NOT NULL,
   public_id CHAR(36) NOT NULL,
   project_caption VARCHAR(100) NOT NULL,
   description TEXT,
@@ -22,13 +22,13 @@ CREATE TABLE projects (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted boolean DEFAULT FALSE,
-  FOREIGN KEY (user_account_id) REFERENCES user_accounts (id),
-  UNIQUE (public_id)
+  PRIMARY KEY (id),
+  UNIQUE (public_id),
+  CONSTRAINT fk_projects_user FOREIGN KEY (user_id) REFERENCES user_accounts (id)
 );
 
 CREATE TABLE tasks (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  user_account_id INT NOT NULL,
+  id INT NOT NULL AUTO_INCREMENT,
   project_id INT NOT NULL,
   public_id CHAR(36) NOT NULL,
   parent_task_id INT DEFAULT NULL,
@@ -42,8 +42,8 @@ CREATE TABLE tasks (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   is_deleted boolean DEFAULT FALSE,
-  FOREIGN KEY (project_id) REFERENCES projects (id),
-  FOREIGN KEY (parent_task_id) REFERENCES tasks (id),
-  FOREIGN KEY (user_account_id) REFERENCES user_accounts (id),
-  UNIQUE (public_id)
+  PRIMARY KEY (id),
+  UNIQUE (public_id),
+  CONSTRAINT fk_tasks_project FOREIGN KEY (project_id) REFERENCES projects (id),
+  CONSTRAINT fk_tasks_parent FOREIGN KEY (parent_task_id) REFERENCES tasks (id)
 );
