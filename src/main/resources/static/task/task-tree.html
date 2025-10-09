@@ -1,158 +1,178 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>親子タスク</title>
-    <link
+<head>
+  <meta charset="UTF-8"/>
+  <title>親子タスク</title>
+  <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-    />
-    <link href="../css/style.css" rel="stylesheet" />
-  </head>
+  />
+  <link href="../css/style.css" rel="stylesheet"/>
+</head>
 
-  <body class="container mt-5">
-    <div class="form-wrapper">
-      <h2 id="parent-task-name">親子タスク</h2>
+<body class="container mt-5">
+<div class="form-wrapper">
+  <h2 id="parent-task-name">親子タスク</h2>
 
-      <div class="mb-3 p-3 border rounded bg-light">
-        <strong id="parent-task-caption">親タスク: </strong><br />
-        <span id="parent-task-due-date">期限: </span><br />
-        <span id="parent-task-progress">達成度: </span>
-      </div>
+  <div class="mb-3 p-3 border rounded bg-light">
+    <strong id="parent-task-caption">親タスク: </strong><br/>
+    <span id="parent-task-due-date">期限: </span><br/>
+    <span id="parent-task-progress">達成度: </span>
+  </div>
 
-      <table class="table table-bordered">
-        <thead class="table-primary">
-          <tr>
-            <th>タスク</th>
-            <th class="col-with-min-fixed">期限日</th>
-            <th class="col-with-min-fixed">進捗率</th>
-            <th class="col-with-min-fixed">優先度</th>
-            <th class="col-with-min-fixed">編集</th>
-            <th class="col-with-min-fixed">削除</th>
-          </tr>
-        </thead>
-        <tbody id="subtask-body"></tbody>
-      </table>
+  <table class="table table-bordered">
+    <thead class="table-primary">
+    <tr>
+      <th>タスク</th>
+      <th class="col-with-min-fixed">期限日</th>
+      <th class="col-with-min-fixed">進捗率</th>
+      <th class="col-with-min-fixed">優先度</th>
+      <th class="col-with-min-fixed">編集</th>
+      <th class="col-with-min-fixed">削除</th>
+    </tr>
+    </thead>
+    <tbody id="subtask-body"></tbody>
+  </table>
 
-      <button id="create-subtask-btn" class="btn btn-primary">
-        子タスク登録
-      </button>
-      <button type="button" class="btn btn-secondary" id="back-button">
-        戻る
-      </button>
-    </div>
+  <button id="create-subtask-btn" class="btn btn-primary">
+    子タスク登録
+  </button>
+  <button type="button" class="btn btn-secondary" id="back-button">
+    戻る
+  </button>
+</div>
 
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const projectPublicId = params.get("projectPublicId");
-      const parentTaskPublicId = params.get("parentTaskPublicId");
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const projectPublicId = params.get("projectPublicId");
+  const parentTaskPublicId = params.get("parentTaskPublicId");
 
-      // tokenの取得
-      let csrfToken = null;
+  // tokenの取得
+  let csrfToken = null;
 
-      async function getCsrfToken() {
-        if (csrfToken) return csrfToken; // 既に取得済みなら再利用
+  async function getCsrfToken() {
+    if (csrfToken) return csrfToken; // 既に取得済みなら再利用
 
-        try {
-          const res = await fetch("/csrf-token", { credentials: "include" });
-          if (!res.ok) throw new Error("CSRFトークンの取得に失敗しました");
+    try {
+      const res = await fetch("/csrf-token", { credentials: "include" });
+      if (!res.ok) throw new Error("CSRFトークンの取得に失敗しました");
 
-          const data = await res.json();
-          if (!data.token)
-            throw new Error("CSRFトークンがレスポンスに存在しません");
+      const data = await res.json();
+      if (!data.token)
+        throw new Error("CSRFトークンがレスポンスに存在しません");
 
-          csrfToken = data.token;
-          return csrfToken;
-        } catch (err) {
-          console.error("CSRF取得エラー:", err);
-          alert("通信エラーが発生しました。操作をやり直してください。");
-          throw err; // 呼び出し元でも try/catch で処理可能
-        }
-      }
+      csrfToken = data.token;
+      return csrfToken;
+    } catch (err) {
+      console.error("CSRF取得エラー:", err);
+      alert("通信エラーが発生しました。操作をやり直してください。");
+      throw err; // 呼び出し元でも try/catch で処理可能
+    }
+  }
 
-      document.addEventListener("DOMContentLoaded", async () => {
-        try {
-          const res = await fetch(`/task-trees/${parentTaskPublicId}`);
-          if (!res.ok) throw new Error("タスクツリーの取得に失敗しました");
+  document.addEventListener("DOMContentLoaded", async () => {
+    try {
+      const res = await fetch(`/task-trees/${parentTaskPublicId}`);
+      if (!res.ok) throw new Error("タスクツリーの取得に失敗しました");
 
-          const taskTree = await res.json();
-          const parent = taskTree.parentTask;
+      const taskTree = await res.json();
+      const parent = taskTree.parentTask;
 
-          // 親タスク情報を上部に表示
-          document.getElementById("parent-task-caption").textContent =
-            "親タスク名: " + parent.taskCaption;
-          document.getElementById("parent-task-due-date").textContent =
-            "期限: " + (parent.dueDate || "-");
-          document.getElementById("parent-task-progress").textContent =
-            "達成度: " + parent.progress + "%";
+      // 親タスク情報を上部に表示
+      document.getElementById("parent-task-caption").textContent =
+        "親タスク名: " + parent.taskCaption;
+      document.getElementById("parent-task-due-date").textContent =
+        "期限: " + (parent.dueDate || "-");
+      document.getElementById("parent-task-progress").textContent =
+        "達成度: " + parent.progress + "%";
 
-          // 子タスクをテーブルに描画
-          const subtaskBody = document.getElementById("subtask-body");
-          taskTree.subtaskList?.forEach((c) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-              <td>${c.taskCaption}</td>
-              <td>${c.dueDate?.slice(5, 10) || ""}</td>
-              <td>${c.progress}%</td>
-              <td>${c.priority}</td>
-              <td>
-                <a href="/task/edit.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}&taskPublicId=${
-              c.publicId
-            }&from=child"
-                  title="プロジェクト詳細">
-                  📝
-                </a>
-              </td>
-              <td>
-                <button class="btn btn-link p-0 btn-delete" title="削除" style="color:red;">❌</button>
-              </td>
-            `;
-            subtaskBody.appendChild(row);
+      // 子タスクをテーブルに描画
+      const subtaskBody = document.getElementById("subtask-body");
+      taskTree.subtaskList?.forEach((c) => {
+        const row = document.createElement("tr");
+        // タスク名
+        const tdCaption = document.createElement("td");
+        tdCaption.textContent = c.taskCaption ?? "";
+        row.appendChild(tdCaption);
 
-            // 削除ボタン
-            row
-              .querySelector(".btn-delete")
-              .addEventListener("click", async () => {
-                if (!confirm("このタスクを削除しますか？")) return;
+        // 期限（月日部分）
+        const tdDueDate = document.createElement("td");
+        tdDueDate.textContent = c.dueDate?.slice(5, 10) ?? "";
+        row.appendChild(tdDueDate);
 
-                try {
-                  const token = await getCsrfToken();
-                  const res = await fetch(`/tasks/${c.publicId}`, {
-                    method: "DELETE",
-                    headers: { "X-XSRF-TOKEN": token },
-                    credentials: "include",
-                  });
+        // 達成度
+        const tdProgress = document.createElement("td");
+        tdProgress.textContent = (c.progress ?? 0) + "%";
+        row.appendChild(tdProgress);
 
-                  if (res.ok) {
-                    row.remove();
-                  } else {
-                    alert("削除に失敗しました");
-                  }
-                } catch (err) {
-                  console.error(err);
-                  alert("通信エラーが発生しました");
-                }
-              });
-          });
-        } catch (err) {
-          console.error(err);
-          alert("タスクツリーの取得に失敗しました");
-        }
-      });
+        // 優先度
+        const tdPriority = document.createElement("td");
+        tdPriority.textContent = c.priority ?? "";
+        row.appendChild(tdPriority);
 
-      // 子タスク登録ボタン
-      document
-        .getElementById("create-subtask-btn")
-        .addEventListener("click", () => {
-          window.location.href = `/task/create-subtask.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+        // 編集リンク
+        const tdEdit = document.createElement("td");
+        const aEdit = document.createElement("a");
+        aEdit.href = `/task/edit.html?projectPublicId=${encodeURIComponent(projectPublicId)}&parentTaskPublicId=${encodeURIComponent(parentTaskPublicId)}&taskPublicId=${encodeURIComponent(c.publicId)}&from=child`;
+        aEdit.title = "プロジェクト詳細";
+        aEdit.textContent = "📝";
+        tdEdit.appendChild(aEdit);
+        row.appendChild(tdEdit);
+
+        // 削除ボタン
+        const tdDelete = document.createElement("td");
+        const btnDelete = document.createElement("button");
+        btnDelete.className = "btn btn-link p-0 btn-delete";
+        btnDelete.title = "削除";
+        btnDelete.style.color = "red";
+        btnDelete.textContent = "❌";
+        tdDelete.appendChild(btnDelete);
+        row.appendChild(tdDelete);
+
+        subtaskBody.appendChild(row);
+
+        // 削除処理
+        btnDelete.addEventListener("click", async () => {
+          if (!confirm("このタスクを削除しますか？")) return;
+
+          try {
+            const token = await getCsrfToken();
+            const res = await fetch(`/tasks/${c.publicId}`, {
+              method: "DELETE",
+              headers: { "X-XSRF-TOKEN": token },
+              credentials: "include",
+            });
+
+            if (res.ok) {
+              row.remove();
+            } else {
+              alert("削除に失敗しました");
+            }
+          } catch (err) {
+            console.error(err);
+            alert("通信エラーが発生しました");
+          }
         });
-
-      // 戻るボタン（親子タスク一覧へ戻る）
-      document.getElementById("back-button").addEventListener("click", () => {
-        window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
       });
-    </script>
+    } catch (err) {
+      console.error(err);
+      alert("タスクツリーの取得に失敗しました");
+    }
+  });
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  // 子タスク登録ボタン
+  document
+    .getElementById("create-subtask-btn")
+    .addEventListener("click", () => {
+      window.location.href = `/task/create-subtask.html?projectPublicId=${projectPublicId}&parentTaskPublicId=${parentTaskPublicId}`;
+    });
+
+  // 戻るボタン（親子タスク一覧へ戻る）
+  document.getElementById("back-button").addEventListener("click", () => {
+    window.location.href = `/task/task-tree-list.html?projectPublicId=${projectPublicId}`;
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
