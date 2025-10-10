@@ -53,7 +53,6 @@ class TaskControllerIntegrationTest {
   private UserAccountDetails userDetails;
 
   private final Integer USER_ID = 999;
-  private final Integer PROJECT_ID = 9999;
   private final String USER_PUBLIC_ID = "00000000-0000-0000-0000-000000000000";
   private final String PROJECT_PUBLIC_ID = "00000000-0000-0000-0000-111111111111";
   private final String TASK_PUBLIC_ID = "00000000-0000-0000-0000-222222222222";
@@ -61,7 +60,6 @@ class TaskControllerIntegrationTest {
   @BeforeEach
   void setUpAuthentication() {
     UserAccount mockAccount = UserAccount.builder()
-        .id(USER_ID)
         .publicId("00000000-0000-0000-0000-000000000000")
         .build();
     userDetails = new UserAccountDetails(mockAccount);
