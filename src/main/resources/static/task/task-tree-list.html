@@ -64,13 +64,14 @@
     }
   }
 
-  document.addEventListener("DOMContentLoaded", async () => {
+  async function loadTaskTrees() {
     try {
       const res = await fetch(`/projects/${projectPublicId}/task-trees`);
       if (!res.ok) throw new Error("タスク一覧の取得に失敗しました");
 
       const taskTrees = await res.json();
       const tbody = document.getElementById("task-table-body");
+      tbody.innerHTML = "";
 
       taskTrees.forEach((tree) => {
         const parent = tree.parentTask;
@@ -138,8 +139,12 @@
               headers: { "X-XSRF-TOKEN": token },
               credentials: "include",
             });
-            if (delRes.ok) parentRow.remove();
-            else alert("削除に失敗しました");
+
+            if (delRes.ok) {
+              await loadTaskTrees();
+            } else {
+              alert("削除に失敗しました");
+            }
           } catch (err) {
             console.error(err);
             alert("通信エラーが発生しました");
@@ -181,7 +186,9 @@
       console.error(err);
       alert("タスク一覧の取得に失敗しました");
     }
-  });
+  }
+
+  document.addEventListener("DOMContentLoaded", loadTaskTrees);
 
   // 親タスク登録ボタン
   document
