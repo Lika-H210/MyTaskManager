@@ -55,13 +55,13 @@ public class TaskService {
    * プロジェクトが存在しない場合、または取得プロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @return プロジェクト情報
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
-  public Project getProjectByProjectPublicId(String projectPublicId, Integer userId) {
-    return getAuthorizedProject(projectPublicId, userId);
+  public Project getProjectByProjectPublicId(String projectPublicId, String userPublicId) {
+    return getAuthorizedProject(projectPublicId, userPublicId);
   }
 
   /**
@@ -70,13 +70,13 @@ public class TaskService {
    * プロジェクトが存在しない場合、または取得プロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @return 親子タスク一覧
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
-  public List<TaskTree> getTasksByProjectPublicId(String projectPublicId, Integer userId) {
-    Project project = getAuthorizedProject(projectPublicId, userId);
+  public List<TaskTree> getTasksByProjectPublicId(String projectPublicId, String userPublicId) {
+    Project project = getAuthorizedProject(projectPublicId, userPublicId);
 
     List<Task> taskList = repository.findTasksByProjectId(project.getId());
     return converter.convertToTaskTreeList(taskList);
@@ -149,14 +149,14 @@ public class TaskService {
    *
    * @param request         タスク作成リクエスト
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @return 作成されたタスク情報
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
-  public Task createParentTask(TaskRequest request, String projectPublicId, Integer userId) {
-    Project project = getAuthorizedProject(projectPublicId, userId);
+  public Task createParentTask(TaskRequest request, String projectPublicId, String userPublicId) {
+    Project project = getAuthorizedProject(projectPublicId, userPublicId);
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toTask(request, project, publicId);
@@ -197,14 +197,15 @@ public class TaskService {
    *
    * @param request         プロジェクト更新リクエスト
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @return 更新後のプロジェクト情報
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
-  public Project updateProject(ProjectRequest request, String projectPublicId, Integer userId) {
-    Project currentProject = getAuthorizedProject(projectPublicId, userId);
+  public Project updateProject(ProjectRequest request, String projectPublicId,
+      String userPublicId) {
+    Project currentProject = getAuthorizedProject(projectPublicId, userPublicId);
 
     Project updateProject = mapper.toProject(request, currentProject.getUserAccountId(),
         projectPublicId);
@@ -241,13 +242,13 @@ public class TaskService {
    * 削除対象のプロジェクトが存在しない場合、またはプロジェクトがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param projectPublicId プロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
   @Transactional
-  public void deleteProject(String projectPublicId, Integer userId) {
-    getAuthorizedProject(projectPublicId, userId);
+  public void deleteProject(String projectPublicId, String userPublicId) {
+    getAuthorizedProject(projectPublicId, userPublicId);
 
     repository.deleteProject(projectPublicId);
   }
@@ -283,15 +284,16 @@ public class TaskService {
    * 対象の公開IDのプロジェクトの存在確認及び所有者検証を行います。
    *
    * @param projectPublicId 確認対象のプロジェクトの公開ID
-   * @param userId          リクエスト送信ユーザーの内部ID
+   * @param userPublicId    リクエスト送信ユーザーの公開ID
    * @return 対象のプロジェクト情報
    * @throws RecordNotFoundException     プロジェクトが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたプロジェクトの所有者でない場合
    */
-  Project getAuthorizedProject(String projectPublicId, Integer userId) {
+  Project getAuthorizedProject(String projectPublicId, String userPublicId) {
     Project project = Optional.ofNullable(repository.findProjectByProjectPublicId(projectPublicId))
         .orElseThrow(() -> new RecordNotFoundException("project not found"));
 
+    Integer userId = repository.findUserIdByUserPublicId(userPublicId);
     if (!project.getUserAccountId().equals(userId)) {
       throw new InvalidOwnerAccessException(TargetResource.PROJECT);
     }
