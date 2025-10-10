@@ -8,7 +8,7 @@
   <select id="findAccountByEmail"
     parameterType="String"
     resultType="com.portfolio.taskapp.MyTaskManager.domain.entity.UserAccount">
-    SELECT id, public_id, email, password
+    SELECT public_id, email, password
     FROM user_accounts
     WHERE email =#{email} AND is_deleted = false
   </select>

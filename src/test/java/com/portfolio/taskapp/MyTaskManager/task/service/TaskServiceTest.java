@@ -87,8 +87,9 @@ class TaskServiceTest {
         .userAccountId(USER_ID)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
+    sut.getProjectByProjectPublicId(PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
   }
@@ -103,9 +104,10 @@ class TaskServiceTest {
     List<Task> taskList = List.of();
 
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(repository.findTasksByProjectId(PROJECT_ID)).thenReturn(taskList);
 
-    sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_ID);
+    sut.getTasksByProjectPublicId(PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).findTasksByProjectId(PROJECT_ID);
@@ -125,11 +127,12 @@ class TaskServiceTest {
     List<TaskTree> taskTreesList = List.of(taskTree);
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(repository.findTasksByTaskId(TASK_ID)).thenReturn(taskList);
     when(converter.convertToTaskTreeList(taskList)).thenReturn(taskTreesList);
 
     // 実行
-    TaskTree actual = sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
+    TaskTree actual = sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     // 検証
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
@@ -150,9 +153,10 @@ class TaskServiceTest {
     List<TaskTree> taskTreesList = List.of(new TaskTree(), new TaskTree());
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(converter.convertToTaskTreeList(anyList())).thenReturn(taskTreesList);
 
-    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID))
         .isInstanceOf(IllegalStateException.class)
         .hasMessageContaining("TaskTree count mismatch");
   }
@@ -164,8 +168,9 @@ class TaskServiceTest {
         .userAccountId(USER_ID)
         .build();
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
+    sut.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
   }
@@ -199,9 +204,10 @@ class TaskServiceTest {
     Task task = new Task();
 
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(mapper.toTask(eq(request), eq(project), any(String.class))).thenReturn(task);
 
-    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID, USER_ID);
+    Task actual = sut.createParentTask(request, PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toTask(eq(request), eq(project), any(String.class));
@@ -224,9 +230,10 @@ class TaskServiceTest {
     Task task = new Task();
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(parentTask);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(mapper.toSubtask(eq(request), eq(parentTask), anyString())).thenReturn(task);
 
-    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID, USER_ID);
+    Task actual = sut.createSubtask(request, TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toSubtask(eq(request), eq(parentTask), anyString());
@@ -246,9 +253,10 @@ class TaskServiceTest {
     Project updateProject = new Project();
 
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(currentProject);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(mapper.toProject(request, USER_ID, PROJECT_PUBLIC_ID)).thenReturn(updateProject);
 
-    sut.updateProject(request, PROJECT_PUBLIC_ID, USER_ID);
+    sut.updateProject(request, PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(mapper).toProject(request, USER_ID, PROJECT_PUBLIC_ID);
@@ -265,9 +273,10 @@ class TaskServiceTest {
     Task task = new Task();
 
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(currentTask);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
     when(mapper.toUpdateTask(request, currentTask)).thenReturn(task);
 
-    sut.updateTask(request, TASK_PUBLIC_ID, USER_ID);
+    sut.updateTask(request, TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(mapper).toUpdateTask(request, currentTask);
@@ -282,8 +291,9 @@ class TaskServiceTest {
         .build();
 
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    sut.deleteProject(PROJECT_PUBLIC_ID, USER_ID);
+    sut.deleteProject(PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
     verify(repository).deleteProject(PROJECT_PUBLIC_ID);
@@ -295,10 +305,10 @@ class TaskServiceTest {
     Task task = Task.builder()
         .userAccountId(USER_ID)
         .build();
-
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    sut.deleteTask(TASK_PUBLIC_ID, USER_ID);
+    sut.deleteTask(TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
     verify(repository).deleteTask(TASK_PUBLIC_ID);
@@ -311,10 +321,12 @@ class TaskServiceTest {
         .userAccountId(USER_ID)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    Project actual = sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID);
+    Project actual = sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findProjectByProjectPublicId(PROJECT_PUBLIC_ID);
+    verify(repository).findUserIdByUserPublicId(USER_PUBLIC_ID);
     assertThat(actual).isEqualTo(project);
   }
 
@@ -323,7 +335,7 @@ class TaskServiceTest {
   void プロジェクト存在確認においてnullであった場合に適切な例外がThrowされること() {
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("project not found");
   }
@@ -335,8 +347,9 @@ class TaskServiceTest {
         .userAccountId(1000)
         .build();
     when(repository.findProjectByProjectPublicId(PROJECT_PUBLIC_ID)).thenReturn(project);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.getAuthorizedProject(PROJECT_PUBLIC_ID, USER_PUBLIC_ID))
         .isInstanceOf(InvalidOwnerAccessException.class)
         .satisfies(ex -> {
           InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;
@@ -351,10 +364,12 @@ class TaskServiceTest {
         .userAccountId(USER_ID)
         .build();
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    Task actual = sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID);
+    Task actual = sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_PUBLIC_ID);
 
     verify(repository).findTaskByTaskPublicId(TASK_PUBLIC_ID);
+    verify(repository).findUserIdByUserPublicId(USER_PUBLIC_ID);
     assertThat(actual).isEqualTo(task);
   }
 
@@ -363,7 +378,7 @@ class TaskServiceTest {
   void タスク存在確認においてnullであった場合に適切な例外がThrowされること() {
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(null);
 
-    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_PUBLIC_ID))
         .isInstanceOf(RecordNotFoundException.class)
         .hasMessage("task not found");
   }
@@ -375,8 +390,9 @@ class TaskServiceTest {
         .userAccountId(1000)
         .build();
     when(repository.findTaskByTaskPublicId(TASK_PUBLIC_ID)).thenReturn(task);
+    when(repository.findUserIdByUserPublicId(USER_PUBLIC_ID)).thenReturn(USER_ID);
 
-    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_ID))
+    assertThatThrownBy(() -> sut.getAuthorizedTask(TASK_PUBLIC_ID, USER_PUBLIC_ID))
         .isInstanceOf(InvalidOwnerAccessException.class)
         .satisfies(ex -> {
           InvalidOwnerAccessException e = (InvalidOwnerAccessException) ex;

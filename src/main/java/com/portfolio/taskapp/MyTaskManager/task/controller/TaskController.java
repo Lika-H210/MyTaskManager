@@ -113,7 +113,7 @@ public class TaskController {
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
     Project project = service.getProjectByProjectPublicId(projectPublicId,
-        userDetails.getAccount().getId());
+        userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(project);
   }
 
@@ -163,7 +163,8 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    return service.getTasksByProjectPublicId(projectPublicId, userDetails.getAccount().getId());
+    return service.getTasksByProjectPublicId(projectPublicId,
+        userDetails.getAccount().getPublicId());
   }
 
   /**
@@ -212,7 +213,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    return service.getTaskTreeByTaskPublicId(taskPublicId, userDetails.getAccount().getId());
+    return service.getTaskTreeByTaskPublicId(taskPublicId, userDetails.getAccount().getPublicId());
   }
 
   /**
@@ -252,7 +253,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    Task task = service.getTaskByTaskPublicId(taskPublicId, userDetails.getAccount().getId());
+    Task task = service.getTaskByTaskPublicId(taskPublicId, userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(task);
   }
 
@@ -348,7 +349,7 @@ public class TaskController {
       String projectPublicId,
       @Valid @RequestBody TaskRequest request) {
     Task task = service.createParentTask(request, projectPublicId,
-        userDetails.getAccount().getId());
+        userDetails.getAccount().getPublicId());
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
@@ -405,7 +406,8 @@ public class TaskController {
           message = "入力の形式に誤りがあります")
       String taskPublicId,
       @Valid @RequestBody TaskRequest request) {
-    Task task = service.createSubtask(request, taskPublicId, userDetails.getAccount().getId());
+    Task task = service.createSubtask(request, taskPublicId,
+        userDetails.getAccount().getPublicId());
     return ResponseEntity.status(HttpStatus.CREATED).body(task);
   }
 
@@ -463,7 +465,7 @@ public class TaskController {
       String projectPublicId,
       @Valid @RequestBody ProjectRequest request) {
     Project project = service.updateProject(request, projectPublicId,
-        userDetails.getAccount().getId());
+        userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(project);
   }
 
@@ -520,7 +522,7 @@ public class TaskController {
           message = "入力の形式に誤りがあります")
       String taskPublicId,
       @Valid @RequestBody TaskRequest request) {
-    Task task = service.updateTask(request, taskPublicId, userDetails.getAccount().getId());
+    Task task = service.updateTask(request, taskPublicId, userDetails.getAccount().getPublicId());
     return ResponseEntity.ok(task);
   }
 
@@ -567,7 +569,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String projectPublicId) {
-    service.deleteProject(projectPublicId, userDetails.getAccount().getId());
+    service.deleteProject(projectPublicId, userDetails.getAccount().getPublicId());
     return ResponseEntity.noContent().build();
   }
 
@@ -614,7 +616,7 @@ public class TaskController {
       @Pattern(regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
           message = "入力の形式に誤りがあります")
       String taskPublicId) {
-    service.deleteTask(taskPublicId, userDetails.getAccount().getId());
+    service.deleteTask(taskPublicId, userDetails.getAccount().getPublicId());
     return ResponseEntity.noContent().build();
   }
 
