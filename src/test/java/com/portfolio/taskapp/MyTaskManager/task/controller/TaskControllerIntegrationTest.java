@@ -119,7 +119,7 @@ class TaskControllerIntegrationTest {
             .with(user(userDetails)))
         .andExpect(status().isOk());
 
-    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
+    verify(service).getTaskTreeByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID);
   }
 
   @Test
@@ -133,7 +133,7 @@ class TaskControllerIntegrationTest {
         .parentTaskId(90000)
         .build();
 
-    when(service.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID)).thenReturn(task);
+    when(service.getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID)).thenReturn(task);
 
     mockMvc.perform(get("/tasks/{taskPublicId}", TASK_PUBLIC_ID)
             .with(user(userDetails)))
@@ -143,7 +143,7 @@ class TaskControllerIntegrationTest {
         .andExpect(jsonPath("$.projectId").doesNotExist())
         .andExpect(jsonPath("$.parentTaskId").doesNotExist());
 
-    verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_ID);
+    verify(service).getTaskByTaskPublicId(TASK_PUBLIC_ID, USER_PUBLIC_ID);
   }
 
   @Test
@@ -195,7 +195,7 @@ class TaskControllerIntegrationTest {
             .content(json))
         .andExpect(status().isCreated());
 
-    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+    verify(service).createSubtask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_PUBLIC_ID));
   }
 
   @Test
@@ -229,7 +229,7 @@ class TaskControllerIntegrationTest {
             .content(json))
         .andExpect(status().isOk());
 
-    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_ID));
+    verify(service).updateTask(any(TaskRequest.class), eq(TASK_PUBLIC_ID), eq(USER_PUBLIC_ID));
   }
 
   @Test
@@ -307,7 +307,7 @@ class TaskControllerIntegrationTest {
             .with(csrf()))
         .andExpect(status().isNoContent());
 
-    verify(service).deleteTask(TASK_PUBLIC_ID, USER_ID);
+    verify(service).deleteTask(TASK_PUBLIC_ID, USER_PUBLIC_ID);
   }
 
   // TaskRequest生成(正常系)

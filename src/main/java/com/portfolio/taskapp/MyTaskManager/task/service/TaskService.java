@@ -88,14 +88,14 @@ public class TaskService {
    * タスクが存在しない場合、または取得タスクがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param taskPublicId 親タスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @return 該当親子タスク情報
    * @throws RecordNotFoundException     親タスクが存在しない場合
    * @throws IllegalStateException       該当するタスクツリーが1件に特定できない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定された親タスクの所有者でない場合
    */
-  public TaskTree getTaskTreeByTaskPublicId(String taskPublicId, Integer userId) {
-    Task parentTask = getAuthorizedTask(taskPublicId, userId);
+  public TaskTree getTaskTreeByTaskPublicId(String taskPublicId, String userPublicId) {
+    Task parentTask = getAuthorizedTask(taskPublicId, userPublicId);
 
     List<Task> taskList = repository.findTasksByTaskId(parentTask.getId());
     List<TaskTree> taskTreeList = converter.convertToTaskTreeList(taskList);
@@ -113,13 +113,13 @@ public class TaskService {
    * タスクが存在しない場合、または取得タスクがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param taskPublicId タスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @return タスク情報
    * @throws RecordNotFoundException     タスクが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
-  public Task getTaskByTaskPublicId(String taskPublicId, Integer userId) {
-    return getAuthorizedTask(taskPublicId, userId);
+  public Task getTaskByTaskPublicId(String taskPublicId, String userPublicId) {
+    return getAuthorizedTask(taskPublicId, userPublicId);
   }
 
   /**
@@ -173,14 +173,14 @@ public class TaskService {
    *
    * @param request      タスク作成リクエスト
    * @param taskPublicId 親タスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @return 作成された子タスク情報
    * @throws RecordNotFoundException     親タスクが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定された親タスクの所有者でない場合
    */
   @Transactional
-  public Task createSubtask(TaskRequest request, String taskPublicId, Integer userId) {
-    Task parentTask = getAuthorizedTask(taskPublicId, userId);
+  public Task createSubtask(TaskRequest request, String taskPublicId, String userPublicId) {
+    Task parentTask = getAuthorizedTask(taskPublicId, userPublicId);
 
     String publicId = UUID.randomUUID().toString();
     Task task = mapper.toSubtask(request, parentTask, publicId);
@@ -221,14 +221,14 @@ public class TaskService {
    *
    * @param request      タスク更新リクエスト
    * @param taskPublicId タスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @return 更新後のタスク情報
    * @throws RecordNotFoundException     タスクが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
   @Transactional
-  public Task updateTask(TaskRequest request, String taskPublicId, Integer userId) {
-    Task currentTask = getAuthorizedTask(taskPublicId, userId);
+  public Task updateTask(TaskRequest request, String taskPublicId, String userPublicId) {
+    Task currentTask = getAuthorizedTask(taskPublicId, userPublicId);
 
     Task updateTask = mapper.toUpdateTask(request, currentTask);
     repository.updateTask(updateTask);
@@ -259,13 +259,13 @@ public class TaskService {
    * 削除対象のタスクが存在しない場合、またはタスクがリクエストユーザーに属していない場合は例外を送出します。
    *
    * @param taskPublicId タスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @throws RecordNotFoundException     タスクが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
   @Transactional
-  public void deleteTask(String taskPublicId, Integer userId) {
-    getAuthorizedTask(taskPublicId, userId);
+  public void deleteTask(String taskPublicId, String userPublicId) {
+    getAuthorizedTask(taskPublicId, userPublicId);
     repository.deleteTask(taskPublicId);
   }
 
@@ -304,15 +304,16 @@ public class TaskService {
    * 対象の公開IDのタスクの存在確認及び所有者検証を行います。
    *
    * @param taskPublicId 確認対象のタスクの公開ID
-   * @param userId       リクエスト送信ユーザーの内部ID
+   * @param userPublicId リクエスト送信ユーザーの公開ID
    * @return 対象のタスク情報
    * @throws RecordNotFoundException     タスクが存在しない場合
    * @throws InvalidOwnerAccessException 呼び出し元ユーザーが指定されたタスクの所有者でない場合
    */
-  Task getAuthorizedTask(String taskPublicId, Integer userId) {
+  Task getAuthorizedTask(String taskPublicId, String userPublicId) {
     Task task = Optional.ofNullable(repository.findTaskByTaskPublicId(taskPublicId))
         .orElseThrow(() -> new RecordNotFoundException("task not found"));
 
+    Integer userId = repository.findUserIdByUserPublicId(userPublicId);
     if (!task.getUserAccountId().equals(userId)) {
       throw new InvalidOwnerAccessException(TargetResource.TASK);
     }
