@@ -151,12 +151,12 @@ public class UserController {
    */
   @Operation(
       summary = "メルアドレスの更新",
-      description = "アカウント情報（認証情報）のメルアドレスのみを更新します。(公開Idとemailのみ値が返り、その他はnullです)",
+      description = "アカウント情報（認証情報）のメルアドレスのみを更新します。",
       security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "更新に成功した場合",
+              description = "更新に成功した場合(公開Idとemailのみ値が返り、その他はnullです)",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = AccountResponse.class)
@@ -187,12 +187,12 @@ public class UserController {
    */
   @Operation(
       summary = "パスワードの更新",
-      description = "アカウント情報（認証情報）のパスワードのみを更新します。(公開Idのみ値が返り、その他はnullです)",
+      description = "アカウント情報（認証情報）のパスワードのみを更新します。",
       security = @SecurityRequirement(name = "userAuth"),
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "更新に成功した場合",
+              description = "更新に成功した場合(公開Idのみ値が返り、その他はnullです)",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = AccountResponse.class)
