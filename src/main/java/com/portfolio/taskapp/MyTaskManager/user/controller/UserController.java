@@ -120,7 +120,7 @@ public class UserController {
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "アカウント情報の更新に成功した場合",
+              description = "アカウント情報の更新に成功した場合(公開IdとuserNameのみ値が返り、その他はnullです)",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = AccountResponse.class)
@@ -156,7 +156,7 @@ public class UserController {
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "更新に成功した場合",
+              description = "更新に成功した場合(公開Idとemailのみ値が返り、その他はnullです)",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = AccountResponse.class)
@@ -192,7 +192,7 @@ public class UserController {
       responses = {
           @ApiResponse(
               responseCode = "200",
-              description = "更新に成功した場合",
+              description = "更新に成功した場合(公開Idのみ値が返り、その他はnullです)",
               content = @Content(
                   mediaType = "application/json",
                   schema = @Schema(implementation = AccountResponse.class)

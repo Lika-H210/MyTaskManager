@@ -20,7 +20,7 @@ public class AccountRegisterRequest {
   /**
    * ユーザー名。 必須入力。50文字以下。 利用可能な文字は英数字、ひらがな、カタカナ、漢字、スペース、記号（_ -）。
    */
-  @Schema(description = "ユーザー名")
+  @Schema(description = "ユーザー名", example = "テスト太郎")
   @NotBlank(message = "ユーザー名は必須です")
   @Size(max = 50, message = "ユーザー名は50文字以下で入力してください")
   @Pattern(
@@ -32,7 +32,7 @@ public class AccountRegisterRequest {
   /**
    * メールアドレス。 必須入力。メール形式チェック有効。100文字以下。認証に使用されるため、ユニーク制約がかかっています。
    */
-  @Schema(description = "メールアドレス（ユニーク）")
+  @Schema(description = "メールアドレス（ユニーク）", example = "test@ex.com")
   @NotEmpty(message = "メールアドレスは必須です")
   @Email(message = "正しいメールアドレス形式で入力してください")
   @Size(max = 100, message = "メールアドレスは100文字以下で入力してください")
@@ -41,7 +41,7 @@ public class AccountRegisterRequest {
   /**
    * パスワード。 必須入力。8〜50文字の範囲で、半角英数字および一部記号のみ利用可能。
    */
-  @Schema(description = "パスワード")
+  @Schema(description = "パスワード", example = "password")
   @NotEmpty(message = "パスワードは必須です")
   @Size(min = 8, max = 50, message = "パスワードは8文字以上50文字以下で入力してください")
   @Pattern(
