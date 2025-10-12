@@ -20,7 +20,7 @@ public class AccountEmailUpdateRequest {
   /**
    * メールアドレス。 必須入力。形式チェックあり。100文字以下。認証に使用されるため、ユニーク制約がかかっています。
    */
-  @Schema(description = "メールアドレス（ユニーク）")
+  @Schema(description = "メールアドレス（ユニーク）", example = "test@ex.com")
   @NotEmpty(message = "メールアドレスは必須です")
   @Email(message = "正しいメールアドレス形式で入力してください")
   @Size(max = 100, message = "メールアドレスは100文字以下で入力してください")
