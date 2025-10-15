@@ -63,6 +63,8 @@
 
 ### 1. リポジトリをクローン
 
+GitHubからこのリポジトリを任意のフォルダにクローンします。
+
 ```bash
 git clone https://github.com/Lika-H210/MyTaskManager.git
 cd MyTaskManager
@@ -70,19 +72,22 @@ cd MyTaskManager
 
 ### 2. データベースの準備
 
-- MySQLをインストールしてください（バージョン 8.0）  
+- MySQLをインストールします。（バージョン 8.0）  
   https://www.mysql.com/jp/downloads/
-- データベース名：task_management
+- 下記のDBを作成します。<br>
+  データベース名：task_management
 
-### 3. application.propertiesの追記
+### 3. application.properties の変更
 
-以下の情報をクローンファイルの `src/main/resources/application.properties` に追記してください。  
-※ユーザー名 と パスワードは設定した内容を"登録したユーザー名", "登録したパスワード"に反映してください。
+- クローンフォルダ内の`src/main/resources/application.properties` の MySQL と Flyway
+  設定箇所を、下記の内容に置き換えます。  
+  この際、下記の "登録したパスワード" は手順2のMySQLインストール時に設定したパスワードに変更してください。
 
 ```properties
 # MySQL
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.datasource.url=jdbc:mysql://localhost:3306/task_management
-spring.datasource.username=登録したユーザー名
+spring.datasource.username=root
 spring.datasource.password=登録したパスワード
 # Flyway
 spring.flyway.locations=classpath:db/migration/schema,classpath:db/migration/data
@@ -91,17 +96,17 @@ spring.flyway.enabled=true
 
 ### 4. SpringBootを起動
 
+SpringBootを起動します。
+
 ```bash
 ./gradlew bootRun
 ```
 
 **補足:**  
 ポート 8080（Spring Boot）および 3306（MySQL）が他のプロセスで使用されていないことを確認してください。  
-もし既に使用されている場合は、application.properties 内でポート番号を変更してください。
+もし既に使用されている場合は、application.properties 内でポート番号を変更して起動してください。
 
 ### 5. 動作確認
-
-アプリケーション起動後、以下の確認が可能です。
 
 - ブラウザからの動作確認：
   [ログイン画面](http://localhost:8080/login.html)
@@ -110,11 +115,11 @@ spring.flyway.enabled=true
   [Swagger UI](http://localhost:8080/swagger-ui/index.html)
 
 **補足:**
-- デモユーザーを使用したログインも可能です。  
-  ※ Flywayの初期データ投入が有効な場合に限ります。
+
+- ブラウザでの動作確認では、デモユーザーを使用したログインも可能です。
 - デモユーザーでもすべてのAPIを実行可能です。（ユーザーの削除処理を除く）
-- デモユーザー
-    - ID: demo@exampl.com
+- デモユーザー情報：
+    - ID: demo@example.com
     - パスワード: demo_password
 
 </details> 

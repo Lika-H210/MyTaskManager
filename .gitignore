@@ -37,5 +37,5 @@ out/
 ### VS Code ###
 .vscode/
 
-# 設定ファイル
-src/main/resources/application-development.properties
+# 環境変数ファイル
+.env
