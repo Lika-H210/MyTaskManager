@@ -1,8 +1,11 @@
 # MyTaskManager
 
+## はじめに
+
 本リポジトリは、個人ユーザー向けタスク管理アプリのバックエンド実装です。
 
-※デモ用の簡易フロントを同梱しています。
+本リポジトリのコードは学習・ポートフォリオ目的で提供しており、  
+利用に関するトラブル等については責任を負いかねますのでご了承ください。
 
 ## 背景
 
@@ -54,16 +57,65 @@
 ## インストール・起動手順
 
 <details>
-<summary> インストール・起動手順（クリックして展開）</summary>
+<summary> Dockerを利用する場合 </summary>
 
-### はじめに
-
-このプロジェクトのコードは学習・ポートフォリオ目的で提供しています。  
-プロジェクトの実行によって発生したいかなる問題についても責任を負いかねます。
+以下は、Dockerがインストール済みであることを前提にした起動方法です。
 
 ### 1. リポジトリをクローン
 
-GitHubからこのリポジトリを任意のフォルダにクローンします。
+任意のフォルダにリポジトリをクローンします。
+
+```bash
+git clone https://github.com/Lika-H210/MyTaskManager.git
+cd MyTaskManager
+```
+
+### 2. Docker Composeでアプリを起動
+
+```bash
+docker compose up -d
+```
+
+- 初回起動時はコンテナが作成され、DBも構築されます。
+- 既にコンテナが存在する場合は再利用して起動します。
+
+**補足:**
+
+- Spring Boot はポート 8080、MySQL はホスト側 3307 を使用します。
+- 既に使用中の場合は `docker-compose.yml` 内のホスト側ポートを変更してください。
+
+### 3. 動作確認
+
+- ブラウザからの動作確認：http://localhost:8080/login.html
+
+    - 下記デモユーザー情報でのログインも可能です。
+        - Email: demo@example.com
+        - パスワード: demo_password  
+          <br>
+- API仕様書の確認：http://localhost:8080/swagger-ui/index.html
+
+### Docker停止・終了
+
+- 一時的に停止させる場合（再開可能）
+
+```bash
+docker compose stop
+```
+
+- 完全に終了し、コンテナを削除
+
+```bash
+docker compose down
+```
+
+</details> 
+
+<details>
+<summary> Dockerを利用しない場合 </summary>
+
+### 1. リポジトリをクローン
+
+任意のフォルダにリポジトリをクローンします。
 
 ```bash
 git clone https://github.com/Lika-H210/MyTaskManager.git
@@ -108,19 +160,13 @@ SpringBootを起動します。
 
 ### 5. 動作確認
 
-- ブラウザからの動作確認：
-  [ログイン画面](http://localhost:8080/login.html)
+- ブラウザからの動作確認：http://localhost:8080/login.html
 
-- API仕様書の確認：
-  [Swagger UI](http://localhost:8080/swagger-ui/index.html)
-
-**補足:**
-
-- ブラウザでの動作確認では、デモユーザーを使用したログインも可能です。
-- デモユーザーでもすべてのAPIを実行可能です。（ユーザーの削除処理を除く）
-- デモユーザー情報：
-    - ID: demo@example.com
-    - パスワード: demo_password
+    - 下記デモユーザー情報でのログインも可能です。
+        - Email: demo@example.com
+        - パスワード: demo_password  
+          <br>
+- API仕様書の確認：http://localhost:8080/swagger-ui/index.html
 
 </details> 
 
