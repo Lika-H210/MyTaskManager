@@ -44,54 +44,77 @@
 <details>
 <summary> Dockerを利用する場合 </summary>
 
-以下は、Dockerがインストール済みであることを前提にした起動方法です。
+### 前提条件
+
+- Docker Desktop がインストールされていること
+- Docker Desktop を起動しておくこと
 
 ### 1. リポジトリをクローン
 
-任意のフォルダにリポジトリをクローンします。
+- 任意のフォルダにリポジトリをクローンします。
 
 ```bash
 git clone https://github.com/Lika-H210/MyTaskManager.git
 cd MyTaskManager
 ```
 
-### 2. Docker Composeでアプリを起動
+### 2. 環境設定ファイルの作成
+
+- 環境設定ファイルのテンプレートから`.env`を作成します。
+
+```bash
+# macOS / Linux
+cp .env.example .env
+
+# Windows（コマンドプロンプト）
+copy .env.example .env
+```
+
+- 必要に応じ、作成した `.env` 内の `your_password_here` を変更してください。  
+  ※ 変更しない場合もアプリは実行可能です。
+
+**補足:**
+
+- `.env`の作成は、手動でクローンしたプロジェクト直下の `.env.example` をコピーし `.env`
+  という名前にしてもかまいません。
+
+### 3. Docker ComposeでDBを構築
+
+- アプリで使用する MySQL を Docker 上に構築します。
 
 ```bash
 docker compose up -d
 ```
 
-- 初回起動時はコンテナが作成され、DBも構築されます。
-- 既にコンテナが存在する場合は再利用して起動します。
+**補足:**
+
+- Spring Boot はポート 8080、MySQL は 3306 を使用します。
+- 既に上記ポートを使用中の場合はコマンド実行前に `docker-compose.yml`
+  内のホスト側ポート及を未使用のポートに書き換えてください。  
+  例: 3306:3306 → 3307:3306
+
+### 4. アプリの起動
+
+- IDE(IntelliJ IDEAなど)でクローンしたプロジェクトを開きます。
+- 必要に応じ `.env` を環境変数として読み込むよう設定してください。
+- Spring Boot アプリを通常通り実行してください。
 
 **補足:**
 
-- Spring Boot はポート 8080、MySQL はホスト側 3307 を使用します。
-- 既に使用中の場合は `docker-compose.yml` 内のホスト側ポートを変更してください。
+- 手順2 でポートを変更した場合、以下の設定も同じポート番号に変更してください。
+    - MySQL 接続設定：`.env` の `SPRING_DATASOURCE_URL` のポート指定箇所
+    - Spring Boot のアプリケーションポート（必要な場合）：
+      `src/main/resources/application.properties` の `server.port`
 
-### 3. 動作確認
+### 5. 動作確認
 
-- ブラウザからの動作確認：http://localhost:8080/login.html
+- アプリのログイン画面: http://localhost:8080/login.html
 
-    - 下記デモユーザー情報でのログインも可能です。
+    - 以下のデモユーザーでもログイン可能です。
         - Email: demo@example.com
         - パスワード: demo_password  
           <br>
-- API仕様書の確認：http://localhost:8080/swagger-ui/index.html
-
-### Docker停止・終了
-
-- 一時的に停止させる場合（再開可能）
-
-```bash
-docker compose stop
-```
-
-- 完全に終了し、コンテナを削除
-
-```bash
-docker compose down
-```
+- API仕様書（Swagger UI）: http://localhost:8080/swagger-ui/index.html
 
 </details> 
 
@@ -100,7 +123,7 @@ docker compose down
 
 ### 1. リポジトリをクローン
 
-任意のフォルダにリポジトリをクローンします。
+- 任意のフォルダにリポジトリをクローンします。
 
 ```bash
 git clone https://github.com/Lika-H210/MyTaskManager.git
@@ -109,50 +132,50 @@ cd MyTaskManager
 
 ### 2. データベースの準備
 
-- MySQLをインストールします。（バージョン 8.0）  
-  https://www.mysql.com/jp/downloads/
+- MySQLをインストールします。（バージョン 8.0）
 - 下記のDBを作成します。<br>
   データベース名：task_management
 
-### 3. application.properties の変更
+### 3. 環境設定ファイルの作成と環境変数の変更
 
-- クローンフォルダ内の`src/main/resources/application.properties` の MySQL と Flyway
-  設定箇所を、下記の内容に置き換えます。  
-  この際、下記の "登録したパスワード" は手順2のMySQLインストール時に設定したパスワードに変更してください。
-
-```properties
-# MySQL
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-spring.datasource.url=jdbc:mysql://localhost:3306/task_management
-spring.datasource.username=root
-spring.datasource.password=登録したパスワード
-# Flyway
-spring.flyway.locations=classpath:db/migration/schema,classpath:db/migration/data
-spring.flyway.enabled=true
-```
-
-### 4. SpringBootを起動
-
-SpringBootを起動します。
+- 環境設定ファイルのテンプレートから`.env`を作成します。
 
 ```bash
-./gradlew bootRun
+# macOS / Linux
+cp .env.example .env
+
+# Windows（コマンドプロンプト）
+copy .env.example .env
 ```
+
+- 作成した`.env` 内の `your_password_here` を手順2でインストールしたMySQLのパスワードに置き換えてください。
 
 **補足:**
 
-- Spring Boot はポート 8080、MySQL はホスト側 3306 を使用します。
-- 既に使用中の場合は 、application.properties 内でポート番号を変更して起動してください。
+- `.env`の作成は、手動でクローンしたプロジェクト直下の `.env.example` をコピーし `.env`
+  という名前にしてもかまいません。
+
+### 4. SpringBootを起動
+
+- IDE(IntelliJ IDEAなど)でクローンしたプロジェクトを開きます。
+- 必要に応じ `.env` を環境変数として読み込むよう設定してください。
+- Spring Boot アプリを通常通り実行してください。
+
+**補足:**
+
+- Spring Boot はポート 8080、MySQL は 3306 の使用を想定した実装です。
+- 上記ポートが使用できない場合は 、`src/main/resources/application.properties` または `.env.example`
+  内で使用するポート番号を適宜変更して起動してください。
 
 ### 5. 動作確認
 
-- ブラウザからの動作確認：http://localhost:8080/login.html
+- アプリのログイン画面: http://localhost:8080/login.html
 
-    - 下記デモユーザー情報でのログインも可能です。
+    - 以下のデモユーザーでもログイン可能です。
         - Email: demo@example.com
         - パスワード: demo_password  
           <br>
-- API仕様書の確認：http://localhost:8080/swagger-ui/index.html
+- API仕様書（Swagger UI）: http://localhost:8080/swagger-ui/index.html
 
 </details> 
 <br>
@@ -188,7 +211,8 @@ https://github.com/user-attachments/assets/dc03b39c-7189-4070-818d-20423eb3bde3
 <br>
 
 #### メールアドレス更新
-　プロジェクト一覧　→　アカウント一覧 → メールアドレス更新
+
+プロジェクト一覧 → アカウント一覧 → メールアドレス更新
 
 https://github.com/user-attachments/assets/ca24a4c9-864c-4919-b1cc-bb41c9e1b75e
 
@@ -206,10 +230,10 @@ https://github.com/user-attachments/assets/ca24a4c9-864c-4919-b1cc-bb41c9e1b75e
 
 ## 実装機能の概要
 
-- ユーザー認証　　　（ログイン/ログアウト）
+- ユーザー認証 （ログイン/ログアウト）
 - アカウント情報管理（取得 / 登録 / 更新 / 削除）
-- プロジェクト管理　（取得 / 登録 / 更新 / 削除）
-- タスク管理　　　　（取得 / 登録 / 更新 / 削除）
+- プロジェクト管理 （取得 / 登録 / 更新 / 削除）
+- タスク管理 （取得 / 登録 / 更新 / 削除）
   <br>
 
 ### API 概要
